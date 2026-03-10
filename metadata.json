@@ -1,0 +1,9 @@
+{
+  "name": "Remix: Remix: The Syllabus4",
+  "description": "An esoteric archive of tools and shared wisdom for navigating the big stuff in life.",
+  "requestFramePermissions": [
+    "geolocation",
+    "camera",
+    "microphone"
+  ]
+}

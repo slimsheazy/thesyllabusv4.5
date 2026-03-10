@@ -1,0 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=Six+Caps&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,400..700;1,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&display=swap');
+
+@font-face {
+  font-family: 'Kollektif';
+  src: url('https://cdn.jsdelivr.net/gh/B-A-L-L-E/Kollektif@master/Kollektif.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Kollektif';
+  src: url('https://cdn.jsdelivr.net/gh/B-A-L-L-E/Kollektif@master/Kollektif-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Gidole';
+  src: url('https://cdn.jsdelivr.net/gh/andreaslarsen/gidole@master/dist/Gidole-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@import "tailwindcss";
+
+@theme {
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Six Caps", sans-serif;
+  --font-subheading: "Archivo Narrow", sans-serif;
+  --font-sans: "Source Sans 3", sans-serif;
+  --font-serif: "Archivo Narrow", sans-serif;
+  
+  --font-kollektif: "Kollektif", sans-serif;
+  --font-gidole: "Gidole", sans-serif;
+  --font-handwritten: "Homemade Apple", cursive;
+  --font-serif: "Cormorant Garamond", serif;
+  --color-archive-bg: #E4E3E0;
+  --color-archive-ink: #141414;
+  --color-archive-line: rgba(20, 20, 20, 0.1);
+  --color-archive-accent: #F27D26;
+
+  --tracking-wide-custom: 0.11em;
+  --tracking-tight-custom: -0.01em;
+}
+
+@layer base {
+  body {
+    @apply bg-archive-bg text-archive-ink font-sans text-[14pt] antialiased selection:bg-archive-accent selection:text-white;
+  }
+}
+
+@layer components {
+  .data-row {
+    @apply grid grid-cols-[40px_1.5fr_1fr_1fr] p-4 border-b border-archive-line transition-all duration-200 cursor-pointer hover:bg-archive-ink hover:text-archive-bg;
+  }
+  
+  .col-header {
+    @apply font-gidole uppercase tracking-[0.17em] text-[14px] opacity-50;
+  }
+  
+  .data-value {
+    @apply font-mono text-sm tracking-tight;
+  }
+
+  .heading-marker {
+    @apply font-subheading tracking-wide-custom;
+  }
+
+  .handwritten {
+    @apply font-handwritten;
+  }
+
+  .brutalist-button {
+    @apply bg-archive-ink text-archive-bg px-6 py-3 font-gidole uppercase tracking-[0.17em] text-[14px] border border-archive-ink rounded-[2px] transition-all duration-200 cursor-pointer hover:bg-transparent hover:text-archive-ink hover:shadow-lg active:scale-95 disabled:opacity-20 disabled:cursor-not-allowed;
+  }
+
+  .marker-border {
+    @apply border border-archive-line;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-archive-ink/20 rounded-full;
+  }
+
+  .title-main {
+    @apply font-display font-bold uppercase text-[130pt] leading-[0.85] tracking-tight-custom;
+  }
+
+  .subtitle-main {
+    @apply font-kollektif font-bold uppercase text-[22pt] tracking-wide-custom;
+  }
+
+  .label-gidole {
+    @apply font-gidole uppercase tracking-[0.17em] text-[14px];
+  }
+
+  .body-gidole {
+    @apply font-gidole text-[18px] leading-[1.4];
+  }
+}
+
+/* Eclipse Mode - Crafted Transition */
+html {
+  transition: filter 4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.eclipse-mode {
+  filter: invert(0.9) hue-rotate(180deg) sepia(0.4) contrast(1.2) brightness(0.85) saturate(0.8);
+}
+
+.eclipse-mode img, 
+.eclipse-mode video,
+.eclipse-mode [data-no-invert="true"] {
+  filter: invert(1) hue-rotate(180deg) brightness(1.2);
+}
