@@ -296,7 +296,7 @@ export const ZodiacWheel: React.FC<ZodiacWheelProps> = React.memo(({ size: initi
             initial={{ opacity: 0, scale: 0.9, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 10 }}
-            className="absolute z-50 bg-white border border-archive-line p-4 shadow-2xl rounded-xl pointer-events-none min-w-[200px]"
+            className="absolute z-50 bg-white border border-archive-line p-4 shadow-2xl rounded-archive pointer-events-none min-w-[200px]"
             style={{
               left: getCoords(hoveredPlanet.degree, innerRadius + 40).x,
               top: getCoords(hoveredPlanet.degree, innerRadius + 40).y,
@@ -349,7 +349,7 @@ export const ZodiacWheel: React.FC<ZodiacWheelProps> = React.memo(({ size: initi
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="absolute z-50 bg-archive-ink text-archive-bg p-3 shadow-2xl rounded-lg pointer-events-none min-w-[120px]"
+            className="absolute z-50 bg-archive-ink text-archive-bg p-3 shadow-2xl rounded-archive pointer-events-none min-w-[120px]"
             style={{
               left: radius,
               top: radius,

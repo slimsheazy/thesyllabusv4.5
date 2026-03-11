@@ -2,8 +2,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,400..700;1,400..700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&display=swap');
 
 @font-face {
   font-family: 'Kollektif';
@@ -28,37 +26,100 @@
 
 @import "tailwindcss";
 
+/* 
+  ========================================
+  VARIABLES & THEME
+  ========================================
+*/
 @theme {
+  /* Fonts */
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --font-display: "Six Caps", sans-serif;
   --font-subheading: "Archivo Narrow", sans-serif;
   --font-sans: "Source Sans 3", sans-serif;
   --font-serif: "Archivo Narrow", sans-serif;
-  
   --font-kollektif: "Kollektif", sans-serif;
   --font-gidole: "Gidole", sans-serif;
-  --font-handwritten: "Homemade Apple", cursive;
-  --font-serif: "Cormorant Garamond", serif;
+
+  /* Colors */
   --color-archive-bg: #E4E3E0;
   --color-archive-ink: #141414;
   --color-archive-line: rgba(20, 20, 20, 0.1);
   --color-archive-accent: #F27D26;
 
+  /* Spacing & Tracking */
   --tracking-wide-custom: 0.11em;
   --tracking-tight-custom: -0.01em;
+  
+  /* Radii */
+  --radius-archive: 2px;
+  --radius-archive-lg: 12px;
+  --radius-archive-xl: 24px;
 }
 
+/* 
+  ========================================
+  BASE STYLES
+  ========================================
+*/
 @layer base {
   body {
     @apply bg-archive-bg text-archive-ink font-sans text-[14pt] antialiased selection:bg-archive-accent selection:text-white;
+    transition: background-color 1s ease, color 1s ease;
   }
 }
 
+/* 
+  ========================================
+  REUSABLE COMPONENTS
+  ========================================
+*/
 @layer components {
+  /* --- Buttons --- */
+  .brutalist-button {
+    @apply bg-archive-ink text-archive-bg px-6 py-3 font-gidole uppercase tracking-[0.17em] text-[14px] border border-archive-ink rounded-archive transition-all duration-200 cursor-pointer hover:bg-transparent hover:text-archive-ink hover:shadow-lg active:scale-95 disabled:opacity-20 disabled:cursor-not-allowed;
+  }
+
+  .icon-button {
+    @apply p-2 rounded-full hover:bg-archive-ink/5 transition-colors text-archive-ink/40 hover:text-archive-ink;
+  }
+
+  /* --- Cards & Containers --- */
+  .archive-card {
+    @apply bg-white border border-archive-line shadow-sm hover:shadow-md transition-all duration-300 rounded-archive-lg overflow-hidden;
+  }
+
+  .archive-card-interactive {
+    @apply bg-white border border-archive-line shadow-sm rounded-archive-lg overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:border-archive-accent/30 hover:-translate-y-1 relative;
+  }
+
   .data-row {
     @apply grid grid-cols-[40px_1.5fr_1fr_1fr] p-4 border-b border-archive-line transition-all duration-200 cursor-pointer hover:bg-archive-ink hover:text-archive-bg;
   }
-  
+
+  /* --- Forms --- */
+  .archive-input {
+    @apply w-full bg-white border border-archive-line p-4 text-lg font-serif italic outline-none focus:border-archive-accent shadow-sm rounded-archive-lg transition-all;
+  }
+
+  .archive-label {
+    @apply text-[10px] font-mono uppercase opacity-40 block mb-2 tracking-widest;
+  }
+
+  .archive-form-group {
+    @apply space-y-2;
+  }
+
+  /* --- Modals & Overlays --- */
+  .modal-overlay {
+    @apply fixed inset-0 z-[5000] flex items-center justify-center p-6 bg-archive-ink/80 backdrop-blur-sm;
+  }
+
+  .modal-container {
+    @apply relative bg-archive-bg border border-archive-line p-8 max-w-md w-full rounded-archive-xl shadow-2xl space-y-6;
+  }
+
+  /* --- Typography Patterns --- */
   .col-header {
     @apply font-gidole uppercase tracking-[0.17em] text-[14px] opacity-50;
   }
@@ -72,26 +133,11 @@
   }
 
   .handwritten {
-    @apply font-handwritten;
-  }
-
-  .brutalist-button {
-    @apply bg-archive-ink text-archive-bg px-6 py-3 font-gidole uppercase tracking-[0.17em] text-[14px] border border-archive-ink rounded-[2px] transition-all duration-200 cursor-pointer hover:bg-transparent hover:text-archive-ink hover:shadow-lg active:scale-95 disabled:opacity-20 disabled:cursor-not-allowed;
-  }
-
-  .marker-border {
-    @apply border border-archive-line;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar {
-    @apply w-1;
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-archive-ink/20 rounded-full;
+    @apply font-sans italic;
   }
 
   .title-main {
-    @apply font-display font-bold uppercase text-[130pt] leading-[0.85] tracking-tight-custom;
+    @apply font-display font-bold uppercase text-[60pt] sm:text-[100pt] md:text-[130pt] leading-[0.85] tracking-tight-custom;
   }
 
   .subtitle-main {
@@ -105,19 +151,67 @@
   .body-gidole {
     @apply font-gidole text-[18px] leading-[1.4];
   }
+
+  /* --- Utilities --- */
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-archive-ink/20 rounded-full;
+  }
 }
 
-/* Eclipse Mode - Crafted Transition */
-html {
-  transition: filter 4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
+/* 
+  ========================================
+  ECLIPSE MODE (DARK)
+  ========================================
+*/
 .eclipse-mode {
-  filter: invert(0.9) hue-rotate(180deg) sepia(0.4) contrast(1.2) brightness(0.85) saturate(0.8);
+  --color-archive-bg: #0A0A0A;
+  --color-archive-ink: #F5F2ED;
+  --color-archive-line: rgba(245, 242, 237, 0.1);
+  --color-archive-accent: #6366f1;
 }
 
-.eclipse-mode img, 
-.eclipse-mode video,
-.eclipse-mode [data-no-invert="true"] {
-  filter: invert(1) hue-rotate(180deg) brightness(1.2);
+.eclipse-mode body {
+  background-color: var(--color-archive-bg);
+  color: var(--color-archive-ink);
+}
+
+.eclipse-mode .bg-archive-bg {
+  background-color: var(--color-archive-bg);
+}
+
+.eclipse-mode .bg-white {
+  background-color: #121212;
+}
+
+.eclipse-mode .border-archive-line {
+  border-color: var(--color-archive-line);
+}
+
+.eclipse-mode .text-archive-ink {
+  color: var(--color-archive-ink);
+}
+
+.eclipse-mode .bg-archive-bg\/95 {
+  background-color: rgba(10, 10, 10, 0.95);
+}
+
+.eclipse-mode .bg-archive-bg\/80 {
+  background-color: rgba(10, 10, 10, 0.8);
+}
+
+.eclipse-mode input,
+.eclipse-mode textarea {
+  background-color: #1A1A1A;
+  color: var(--color-archive-ink);
+}
+
+.eclipse-mode .shadow-sm,
+.eclipse-mode .shadow-md,
+.eclipse-mode .shadow-lg,
+.eclipse-mode .shadow-xl,
+.eclipse-mode .shadow-2xl {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }

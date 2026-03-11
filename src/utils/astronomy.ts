@@ -2,6 +2,9 @@ import {
   Body, 
   GeoVector,
   Ecliptic,
+  MoonPhase,
+  SearchRiseSet,
+  Observer,
 } from 'astronomy-engine';
 import { PlanetPosition, Aspect } from '../types';
 
@@ -36,6 +39,54 @@ export const BODIES = [
 
 export const getAllPlanetPositions = (date: Date): PlanetPosition[] => {
   return BODIES.map(body => getPlanetPosition(body, date));
+};
+
+export const getMoonPhase = (date: Date) => {
+  const phase = MoonPhase(date);
+  let name = "";
+  if (phase < 45) name = "New Moon";
+  else if (phase < 90) name = "Waxing Crescent";
+  else if (phase < 135) name = "First Quarter";
+  else if (phase < 180) name = "Waxing Gibbous";
+  else if (phase < 225) name = "Full Moon";
+  else if (phase < 270) name = "Waning Gibbous";
+  else if (phase < 315) name = "Last Quarter";
+  else name = "Waning Crescent";
+  
+  return { phase, name };
+};
+
+const CHALDEAN_ORDER = ['Saturn', 'Jupiter', 'Mars', 'Sun', 'Venus', 'Mercury', 'Moon'];
+const DAY_RULERS = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn']; // Sun=0 (Sunday)
+
+export const getPlanetaryHour = (date: Date, lat: number, lng: number) => {
+  const observer = new Observer(lat, lng, 0);
+  const sunrise = SearchRiseSet(Body.Sun, observer, 1, date, 1);
+  const sunset = SearchRiseSet(Body.Sun, observer, -1, date, 1);
+  
+  if (!sunrise || !sunset) return null;
+
+  const dayLength = sunset.date.getTime() - sunrise.date.getTime();
+  const hourLength = dayLength / 12;
+  const isDay = date >= sunrise.date && date <= sunset.date;
+  
+  const dayOfWeek = date.getDay(); // 0-6
+  const dayRuler = DAY_RULERS[dayOfWeek];
+  const startIndex = CHALDEAN_ORDER.indexOf(dayRuler);
+  
+  let currentHour = 0;
+  if (isDay) {
+    currentHour = Math.floor((date.getTime() - sunrise.date.getTime()) / hourLength);
+  } else {
+    // Simplified night hour calculation
+    const nightLength = 24 * 60 * 60 * 1000 - dayLength;
+    const nightHourLength = nightLength / 12;
+    const timeSinceSunset = date.getTime() - sunset.date.getTime();
+    currentHour = Math.floor(timeSinceSunset / nightHourLength) + 12;
+  }
+
+  const ruler = CHALDEAN_ORDER[(startIndex + currentHour) % 7];
+  return { ruler, hour: (currentHour % 12) + 1, isDay };
 };
 
 const ASPECTS_CONFIG = [

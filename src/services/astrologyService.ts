@@ -1,9 +1,10 @@
-import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
+import { Type } from "@google/genai";
 import { DateTime } from "luxon";
 import { extractJSON } from "../utils/jsonUtils";
 import { calculateLifePath } from "../utils/numerologyUtils";
 import { getAllPlanetPositions, findAspects } from "../utils/astronomy";
 import { BirthChartAnalysis, HoraryAnswer, TransitNotification } from "../types";
+import { geminiService } from "./geminiService";
 
 export interface BirthData {
   date: string;
@@ -33,7 +34,7 @@ export const analyzeBirthChart = async (data: BirthData): Promise<BirthChartAnal
   
   ASTRONOMICAL DATA (Calculated):
   ${positionsString}
-
+  
   CRITICAL ACCURACY PROTOCOL:
   1. GEOLOCATION: Identify the exact coordinates (lat/lng) for "${data.location}".
   2. HISTORICAL CHRONOLOGY: Research the specific time zone and Daylight Saving Time (DST) rules for "${data.location}" on the date ${data.date}. 
@@ -61,9 +62,6 @@ export const analyzeBirthChart = async (data: BirthData): Promise<BirthChartAnal
       "calculationNotes": "Brief explanation of the UTC conversion used"
     }
   }`;
-
-  const maxRetries = 2;
-  let attempt = 0;
 
   const schema = {
     type: Type.OBJECT,
@@ -108,31 +106,12 @@ export const analyzeBirthChart = async (data: BirthData): Promise<BirthChartAnal
     required: ["sunSign", "moonSign", "risingSign", "summary", "traits", "chartData", "metadata"]
   };
 
+  const maxRetries = 2;
+  let attempt = 0;
+
   while (attempt <= maxRetries) {
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error("Gemini request timed out")), 120000);
-      });
-
-      const response = await Promise.race([
-        ai.models.generateContent({
-          model: "gemini-3.1-pro-preview",
-          contents: prompt,
-          config: {
-            responseMimeType: "application/json",
-            responseSchema: schema
-          }
-        }),
-        timeoutPromise
-      ]) as GenerateContentResponse;
-
-      if (!response || !response.text) {
-        throw new Error("Empty response from Gemini");
-      }
-
-      const result = extractJSON<BirthChartAnalysis>(response.text);
+      const result = await geminiService.generateJson<BirthChartAnalysis>(prompt, schema, "gemini-3.1-pro-preview");
       
       // Post-processing to ensure no "Unknown" values
       if (result.sunSign === "Unknown") result.sunSign = "Calculating...";
@@ -176,7 +155,6 @@ export const analyzeBirthChart = async (data: BirthData): Promise<BirthChartAnal
 };
 
 export const getHoraryAnswer = async (question: string, location: string): Promise<HoraryAnswer> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   const now = new Date();
   const offset = -now.getTimezoneOffset() / 60;
   const prompt = `As an expert horary astrologer, answer the following question: "${question}". 
@@ -185,19 +163,29 @@ export const getHoraryAnswer = async (question: string, location: string): Promi
   Avoid mystical jargon. Focus on logical deductions and clear advice.
   Format the response as a JSON object with fields: answer (string), explanation (string), and keyPlanets (array of objects with name and role).`;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
-    contents: prompt,
-    config: {
-      responseMimeType: "application/json"
-    }
-  });
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      answer: { type: Type.STRING },
+      explanation: { type: Type.STRING },
+      keyPlanets: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            name: { type: Type.STRING },
+            role: { type: Type.STRING }
+          }
+        }
+      }
+    },
+    required: ["answer", "explanation", "keyPlanets"]
+  };
 
-  return extractJSON<HoraryAnswer>(response.text);
+  return geminiService.generateJson<HoraryAnswer>(prompt, schema);
 };
 
 export const getTransitNotifications = async (data: BirthData): Promise<TransitNotification[]> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   const dt = DateTime.fromISO(`${data.date}T${data.time}`, { zone: data.timezone });
   const birthDate = dt.toJSDate();
   const now = new Date();
@@ -217,6 +205,24 @@ export const getTransitNotifications = async (data: BirthData): Promise<TransitN
     .sort((a, b) => a.orb - b.orb)
     .slice(0, 5);
 
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      notifications: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            message: { type: Type.STRING },
+            type: { type: Type.STRING, enum: ["info", "warning", "success"] }
+          },
+          required: ["message", "type"]
+        }
+      }
+    },
+    required: ["notifications"]
+  };
+
   if (significantAspects.length === 0) {
     // If no exact aspects, just look for general transits (planets in signs)
     const currentSigns = currentPositions.map(p => `${p.name} in ${p.sign}`).join(', ');
@@ -229,12 +235,8 @@ export const getTransitNotifications = async (data: BirthData): Promise<TransitN
     MANDATORY: Start each message with the specific astrological event.
     Format the response as a JSON object with a field "notifications" which is an array of objects with "message" (string) and "type" (one of "info", "warning", "success").`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: prompt,
-      config: { responseMimeType: "application/json" }
-    });
-    return extractJSON<{ notifications: TransitNotification[] }>(response.text).notifications || [];
+    const result = await geminiService.generateJson<{ notifications: TransitNotification[] }>(prompt, schema);
+    return result.notifications || [];
   }
 
   // 5. Interpret exact aspects
@@ -254,19 +256,79 @@ export const getTransitNotifications = async (data: BirthData): Promise<TransitN
   
   Format the response as a JSON object with a field "notifications" which is an array of objects with "message" (string) and "type" (one of "info", "warning", "success").`;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
-    contents: prompt,
-    config: {
-      responseMimeType: "application/json"
-    }
-  });
+  const result = await geminiService.generateJson<{ notifications: TransitNotification[] }>(prompt, schema);
+  return result.notifications || [];
+};
 
-  try {
-    const json = extractJSON<{ notifications: TransitNotification[] }>(response.text);
-    return json.notifications || [];
-  } catch (e) {
-    console.error("Failed to parse transit notifications", e);
-    return [];
-  }
+export const getCurrentSky = async (): Promise<BirthChartAnalysis> => {
+  const now = new Date();
+  const realPositions = getAllPlanetPositions(now);
+  const positionsString = realPositions.map(p => `${p.name}: ${p.sign} ${p.degree.toFixed(2)}°`).join(', ');
+
+  const prompt = `Analyze the current planetary configuration (The "Now" Chart).
+  Current Time: ${now.toISOString()}
+  
+  ASTRONOMICAL DATA (Calculated):
+  ${positionsString}
+  
+  Task:
+  Provide a high-level analysis of the collective energy right now.
+  
+  Return the analysis in this JSON format:
+  {
+    "sunSign": "string",
+    "moonSign": "string",
+    "risingSign": "string (Use 'Unknown' as rising depends on location)",
+    "summary": "string (Markdown, analytical and grounded tone)",
+    "traits": ["string", "string", ...],
+    "chartData": {
+      "ascendant": 0,
+      "planets": [
+        { "name": "string", "degree": number (0-360), "sign": "string" }
+      ]
+    },
+    "metadata": {
+      "verifiedUtcOffset": 0,
+      "isDstActive": false,
+      "calculationNotes": "Collective transit analysis"
+    }
+  }`;
+
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      sunSign: { type: Type.STRING },
+      moonSign: { type: Type.STRING },
+      risingSign: { type: Type.STRING },
+      summary: { type: Type.STRING },
+      traits: { type: Type.ARRAY, items: { type: Type.STRING } },
+      chartData: {
+        type: Type.OBJECT,
+        properties: {
+          ascendant: { type: Type.NUMBER },
+          planets: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                name: { type: Type.STRING },
+                degree: { type: Type.NUMBER },
+                sign: { type: Type.STRING }
+              }
+            }
+          }
+        }
+      },
+      metadata: {
+        type: Type.OBJECT,
+        properties: {
+          verifiedUtcOffset: { type: Type.NUMBER },
+          isDstActive: { type: Type.BOOLEAN },
+          calculationNotes: { type: Type.STRING }
+        }
+      }
+    }
+  };
+
+  return geminiService.generateJson<BirthChartAnalysis>(prompt, schema);
 };

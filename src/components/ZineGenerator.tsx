@@ -8,15 +8,45 @@ interface ZineGeneratorProps {
   onClose: () => void;
 }
 
+type ZineTheme = 'CLASSIC' | 'MINIMAL' | 'OCCULT';
+
 export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
   const { 
     dreams, horaryHistory, synchronicityHistory, akashicHistory, moodLogs, userIdentity 
   } = useSyllabusStore();
   const [isExporting, setIsExporting] = useState(false);
+  const [theme, setTheme] = useState<ZineTheme>('CLASSIC');
   const zineRef = useRef<HTMLDivElement>(null);
 
   const currentMonth = new Date().toLocaleString('default', { month: 'long' });
   const currentYear = new Date().getFullYear();
+
+  const themeStyles = {
+    CLASSIC: {
+      bg: '#F5F2ED',
+      border: 'border-black/20',
+      accent: 'text-archive-accent',
+      font: 'font-serif',
+      pattern: 'paper-fibers'
+    },
+    MINIMAL: {
+      bg: '#FFFFFF',
+      border: 'border-zinc-200',
+      accent: 'text-zinc-900',
+      font: 'font-sans',
+      pattern: 'none'
+    },
+    OCCULT: {
+      bg: '#141414',
+      border: 'border-white/10',
+      accent: 'text-archive-accent',
+      font: 'font-serif',
+      pattern: 'dark-matter',
+      text: 'text-archive-bg'
+    }
+  };
+
+  const currentStyle = themeStyles[theme];
 
   const monthData = useMemo(() => {
     const now = new Date();
@@ -67,7 +97,17 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
             <BookOpen className="text-archive-accent" />
             <div>
               <h2 className="font-serif italic text-xl">Personal Almanac Generator</h2>
-              <p className="text-[10px] uppercase tracking-widest opacity-40">Monthly Zine Format • {currentMonth} {currentYear}</p>
+              <div className="flex gap-2 mt-1">
+                {(['CLASSIC', 'MINIMAL', 'OCCULT'] as const).map(t => (
+                  <button 
+                    key={t}
+                    onClick={() => setTheme(t)}
+                    className={`text-[8px] font-mono uppercase tracking-widest px-2 py-0.5 border transition-all ${theme === t ? 'bg-archive-ink text-archive-bg border-archive-ink' : 'border-archive-line opacity-40 hover:opacity-100'}`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -101,27 +141,28 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
             <div 
               id="zine-content" 
               ref={zineRef}
-              className="bg-[#F5F2ED] text-archive-ink shadow-2xl p-0 overflow-hidden border-[12px] border-white relative"
+              className={`shadow-2xl p-0 overflow-hidden border-[12px] border-white relative transition-colors duration-500 ${theme === 'OCCULT' ? 'text-archive-bg' : 'text-archive-ink'}`}
               style={{ 
                 width: '210mm', 
                 minHeight: '297mm', 
                 margin: '0 auto',
-                backgroundImage: `url("https://www.transparenttextures.com/patterns/paper-fibers.png")`,
-                backgroundBlendMode: 'multiply'
+                backgroundColor: currentStyle.bg,
+                backgroundImage: currentStyle.pattern !== 'none' ? `url("https://www.transparenttextures.com/patterns/${currentStyle.pattern}.png")` : 'none',
+                backgroundBlendMode: theme === 'OCCULT' ? 'screen' : 'multiply'
               }}
             >
               {/* Page 1: Cover */}
-              <div className="h-[148.5mm] border-b border-dashed border-black/20 p-12 flex flex-col justify-between relative">
+              <div className={`h-[148.5mm] border-b border-dashed ${currentStyle.border} p-12 flex flex-col justify-between relative`}>
                 <div className="absolute top-0 right-0 p-8 opacity-5 text-9xl font-sans">☊</div>
                 <div className="space-y-4">
-                  <div className="h-px w-12 bg-archive-ink" />
+                  <div className={`h-px w-12 ${theme === 'OCCULT' ? 'bg-archive-bg' : 'bg-archive-ink'}`} />
                   <p className="text-[10px] uppercase tracking-[0.5em] font-mono">The Syllabus Chronicle</p>
                 </div>
                 
                 <div className="space-y-6">
-                  <h1 className="text-7xl font-serif italic leading-none">Personal<br />Almanac</h1>
+                  <h1 className={`text-7xl ${currentStyle.font} italic leading-none`}>Personal<br />Almanac</h1>
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-[1px] bg-archive-ink/20" />
+                    <div className={`h-12 w-[1px] ${theme === 'OCCULT' ? 'bg-white/10' : 'bg-archive-ink/20'}`} />
                     <div>
                       <p className="text-sm font-mono uppercase tracking-widest">{userIdentity || 'The Observer'}</p>
                       <p className="text-[10px] opacity-40 uppercase tracking-widest">{currentMonth} {currentYear}</p>
@@ -134,20 +175,20 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
                     Vol. 01 • No. {new Date().getMonth() + 1}<br />
                     Archived Resonance Data
                   </div>
-                  <div className="w-16 h-16 border border-archive-ink/20 flex items-center justify-center">
-                    <span className="text-xs font-serif italic">SYL</span>
+                  <div className={`w-16 h-16 border ${theme === 'OCCULT' ? 'border-white/10' : 'border-archive-ink/20'} flex items-center justify-center`}>
+                    <span className={`text-xs ${currentStyle.font} italic`}>SYL</span>
                   </div>
                 </div>
               </div>
 
               {/* Page 2: Summary & Moods */}
-              <div className="h-[148.5mm] border-b border-dashed border-black/20 p-12 grid grid-cols-2 gap-12">
-                <div className="space-y-8 border-r border-dashed border-black/10 pr-12">
+              <div className={`h-[148.5mm] border-b border-dashed ${currentStyle.border} p-12 grid grid-cols-2 gap-12`}>
+                <div className={`space-y-8 border-r border-dashed ${currentStyle.border} pr-12`}>
                   <h2 className="text-xs font-mono uppercase tracking-[0.3em] border-b border-black/10 pb-2">Monthly Resonance</h2>
                   <div className="space-y-6">
                     <div className="space-y-1">
                       <p className="text-[9px] uppercase opacity-40">Total Records</p>
-                      <p className="text-3xl font-serif italic">
+                      <p className={`text-3xl ${currentStyle.font} italic`}>
                         {monthData.dreams.length + monthData.readings.length + monthData.synchronicities.length + monthData.akashic.length}
                       </p>
                     </div>
@@ -156,7 +197,7 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
                       <div className="space-y-2">
                         {monthData.moods.slice(0, 5).map((m, i) => (
                           <div key={i} className="flex justify-between items-center text-[10px]">
-                            <span className="font-serif italic">{m.mood}</span>
+                            <span className={`${currentStyle.font} italic`}>{m.mood}</span>
                             <span className="font-mono opacity-40">{new Date(m.date).toLocaleDateString()}</span>
                           </div>
                         ))}
@@ -171,7 +212,7 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
                     The archive records {monthData.dreams.length} nocturnal visions and {monthData.readings.length} inquiries into the hidden order.
                   </p>
                   <div className="pt-8">
-                    <div className="w-full aspect-square border border-dashed border-black/10 flex items-center justify-center p-4">
+                    <div className={`w-full aspect-square border border-dashed ${currentStyle.border} flex items-center justify-center p-4`}>
                       <div className="text-[8px] font-mono uppercase opacity-20 text-center">
                         [ Signature / Seal ]
                       </div>
@@ -181,7 +222,7 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
               </div>
 
               {/* Page 3: Dreams */}
-              <div className="h-[148.5mm] border-b border-dashed border-black/20 p-12">
+              <div className={`h-[148.5mm] border-b border-dashed ${currentStyle.border} p-12`}>
                 <h2 className="text-xs font-mono uppercase tracking-[0.3em] border-b border-black/10 pb-4 mb-8 flex justify-between items-center">
                   <span>Nocturnal Visions</span>
                   <span className="opacity-40">{monthData.dreams.length} Records</span>
@@ -193,7 +234,7 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
                         <span className="text-[8px] font-mono uppercase opacity-40">Vision {i + 1}</span>
                         <span className="text-[8px] font-mono opacity-40">{new Date(dream.date).toLocaleDateString()}</span>
                       </div>
-                      <p className="font-serif italic text-sm leading-relaxed line-clamp-4">
+                      <p className={`${currentStyle.font} italic text-sm leading-relaxed line-clamp-4`}>
                         "{dream.text}"
                       </p>
                     </div>
@@ -214,7 +255,7 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
                     <div key={i} className="space-y-4">
                       <div className="space-y-1">
                         <p className="text-[8px] font-mono uppercase opacity-40">Inquiry: {reading.question}</p>
-                        <p className="handwritten text-sm text-archive-accent">Outcome: {reading.outcome}</p>
+                        <p className={`handwritten text-sm ${currentStyle.accent}`}>Outcome: {reading.outcome}</p>
                       </div>
                       <p className="text-[10px] italic opacity-70 leading-relaxed">
                         {reading.judgment}
@@ -222,13 +263,13 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
                     </div>
                   ))}
                   
-                  <div className="pt-12 border-t border-dashed border-black/10">
+                  <div className={`pt-12 border-t border-dashed ${currentStyle.border}`}>
                     <div className="flex justify-between items-end">
                       <div className="space-y-2">
                         <p className="text-[8px] font-mono uppercase opacity-40">Archive Verification</p>
                         <div className="flex gap-1">
                           {Array.from({ length: 12 }).map((_, i) => (
-                            <div key={i} className="w-1 h-1 bg-archive-ink/20 rounded-full" />
+                            <div key={i} className={`w-1 h-1 ${theme === 'OCCULT' ? 'bg-white/10' : 'bg-archive-ink/20'} rounded-full`} />
                           ))}
                         </div>
                       </div>

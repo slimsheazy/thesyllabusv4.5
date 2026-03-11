@@ -50,6 +50,7 @@ interface SyllabusState {
   horaryHistory: (HoraryAnalysis & { id: string; date: string; question: string; location: string })[];
   synchronicityHistory: (SynchronicityEntry & { id: string; date: string })[];
   akashicHistory: AkashicEntry[];
+  oracleMessages: { role: 'user' | 'assistant'; content: string; timestamp: number }[];
   
   // Pagination / Selective Loading
   visibleDreamsCount: number;
@@ -87,6 +88,8 @@ interface SyllabusState {
   addAkashicEntry: (query: string, insight: string) => void;
   updateAkashicEntry: (id: string, updates: Partial<Omit<AkashicEntry, 'id' | 'date'>>) => void;
   removeAkashicEntry: (id: string) => void;
+  addOracleMessage: (message: { role: 'user' | 'assistant'; content: string }) => void;
+  clearOracleMessages: () => void;
   
   // Pagination Actions
   loadMoreDreams: () => void;
@@ -117,6 +120,7 @@ export const useSyllabusStore = create<SyllabusState>()(
       horaryHistory: [],
       synchronicityHistory: [],
       akashicHistory: [],
+      oracleMessages: [],
       visibleDreamsCount: 10,
       pinnedTools: [],
 
@@ -139,6 +143,7 @@ export const useSyllabusStore = create<SyllabusState>()(
         horaryHistory: [],
         synchronicityHistory: [],
         akashicHistory: [],
+        oracleMessages: [],
         pinnedTools: []
       }),
 
@@ -277,6 +282,12 @@ export const useSyllabusStore = create<SyllabusState>()(
       removeAkashicEntry: (id) => set((state) => ({
         akashicHistory: state.akashicHistory.filter(a => a.id !== id)
       })),
+      
+      addOracleMessage: (message) => set((state) => ({
+        oracleMessages: [...state.oracleMessages, { ...message, timestamp: Date.now() }]
+      })),
+
+      clearOracleMessages: () => set({ oracleMessages: [] }),
 
       loadMoreDreams: () => set((state) => ({ visibleDreamsCount: state.visibleDreamsCount + 10 })),
       resetVisibleDreams: () => set({ visibleDreamsCount: 10 }),

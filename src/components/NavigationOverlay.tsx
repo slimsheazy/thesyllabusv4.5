@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { X, Sun, Moon, MapPin, Calendar, Clock, User, Settings2, Check, Bell, Trash2, Pin, PinOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { X, Sun, Moon, MapPin, Calendar, Clock, User, Settings2, Check, Bell, Trash2, Pin, PinOff, Search, Book, Brain, AlertTriangle } from 'lucide-react';
 import { useSyllabusStore } from '../store';
 import { Tooltip } from './Tooltip';
+import { useSeekerLevel } from '../hooks/useSeekerLevel';
 
 import { TOOL_CATEGORIES, ALL_TOOLS } from '../constants/tools';
 
@@ -13,24 +15,30 @@ interface NavigationOverlayProps {
 
 export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, onClose, onNavigate }) => {
   const { 
-    isEclipseMode, toggleEclipseMode, calculationsRun, 
+    isEclipseMode, toggleEclipseMode, 
     userIdentity, userBirthday, userBirthTime, userBirthTimezone, userLocation, 
     isCalibrated, setUserIdentity, setUserBirthday, setUserBirthTime, setUserBirthTimezone, setUserLocation,
     transitNotifications, markNotificationRead, clearNotifications,
-    pinnedTools, togglePinnedTool
+    pinnedTools, togglePinnedTool, resetAllData
   } = useSyllabusStore();
+
+  const { level, resonance, progress, calculationsRun } = useSeekerLevel();
   
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [manualLocation, setManualLocation] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [detecting, setDetecting] = useState(false);
+  const [quickSearch, setQuickSearch] = useState('');
 
-  const level = calculationsRun >= 25 ? "Expert Seeker" : 
-                calculationsRun >= 15 ? "Deep Diver" : 
-                calculationsRun >= 10 ? "Regular Visitor" : 
-                calculationsRun >= 5 ? "Curious Student" : "Newcomer";
+  const handleReset = () => {
+    resetAllData();
+    onNavigate("HOME");
+    onClose();
+    setShowResetConfirm(false);
+  };
 
   const categories = TOOL_CATEGORIES;
   const pinnedItems = ALL_TOOLS.filter(tool => pinnedTools.includes(tool.page));
@@ -217,18 +225,58 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
           </section>
 
           <div className="flex justify-between items-center mb-10 pb-4 border-b border-archive-line">
-            <div className="space-y-1">
-              <div className="handwritten text-[10px] text-archive-ink opacity-40 uppercase tracking-widest">Seeker Level</div>
+            <div className="space-y-2 flex-1 mr-8">
+              <div className="flex justify-between items-end">
+                <div className="handwritten text-[10px] text-archive-ink opacity-40 uppercase tracking-widest">Seeker Level</div>
+                <div className="text-[9px] font-mono opacity-40">{calculationsRun} / 50</div>
+              </div>
+              <div className="h-1.5 w-full bg-archive-ink/5 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  className="h-full bg-archive-accent"
+                />
+              </div>
               <div className="heading-marker text-xl">{level}</div>
             </div>
             <div className="text-right">
-              <div className="handwritten text-[10px] text-archive-ink opacity-40 uppercase tracking-widest">Syllabus Access</div>
-              <div className="heading-marker text-xl">{calculationsRun}</div>
+              <div className="handwritten text-[10px] text-archive-ink opacity-40 uppercase tracking-widest">Resonance</div>
+              <div className="heading-marker text-xl">{resonance}%</div>
             </div>
           </div>
 
           <div className="space-y-16">
-            {pinnedItems.length > 0 && (
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
+                <input 
+                  type="text" 
+                  placeholder="Quick find a record..." 
+                  value={quickSearch}
+                  onChange={(e) => setQuickSearch(e.target.value)}
+                  className="w-full bg-white border border-archive-line p-4 pl-12 text-sm font-serif italic outline-none focus:border-archive-accent shadow-sm rounded-xl"
+                />
+              </div>
+              {quickSearch && (
+                <div className="space-y-1 pl-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                  {ALL_TOOLS.filter(t => t.name.toLowerCase().includes(quickSearch.toLowerCase())).map((item, i) => (
+                    <button 
+                      key={i}
+                      onClick={() => { onNavigate(item.page); setQuickSearch(''); }} 
+                      className="w-full text-left handwritten text-lg text-archive-ink hover:text-archive-accent py-1.5 px-4 rounded-md hover:bg-archive-ink/5 transition-colors flex justify-between items-center"
+                    >
+                      <span>{item.name}</span>
+                      <span className="text-[8px] uppercase opacity-40">Jump →</span>
+                    </button>
+                  ))}
+                  {ALL_TOOLS.filter(t => t.name.toLowerCase().includes(quickSearch.toLowerCase())).length === 0 && (
+                    <p className="handwritten text-sm opacity-40 italic py-2">No records match your query.</p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {pinnedItems.length > 0 && !quickSearch && (
               <div className="space-y-4">
                 <div className="flex items-center gap-3 border-b border-archive-accent/30 pb-2">
                   <span className="text-2xl font-sans text-archive-accent">★</span>
@@ -256,6 +304,39 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                 </ul>
               </div>
             )}
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 border-b border-archive-line pb-2">
+                <span className="text-2xl font-sans text-archive-ink opacity-40">☖</span>
+                <span className="heading-marker text-2xl text-archive-ink uppercase tracking-wide">Core Systems</span>
+              </div>
+              <ul className="space-y-1 pl-6">
+                <li>
+                  <button 
+                    onClick={() => onNavigate("MASTER_ARCHIVE")} 
+                    className="w-full text-left handwritten text-lg text-archive-ink hover:text-archive-accent py-1.5 px-4 rounded-md hover:bg-archive-ink/5 transition-colors flex items-center gap-3"
+                  >
+                    <Clock size={16} className="opacity-40" /> Master Archive
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => onNavigate("LEXICON")} 
+                    className="w-full text-left handwritten text-lg text-archive-ink hover:text-archive-accent py-1.5 px-4 rounded-md hover:bg-archive-ink/5 transition-colors flex items-center gap-3"
+                  >
+                    <Book size={16} className="opacity-40" /> Lexicon of Discovery
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => onNavigate("ORACLE_VIEW")} 
+                    className="w-full text-left handwritten text-lg text-archive-ink hover:text-archive-accent py-1.5 px-4 rounded-md hover:bg-archive-ink/5 transition-colors flex items-center gap-3"
+                  >
+                    <Brain size={16} className="opacity-40" /> Consult Librarian
+                  </button>
+                </li>
+              </ul>
+            </div>
 
             {categories.map((cat, idx) => (
               <div key={idx} className="space-y-4">
@@ -286,7 +367,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
               </div>
             ))}
             
-            <div className="pt-8 mt-8 border-t border-archive-line">
+            <div className="pt-8 mt-8 border-t border-archive-line space-y-4">
               <button onClick={toggleEclipseMode} className="w-full flex items-center justify-between group p-3 hover:bg-archive-ink/5 rounded-xl transition-all">
                 <div className="flex items-center gap-3">
                   {isEclipseMode ? <Moon size={20} className="text-archive-accent" /> : <Sun size={20} className="text-archive-accent" />}
@@ -296,10 +377,61 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                   <div className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full transition-all duration-300 ${isEclipseMode ? "left-[calc(100%-1.2rem)] bg-archive-bg" : "left-1 bg-archive-ink"}`} />
                 </div>
               </button>
+
+              <button 
+                onClick={() => setShowResetConfirm(true)}
+                className="w-full flex items-center gap-3 p-3 text-red-500/40 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all group"
+              >
+                <AlertTriangle size={20} />
+                <span className="handwritten text-lg italic">Reset Archive</span>
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Reset Confirmation Modal */}
+      <AnimatePresence>
+        {showResetConfirm && (
+          <div className="modal-overlay">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowResetConfirm(false)}
+              className="absolute inset-0"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="modal-container"
+            >
+              <div className="flex items-center gap-4 text-red-500">
+                <AlertTriangle size={32} />
+                <h3 className="font-serif italic text-2xl">Irreversible Action</h3>
+              </div>
+              <p className="handwritten text-lg italic opacity-60 leading-relaxed">
+                This will permanently erase all your recorded resonances, dreams, and insights. The Syllabus will be wiped clean. Are you absolutely sure?
+              </p>
+              <div className="flex gap-4 pt-4">
+                <button 
+                  onClick={() => setShowResetConfirm(false)}
+                  className="flex-1 px-6 py-3 border border-archive-line font-mono uppercase text-[10px] tracking-widest hover:bg-archive-ink/5 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleReset}
+                  className="flex-1 px-6 py-3 bg-red-500 text-white font-mono uppercase text-[10px] tracking-widest hover:bg-red-600 transition-colors shadow-lg"
+                >
+                  Erase All
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

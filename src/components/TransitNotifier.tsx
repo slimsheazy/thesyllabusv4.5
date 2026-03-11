@@ -42,6 +42,20 @@ export const TransitNotifier: React.FC = () => {
     checkTransits();
   }, [userBirthday, userBirthTime, userLocation, lastTransitCheck]);
 
+  // Auto-dismiss unread notifications after 8 seconds
+  useEffect(() => {
+    const unread = transitNotifications?.filter(n => !n.isRead) || [];
+    if (unread.length === 0) return;
+
+    const timers = unread.map(notification => {
+      return setTimeout(() => {
+        markNotificationRead(notification.id);
+      }, 8000);
+    });
+
+    return () => timers.forEach(clearTimeout);
+  }, [transitNotifications, markNotificationRead]);
+
   const unreadCount = transitNotifications?.filter(n => !n.isRead).length || 0;
 
   if (!transitNotifications || transitNotifications.length === 0) return null;
