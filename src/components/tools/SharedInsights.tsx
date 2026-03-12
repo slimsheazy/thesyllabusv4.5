@@ -4,6 +4,7 @@ import { Quote, RefreshCw, Plus, Loader2, Send, Users, MessageSquare } from 'luc
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { ToolLayout } from '../shared/ToolLayout';
+import { ReadAloudButton } from '../shared/ReadAloudButton';
 
 interface QuoteWallProps {
   onBack: () => void;
@@ -151,6 +152,9 @@ export const SharedInsights: React.FC<QuoteWallProps> = ({ onBack }) => {
                   className="archive-card p-8 relative group hover:shadow-xl transition-all duration-500"
                 >
                   <Quote className="absolute top-4 right-4 w-6 h-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity" />
+                  <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ReadAloudButton text={quote.text} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
+                  </div>
                   <p className="font-serif italic text-2xl leading-relaxed text-archive-ink mb-12">
                     "{quote.text}"
                   </p>

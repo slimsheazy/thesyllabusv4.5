@@ -19,7 +19,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     items: [
       { name: "Horary", page: "HORARY", desc: "Specific answers based on the moment of inquiry." },
       { name: "Tarot Reading", page: "TAROT", desc: "Traditional card layouts for clarity and guidance." },
-      { name: "The Oracle", page: "ORACLE", desc: "A tool for psychological reflection and insight." },
+      { name: "The Oracle", page: "ORACLE", desc: "Visual and conceptual insights from language." },
       { name: "Lenormand Spinner", page: "LENORMAND", desc: "A practical 3-card system for quick answers." },
       { name: "Tea Leaf Reading", page: "TEA_LEAF", desc: "Reading patterns and symbols in tea leaves." },
       { name: "Sabian Symbols", page: "SABIAN", desc: "Symbolic meanings for each degree of the zodiac." },
@@ -34,7 +34,8 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
       { name: "The Birth Map", page: "BIRTH_CHART", desc: "Analysis of your astrological chart at birth." },
       { name: "Life Path Reader", page: "NUMEROLOGY", desc: "Insights from your birth date and name numbers." },
       { name: "Dream Journal", page: "DREAM_JOURNAL", desc: "Record and analyze recurring themes in your dreams." },
-      { name: "Emotional Resonance", page: "MOOD", desc: "Track and visualize your emotional patterns." },
+      { name: "Mood Tracker", page: "MOOD", desc: "Log and analyze your emotional patterns." },
+      { name: "Death Clock", page: "DEATH_CLOCK", desc: "Calculate biological age and projected longevity using the Gompertz-Makeham formula." },
       { name: "The Hall of Records", page: "AKASHIC", desc: "A database for storing and retrieving insights." },
       { name: "The Book of Life", page: "BOOK_OF_LIFE", desc: "Your personal collection of saved records." },
     ]
@@ -47,6 +48,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
       { name: "Daily Rituals", page: "RITUAL", desc: "Simple habits for focus and clarity." },
       { name: "Lost Item Finder", page: "LOST_ITEM", desc: "Techniques to help locate misplaced objects." },
       { name: "Create a Sigil", page: "SIGIL", desc: "Design symbols to represent your goals." },
+      { name: "Crash Simulator", page: "CRASH_SIMULATOR", desc: "A worst-case scenario planner using FMEA to prioritize contingency plans." },
       { name: "Name to Number", page: "GEMATRIA", desc: "Calculate numerical values of words." },
       { name: "Check Your Home", page: "FLYING_STAR", desc: "Analyze the energy flow in your living space." },
       { name: "Cosmic Prophecy", page: "MAD_LIBS", desc: "Generate short narratives based on your inputs." },

@@ -18,21 +18,53 @@ export const ReadAloudButton: React.FC<ReadAloudButtonProps> = ({ text, classNam
     triggerClick();
     if (isSpeaking) {
       if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
+        // For AudioContext, we don't use audioRef.current as HTMLAudioElement
+        // but we can store the source node if we want to stop it.
+        // However, for simplicity, I'll just use a flag.
       }
+      window.dispatchEvent(new CustomEvent('stop-archive-speech'));
       setIsSpeaking(false);
       return;
     }
 
     setIsLoading(true);
     try {
-      const audioUrl = await geminiService.generateSpeech(text);
-      if (audioUrl) {
-        const audio = new Audio(audioUrl);
-        audioRef.current = audio;
-        audio.onended = () => setIsSpeaking(false);
-        audio.play();
+      const base64Audio = await geminiService.generateSpeech(text);
+      if (base64Audio) {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+        const binaryString = window.atob(base64Audio);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+
+        // PCM 16-bit is 2 bytes per sample
+        const pcmData = new Int16Array(bytes.buffer);
+        const audioBuffer = audioContext.createBuffer(1, pcmData.length, 24000);
+        const channelData = audioBuffer.getChannelData(0);
+
+        for (let i = 0; i < pcmData.length; i++) {
+          channelData[i] = pcmData[i] / 32768.0;
+        }
+
+        const source = audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(audioContext.destination);
+        
+        const stopHandler = () => {
+          source.stop();
+          setIsSpeaking(false);
+        };
+        
+        window.addEventListener('stop-archive-speech', stopHandler, { once: true });
+        
+        source.onended = () => {
+          setIsSpeaking(false);
+          window.removeEventListener('stop-archive-speech', stopHandler);
+        };
+
+        source.start();
         setIsSpeaking(true);
       }
     } catch (error) {

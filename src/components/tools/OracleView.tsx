@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Send, Brain, Loader2, User, Sparkles, Trash2, MessageSquare, History } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { geminiService } from '../../services/geminiService';
+import { ReadAloudButton } from '../shared/ReadAloudButton';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -53,16 +54,16 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
         - Recent Synchronicity: ${synchronicityHistory[0]?.event || 'None'}
       `;
 
-      const prompt = `You are the Master Librarian of the Archive. You are wise, slightly cryptic, but profoundly practical. 
-      You help seekers understand the patterns in their Syllabus.
+      const prompt = `You are the Master Librarian of the Archive. You are a practical, analytical guide. 
+      You help seekers understand the patterns in their Syllabus using straightforward, objective observations.
       
       ${context}
       
       Seeker's Question: ${input}
       
-      Respond in the 'Archive/Syllabus' aesthetic: serif-style language, italicized insights, and a focus on resonance and patterns. 
-      If the seeker asks about their data, refer to the context provided above.
-      Keep responses concise and evocative.`;
+      Respond in a clear, neighborly, and grounded tone. Avoid all mystical, cryptic, or flowery language. 
+      Focus on real-world patterns and practical insights derived from the seeker's data.
+      Keep responses concise and direct.`;
 
       const text = await geminiService.generateText(prompt);
 
@@ -139,11 +140,16 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
                     ? 'bg-archive-ink text-archive-bg' 
                     : 'bg-white border border-archive-line shadow-sm'
                 }`}>
-                  <div className="flex items-center gap-2 mb-3 opacity-40">
-                    {msg.role === 'user' ? <User size={12} /> : <Brain size={12} />}
-                    <span className="text-[9px] font-mono uppercase tracking-widest">
-                      {msg.role === 'user' ? 'Seeker' : 'Librarian'}
-                    </span>
+                  <div className="flex items-center justify-between gap-2 mb-3 opacity-40">
+                    <div className="flex items-center gap-2">
+                      {msg.role === 'user' ? <User size={12} /> : <Brain size={12} />}
+                      <span className="text-[9px] font-mono uppercase tracking-widest">
+                        {msg.role === 'user' ? 'Seeker' : 'Librarian'}
+                      </span>
+                    </div>
+                    {msg.role === 'assistant' && (
+                      <ReadAloudButton text={msg.content} className="!p-0 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-40 hover:opacity-100" />
+                    )}
                   </div>
                   <p className={`font-serif italic text-lg leading-relaxed ${msg.role === 'user' ? '' : 'text-archive-ink'}`}>
                     {msg.content}

@@ -30,25 +30,9 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
     setShowInterpretation(false);
     
     try {
-      const prompt = `You are a master of Tasseography (tea leaf reading). 
-      The seeker is ${profile.isMe ? 'the user' : 'someone else'} born on ${profile.birthday || 'an unknown date'}.
-      
-      First, describe a specific, evocative pattern formed by the tea leaves in the bottom of a white ceramic cup. 
-      Then, provide a deep, poetic, and insightful interpretation of this pattern as it relates to the seeker's destiny.
-      
-      Format the response as:
-      VISION: [A short, vivid description of the pattern, e.g., "A skeletal key entwined with a blooming jasmine vine"]
-      INTERPRETATION: [A 60-80 word poetic and insightful reading]
-      
-      Use the "Archive/Syllabus" aesthetic: serif, italic, slightly cryptic but deeply resonant.`;
-
-      const text = await geminiService.generateText(prompt);
-
-      const visionMatch = text?.match(/VISION:\s*(.*)/i);
-      const interpretationMatch = text?.match(/INTERPRETATION:\s*([\s\S]*)/i);
-
-      setVision(visionMatch ? visionMatch[1].trim() : "A swirling mist of leaves");
-      setReading(interpretationMatch ? interpretationMatch[1].trim() : text);
+      const result = await geminiService.getTeaLeafReading(profile);
+      setVision(result.vision);
+      setReading(result.interpretation);
       
       recordCalculation();
       triggerSuccess();
@@ -58,6 +42,63 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const Steam = () => (
+    <div className="absolute -top-12 left-1/2 -translate-x-1/2 flex gap-4">
+      {[...Array(3)].map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, y: 20, scale: 0.5 }}
+          animate={{ 
+            opacity: [0, 0.4, 0], 
+            y: [-20, -60], 
+            scale: [0.5, 1.2, 1.5],
+            x: [0, (i - 1) * 10, (i - 1) * 20]
+          }}
+          transition={{ 
+            duration: 3, 
+            repeat: Infinity, 
+            delay: i * 0.8,
+            ease: "easeOut"
+          }}
+          className="w-8 h-12 bg-white/20 blur-xl rounded-full"
+        />
+      ))}
+    </div>
+  );
+
+  const Leaf = ({ i }: { i: number }) => {
+    const shapes = [
+      "M 0 0 C 5 5 5 15 0 20 C -5 15 -5 5 0 0", // Basic leaf
+      "M 0 0 Q 10 5 0 20 Q -10 5 0 0", // Pointy leaf
+      "M 0 0 C 10 0 10 20 0 20 C -10 20 -10 0 0 0", // Round leaf
+      "M 0 0 L 5 10 L 0 20 L -5 10 Z" // Diamond fragment
+    ];
+    const shape = shapes[i % shapes.length];
+    const size = Math.random() * 10 + 5;
+    const rotation = Math.random() * 360;
+    const top = Math.random() * 80 + 10;
+    const left = Math.random() * 80 + 10;
+    const opacity = Math.random() * 0.4 + 0.4;
+
+    return (
+      <motion.svg
+        initial={{ opacity: 0, scale: 0, rotate: rotation - 20 }}
+        animate={{ opacity, scale: 1, rotate: rotation }}
+        transition={{ delay: i * 0.03, type: "spring", stiffness: 100 }}
+        viewBox="-15 -5 30 30"
+        className="absolute text-archive-ink"
+        style={{ 
+          width: `${size}px`,
+          height: `${size * 1.5}px`,
+          top: `${top}%`,
+          left: `${left}%`,
+        }}
+      >
+        <path d={shape} fill="currentColor" />
+      </motion.svg>
+    );
   };
 
   return (
@@ -80,6 +121,7 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
             >
               <div className="space-y-6">
                 <div className="relative w-64 h-64 mx-auto">
+                  <Steam />
                   <div className="absolute inset-0 bg-white rounded-full border-4 border-archive-line shadow-xl overflow-hidden">
                     <div className="absolute inset-4 rounded-full border border-archive-line/20" />
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5" />
@@ -109,6 +151,7 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
               className="flex flex-col items-center justify-center py-40 gap-8"
             >
               <div className="relative w-48 h-48 mx-auto">
+                <Steam />
                 <div className="absolute inset-0 bg-white rounded-full border-4 border-archive-line shadow-lg overflow-hidden">
                   <motion.div 
                     animate={{ rotate: 360 }}
@@ -145,21 +188,8 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
                 <div className="relative w-64 h-64 bg-white rounded-full border-8 border-archive-line shadow-inner overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-tr from-archive-bg/50 to-transparent" />
                   <div className="absolute inset-0 p-8">
-                    {[...Array(20)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 0.6, scale: 1 }}
-                        transition={{ delay: i * 0.05 }}
-                        className="absolute bg-archive-ink rounded-full"
-                        style={{ 
-                          width: `${Math.random() * 8 + 2}px`,
-                          height: `${Math.random() * 15 + 5}px`,
-                          top: `${Math.random() * 80 + 10}%`,
-                          left: `${Math.random() * 80 + 10}%`,
-                          transform: `rotate(${Math.random() * 360}deg)`
-                        }}
-                      />
+                    {[...Array(24)].map((_, i) => (
+                      <Leaf key={i} i={i} />
                     ))}
                   </div>
                 </div>

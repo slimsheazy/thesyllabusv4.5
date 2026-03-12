@@ -11,6 +11,7 @@ import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 import { ProfileSelector } from '../shared/ProfileSelector';
+import Markdown from 'react-markdown';
 
 interface LostItemFinderProps {
   onBack: () => void;
@@ -54,6 +55,7 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
   const [item, setItem] = useState('');
   const [seedNumber, setSeedNumber] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState<string>('');
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [horaryDetails, setHoraryDetails] = useState<{ significator: string; house: number; sign: string } | null>(null);
   const [numerologyNumber, setNumerologyNumber] = useState<number | null>(null);
@@ -85,14 +87,22 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
     const now = new Date();
 
     try {
-      const planets = await getPlanetaryPositions(now, lat, lng);
-      const cusps = await getHouseCusps(now, lat, lng);
+      setLoadingStep('Calculating planetary positions...');
+      const [planets, cusps] = await Promise.all([
+        getPlanetaryPositions(now, lat, lng),
+        getHouseCusps(now, lat, lng)
+      ]);
       
       setChartData({
-        planets: planets.map((p: any) => ({ name: p.name, degree: p.longitude })),
+        planets: planets.map((p: any) => ({ 
+          name: p.name, 
+          degree: p.longitude,
+          sign: p.sign 
+        })),
         ascendant: cusps[0]
       });
 
+      setLoadingStep('Analyzing horary significators...');
       const secondHouseSign = getSign(cusps[1]);
       const significatorName = getRuler(secondHouseSign);
       const significator = planets.find((p: any) => p.name === significatorName) || planets[0];
@@ -105,6 +115,7 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
         sign: significatorSign
       });
 
+      setLoadingStep('Calculating numerical vibration...');
       let num: number;
       if (seedNumber && !isNaN(parseInt(seedNumber))) {
         num = (parseInt(seedNumber) % 81) || 81;
@@ -122,7 +133,15 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
         signMeaning: SIGN_MEANINGS[significatorSign]
       };
 
-      const data = await geminiService.findLostItem(item, astroData, num);
+      setLoadingStep('Synthesizing cosmic data...');
+      
+      // Add a timeout to the AI call to prevent indefinite hanging
+      const dataPromise = geminiService.findLostItem(item, astroData, num);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("The cosmic archive is taking too long to respond.")), 20000)
+      );
+      
+      const data = await Promise.race([dataPromise, timeoutPromise]) as any;
       
       setSuggestion(data.interpretation || "The archive is hazy. Look where you last felt peace.");
       setChecklist((data.checklist || []).map((t: string) => ({ text: t, checked: false })));
@@ -131,9 +150,10 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
       triggerSuccess();
     } catch (error) {
       console.error("Error finding item:", error);
-      setSuggestion("The cosmic signal is weak. Try again in a moment.");
+      setSuggestion(error instanceof Error ? error.message : "The cosmic signal is weak. Try again in a moment.");
     } finally {
       setLoading(false);
+      setLoadingStep('');
     }
   };
 
@@ -196,8 +216,8 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
 
             <button 
               onClick={handleFind}
-              disabled={loading || !item || !profile.location.lat}
-              className={`brutalist-button w-full py-5 text-xl mt-8 transition-all ${loading || !item || !profile.location.lat ? "opacity-30" : ""}`}
+              disabled={loading || !item}
+              className={`brutalist-button w-full py-5 text-xl mt-8 transition-all ${loading || !item ? "opacity-30" : ""}`}
             >
               {loading ? "CONSULTING..." : "FIND ITEM"}
             </button>
@@ -218,7 +238,9 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
                   <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
                   <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">☉</div>
                 </div>
-                <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Triangulating the resonance...</span>
+                <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">
+                  {loadingStep || "Triangulating the resonance..."}
+                </span>
               </motion.div>
             ) : suggestion ? (
               <motion.div 
@@ -243,9 +265,9 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
                     <ReadAloudButton text={suggestion} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                   </div>
                   
-                  <p className="font-serif italic text-2xl leading-relaxed text-archive-ink mb-8">
-                    "{suggestion}"
-                  </p>
+                  <div className="font-serif italic text-2xl leading-relaxed text-archive-ink mb-8">
+                    <Markdown>{suggestion}</Markdown>
+                  </div>
                   
                   {chartData && (
                     <div className="flex justify-center py-8 border-t border-archive-line">

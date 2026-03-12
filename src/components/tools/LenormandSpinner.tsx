@@ -7,6 +7,7 @@ import { Type } from "@google/genai";
 import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
+import Markdown from 'react-markdown';
 
 const LENORMAND_CARDS = [
   'rider', 'clover', 'ship', 'house', 'tree', 'clouds', 'snake', 'coffin', 
@@ -173,9 +174,9 @@ export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) =>
                         </div>
                         <ReadAloudButton text={reading} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                       </div>
-                      <p className="font-serif italic text-2xl md:text-3xl leading-relaxed text-archive-ink">
-                        "{reading}"
-                      </p>
+                      <div className="font-serif italic text-2xl md:text-3xl leading-relaxed text-archive-ink">
+                        <Markdown>{reading}</Markdown>
+                      </div>
                     </div>
                   </motion.div>
                 ) : (

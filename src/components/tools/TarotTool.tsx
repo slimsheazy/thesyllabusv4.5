@@ -235,9 +235,9 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
                 <h3 className="text-xl font-serif italic">{drawnCards[hoveredCard].name}</h3>
                 <p className="text-xs opacity-60 italic mb-2">{CELTIC_CROSS_POSITIONS[hoveredCard].description}</p>
                 <div className="h-px bg-archive-line opacity-20 my-2" />
-                <p className="text-sm leading-relaxed">
-                  {cardInterpretations[hoveredCard] || (drawnCards[hoveredCard].isReversed ? drawnCards[hoveredCard].reversedMeaning : drawnCards[hoveredCard].uprightMeaning)}
-                </p>
+                <div className="text-sm leading-relaxed">
+                  <Markdown>{cardInterpretations[hoveredCard] || (drawnCards[hoveredCard].isReversed ? drawnCards[hoveredCard].reversedMeaning : drawnCards[hoveredCard].uprightMeaning)}</Markdown>
+                </div>
               </div>
             </motion.div>
           )}
@@ -373,9 +373,9 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
                           <Zap className="text-archive-accent w-4 h-4" />
                           <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">Result</span>
                         </div>
-                        <p className="font-serif italic text-2xl leading-relaxed text-archive-ink">
-                          "{synthesis}"
-                        </p>
+                        <div className="font-serif italic text-2xl leading-relaxed text-archive-ink">
+                          <Markdown>{synthesis}</Markdown>
+                        </div>
                       </div>
                     </div>
                   )}

@@ -4,6 +4,7 @@ import { Book, Star, Trash2, ChevronLeft, ChevronRight, Edit3, Save, X, Sparkles
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { ToolLayout } from '../shared/ToolLayout';
+import { ReadAloudButton } from '../shared/ReadAloudButton';
 
 interface BookOfLifeProps {
   onBack: () => void;
@@ -136,9 +137,12 @@ export const BookOfLife: React.FC<BookOfLifeProps> = ({ onBack }) => {
 
                 <div className="flex-1 space-y-12">
                   <div className="space-y-4">
-                    <p className="archive-label flex items-center gap-2">
-                      <Sparkles size={10} /> The Insight
-                    </p>
+                    <div className="flex justify-between items-center">
+                      <p className="archive-label flex items-center gap-2">
+                        <Sparkles size={10} /> The Insight
+                      </p>
+                      <ReadAloudButton text={currentEntry.insight} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
+                    </div>
                     <p className="font-serif italic text-3xl leading-relaxed text-archive-ink">
                       {currentEntry.insight}
                     </p>

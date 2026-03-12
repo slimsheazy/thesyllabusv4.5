@@ -4,6 +4,8 @@ import { FileText, Image as ImageIcon, RefreshCw } from 'lucide-react';
 import { exportAsImage, exportAsPDF } from '../../utils/exportUtils';
 import { ReadAloudButton } from './ReadAloudButton';
 
+import Markdown from 'react-markdown';
+
 interface ResultSectionProps {
   id: string;
   title?: string;
@@ -43,9 +45,9 @@ export const ResultSection: React.FC<ResultSectionProps> = ({
 
       <div className="relative z-10">
         {children || (
-          <p className="handwritten text-lg md:text-xl italic text-black/80 leading-relaxed font-medium text-left">
-            {content}
-          </p>
+          <div className="handwritten text-lg md:text-xl italic text-black/80 leading-relaxed font-medium text-left">
+            <Markdown>{content}</Markdown>
+          </div>
         )}
       </div>
 

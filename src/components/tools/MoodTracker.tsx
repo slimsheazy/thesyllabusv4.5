@@ -127,8 +127,8 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
 
   return (
     <ToolLayout
-      title="Emotional Resonance"
-      subtitle="Navigating the layers of your current frequency"
+      title="Mood Tracker"
+      subtitle="Log and analyze your current emotional state."
       onBack={onBack}
       tooltipTitle="The Emotion Wheel"
       tooltipContent="A tool for identifying and understanding complex emotional states through hierarchical navigation."
@@ -202,29 +202,39 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
                 animate={{ opacity: 1, scale: 1 }}
                 className="space-y-12"
               >
-                <div className="archive-card p-10 md:p-16 relative text-center overflow-hidden">
-                  <div className="absolute top-0 right-0 p-8 opacity-[0.02] select-none pointer-events-none text-9xl italic">FEEL</div>
-                  <div className="absolute top-6 right-6">
-                    <ReadAloudButton text={insight!} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
-                  </div>
+                <div className="archive-card p-10 md:p-16 relative text-center overflow-hidden border-2 border-archive-accent">
+                  <div className="absolute top-0 right-0 p-8 opacity-[0.02] select-none pointer-events-none text-9xl italic">LOGGED</div>
                   
                   <div className="space-y-8">
-                    <div className="flex items-center justify-center gap-3">
-                      <Sparkles className="text-archive-accent w-5 h-5" />
-                      <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">Emotional Alchemy</span>
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="w-20 h-20 rounded-full bg-archive-accent/10 flex items-center justify-center text-archive-accent">
+                        <Smile size={40} />
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.4em] font-bold">Entry Recorded</span>
+                        <h3 className="text-4xl font-serif italic">{path[path.length - 1]?.name || 'Emotion'}</h3>
+                      </div>
                     </div>
-                    <p className="font-serif italic text-3xl md:text-4xl leading-relaxed text-archive-ink">
-                      "{insight}"
-                    </p>
+
+                    <div className="max-w-xl mx-auto space-y-6">
+                      <div className="w-12 h-0.5 bg-archive-line mx-auto" />
+                      <p className="font-serif italic text-2xl leading-relaxed text-archive-ink">
+                        "{insight}"
+                      </p>
+                      <div className="w-12 h-0.5 bg-archive-line mx-auto" />
+                    </div>
+
+                    <div className="pt-4 flex justify-center">
+                      <ReadAloudButton text={insight!} className="!p-2 !h-auto !w-auto !bg-archive-bg !border-archive-line !text-archive-ink hover:!bg-archive-ink hover:!text-archive-bg transition-colors" />
+                    </div>
                   </div>
 
                   <div className="mt-12 pt-10 border-t border-archive-line flex flex-wrap justify-center gap-8">
                     <button 
-                      onClick={() => setInsight(null)}
-                      className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40 hover:opacity-100 flex items-center gap-2"
+                      onClick={() => { setInsight(null); setPath([]); }}
+                      className="brutalist-button px-8 py-3 text-sm"
                     >
-                      <RefreshCw className="w-3 h-3" />
-                      Another Check-in
+                      LOG ANOTHER MOOD
                     </button>
                   </div>
                 </div>
@@ -232,8 +242,8 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
                 <ResultSection
                   id="mood-insight-content"
                   title="Archive Record"
-                  content={insight!}
-                  exportName="emotional-resonance"
+                  content={`Mood: ${path.map(n => n.name).join(' > ')}\n\nInsight: ${insight!}`}
+                  exportName="mood-log"
                   onClose={() => { setInsight(null); setPath([]); }}
                 />
               </motion.div>

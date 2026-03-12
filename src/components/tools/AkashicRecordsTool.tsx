@@ -8,6 +8,7 @@ import { geminiService } from '../../services/geminiService';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 import { ProfileSelector } from '../shared/ProfileSelector';
+import Markdown from 'react-markdown';
 
 interface AkashicRecordsToolProps {
   onBack: () => void;
@@ -140,9 +141,9 @@ export const AkashicRecordsTool: React.FC<AkashicRecordsToolProps> = ({ onBack, 
                   <div className="text-[10px] font-mono uppercase tracking-widest opacity-40">Record Entry: {initials}</div>
                 </div>
 
-                <p className="font-serif italic text-2xl leading-relaxed text-archive-ink">
-                  "{result}"
-                </p>
+                <div className="font-serif italic text-2xl leading-relaxed text-archive-ink">
+                  <Markdown>{result}</Markdown>
+                </div>
                 <p className="text-[8px] font-mono uppercase tracking-widest opacity-20 mt-4 text-center">
                   Source: Astronomical Ephemeris & Birth Map Analysis
                 </p>

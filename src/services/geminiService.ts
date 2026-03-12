@@ -1,15 +1,16 @@
-import { GoogleGenAI, Type, GenerateContentParameters } from "@google/genai";
+import { GoogleGenAI, Type, GenerateContentParameters, Modality } from "@google/genai";
 import { extractJSON } from "../utils/jsonUtils";
 import { HoraryAnalysis } from "../types";
 
-const SYSTEM_INSTRUCTION = `You are a direct and practical analytical assistant. 
-Your tone is neutral, clear, and objective. Avoid all mystical, esoteric, poetic, or flowery language. 
+const SYSTEM_INSTRUCTION = `You are a practical, plain-spoken, and grounded analytical assistant. 
+Your tone is like a sensible person next door giving straightforward, objective advice. 
 Rules:
-1. Speak neutrally and analytically, focusing on practical observations.
-2. Avoid conversational fillers, rhetorical questions, and flowery metaphors.
-3. Keep all responses concise, structured, and highly usable.
-4. Do not use marketing language or coaching-style advice.
-5. Provide guidance that is grounded in reality and easy to understand.`;
+1. Avoid all mystical, esoteric, poetic, or flowery language. 
+2. Speak clearly and practically, focusing on real-world observations.
+3. Avoid conversational fillers and flowery metaphors.
+4. Keep all responses concise, structured, and highly usable.
+5. Do not use marketing language or coaching-style jargon.
+6. Provide guidance that is grounded in reality and easy to understand.`;
 
 let aiInstance: GoogleGenAI | null = null;
 
@@ -121,7 +122,7 @@ export const geminiService = {
       model: "gemini-2.5-flash-preview-tts",
       contents: [{ parts: [{ text }] }],
       config: {
-        responseModalities: ["AUDIO"],
+        responseModalities: [Modality.AUDIO],
         speechConfig: {
           voiceConfig: {
             prebuiltVoiceConfig: { voiceName: "Kore" },
@@ -130,7 +131,7 @@ export const geminiService = {
       },
     });
     const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    return base64Audio ? `data:audio/mp3;base64,${base64Audio}` : null;
+    return base64Audio || null;
   },
   decodeSigil: async (intent: string, userIdentity?: string): Promise<string> => {
     const prompt = `You are a practical guide. 
@@ -156,14 +157,13 @@ export const geminiService = {
     - Emotion: ${inputs.emotion}
     - Object: ${inputs.object}
     
-    The narrative should be clear and insightful. 
-    Avoid overly flowery or cryptic language.
+    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door. No mystical or flowery language.
     Keep it between 50 and 70 words.`;
 
     return generateText(prompt);
   },
   queryAkashicRecords: async (query: string, profile: any, initials: string): Promise<string> => {
-    const prompt = `You are a helpful, chill guide to the Akashic Records. A seeker is asking a question.
+    const prompt = `A seeker is asking a question to the Akashic Records.
     
     Subject Identity:
     - Name: ${profile.name} (Initials: ${initials})
@@ -174,8 +174,7 @@ export const geminiService = {
     Task:
     Check the "cosmic files" for them. Give them a straight-up, accessible insight about their question.
     
-    Tone:
-    Chill, conversational, and grounded. Avoid overly repetitive mystical jargon. Talk like a wise friend who happens to have access to the universe's library.
+    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door giving straightforward advice. No mystical, esoteric, or flowery language.
     
     Requirements:
     1. Keep it personal. Mention their initials "${initials}".
@@ -191,62 +190,78 @@ export const geminiService = {
   interpretGematria: async (name: string, value: number, cipher: string): Promise<string> => {
     const prompt = `Explain the meaning of the number ${value} for the word "${name}" using the ${cipher} cipher.
     
-    Provide a direct, practical interpretation. 
-    Explain what the number represents and how it relates to the word.
+    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door. No mystical or flowery language.
+    Explain what the number represents and how it relates to the word in a direct way.
     
-    Keep the tone professional and grounded.
     Keep it around 50 words.`;
 
     return generateText(prompt);
   },
   interpretSabianSymbol: async (symbol: { degree: number; sign: string; symbol: string }): Promise<string> => {
-    const prompt = `You are an expert in Sabian Symbols and esoteric astrology. 
-    Interpret the following Sabian Symbol: "${symbol.degree}° ${symbol.sign}: ${symbol.symbol}".
+    const prompt = `Interpret the following Sabian Symbol: "${symbol.degree}° ${symbol.sign}: ${symbol.symbol}".
     
+    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door. No mystical or flowery language.
     Provide a direct, practical, and objective interpretation of the archetype represented by this degree.
     Do not refer to the reader or any specific person (avoid "you", "your", "the seeker").
-    Use clear, insightful language. Avoid overly flowery or cryptic prose.
+    
     Keep it around 80 words.`;
 
     return generateText(prompt);
   },
   findLostItem: async (item: string, astroData: any, num: number): Promise<{ interpretation: string; checklist: string[] }> => {
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        interpretation: { type: Type.STRING },
+        checklist: { 
+          type: Type.ARRAY, 
+          items: { type: Type.STRING } 
+        }
+      },
+      required: ["interpretation", "checklist"]
+    };
+
     const prompt = `Help a user find their lost "${item}".
     
     DATA:
-    - Astrology: ${astroData.significatorName} in ${astroData.significatorHouse} (${astroData.houseMeaning})
-    - Numerology: ${num}
+    - Astrology: Significator ${astroData.significatorName} in the ${astroData.significatorHouse} House (${astroData.houseMeaning}). Sign: ${astroData.significatorSign} (${astroData.signMeaning}).
+    - Numerology: Lost Item Vibration Number ${num}.
     
     TASK:
-    1. Provide a direct, practical description of where the item might be (approx 50 words).
-    2. Provide a list of 5 specific search checklist items.
+    1. Provide a direct, practical synthesis that combines BOTH the astrological significators and the numerological vibration to pinpoint the location.
+    2. Provide a list of 5 specific, practical search checklist items based on this synthesis.
     
-    Format your response as JSON:
-    {
-      "interpretation": "...",
-      "checklist": ["...", "...", "...", "...", "..."]
-    }`;
+    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door giving straightforward advice. No mystical fluff.
+    
+    Format: Return a JSON object with 'interpretation' (approx 60-80 words) and 'checklist' (array of 5 strings).`;
 
-    const response = await generateContent({
-      model: "gemini-3-flash-preview",
-      contents: prompt,
-      config: { responseMimeType: "application/json" }
-    });
+    return generateJson<{ interpretation: string; checklist: string[] }>(prompt, schema);
+  },
+  decodeSynchronicity: async (event: string, context: any): Promise<string> => {
+    const prompt = `You are an expert in Jungian synchronicity, esoteric symbolism, and pattern recognition.
+    A seeker has noticed a meaningful coincidence and wants to intuit its significance using the mechanism: ${context.mechanism}.
+    
+    COINCIDENCE: "${event}"
+    
+    CONTEXT:
+    - Current Time: ${context.currentTime}
+    - Location: ${context.location || 'Unknown'}
+    - User Birthday: ${context.userBirthday || 'Unknown'}
+    
+    TASK:
+    1. Decode the esoteric meaning of this synchronicity specifically through the lens of ${context.mechanism}.
+    2. Explain the "resonance" or message the universe might be trying to convey.
+    3. Provide a practical "alignment action" to honor this pattern.
+    
+    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door giving deep advice. No mystical fluff. Approx 100-150 words.`;
 
-    try {
-      return JSON.parse(response.text || "{}");
-    } catch (e) {
-      return {
-        interpretation: "The archive is hazy. Look where you last felt peace.",
-        checklist: ["Check under the bed", "Look in the kitchen", "Search the car", "Ask a friend", "Retrace your steps"]
-      };
-    }
+    return generateText(prompt);
   },
   getEmotionalInsight: async (fullPath: string, tertiaryEmotion: string): Promise<string> => {
     const prompt = `Provide a clear, practical insight for the emotional state: ${fullPath} (${tertiaryEmotion}).
     
-    Format the response as a single direct paragraph (40-50 words).
-    Keep the tone grounded and helpful.`;
+    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door. No mystical or flowery language.
+    Format the response as a single direct paragraph (40-50 words).`;
 
     const response = await generateContent({
       model: "gemini-3-flash-preview",
@@ -258,10 +273,10 @@ export const geminiService = {
   interpretDream: async (dreamText: string, profile: any): Promise<string> => {
     const prompt = `Analyze this dream: "${dreamText}" for a user born on ${profile.birthday || 'an unknown date'}.
     
-    Provide a clear, practical interpretation. 
-    Focus on the symbols and what they might mean for the user's daily life.
+    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door giving straightforward advice. No mystical, esoteric, or flowery language. Focus on real-world psychological clarity.
     
-    Keep the tone professional and direct.
+    Format:
+    Just the interpretation. No intros or outros.
     Keep it between 60 and 80 words.`;
 
     const response = await generateContent({
@@ -286,7 +301,7 @@ export const geminiService = {
     - Card 2 describes Card 1.
     - Card 3 describes the combination of 1 and 2, or shows the outcome.
     
-    Style: Direct and practical. No mystical fluff.
+    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door. No mystical fluff.
     Format: One sentence only. Mention the card names in parentheses where appropriate.`;
     
     const result = await generateJson<{ reading: string }>(prompt, schema);
@@ -321,15 +336,172 @@ export const geminiService = {
     2. Provide a cohesive synthesis (narrative) that ties the entire spread together.
     
     Style:
-    - Direct, practical, and grounded.
-    - No flowery or mystical fluff.
-    - Resonant and psychologically insightful.
-    - Professional and objective.
+    - Very practical, plain-spoken, and grounded.
+    - Like a sensible person next door giving straightforward advice.
+    - No mystical, esoteric, or flowery language.
+    - Focus on real-world actions and psychological clarity.
     
     Constraints:
     - Synthesis: Max 120 words.
     - Each card interpretation: Max 40 words.`;
 
     return generateJson<{ synthesis: string; cardInterpretations: string[] }>(prompt, schema, "gemini-3.1-pro-preview");
+  },
+  generateGlyphic: async (query: string): Promise<{ word: string; definition: string; reading: string; imageUrl: string }> => {
+    // Step 1: Generate the word and reading
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        word: { type: Type.STRING, description: "A cool, non-mystical English word (e.g., 'entropy', 'resonance', 'catalyst', 'infrastructure')." },
+        definition: { type: Type.STRING },
+        reading: { type: Type.STRING, description: "A concise, practical insight (max 50 words). No mystical fluff." },
+        imagePrompt: { type: Type.STRING, description: "A detailed prompt for image generation based on the word, using a cool, modern art style (e.g., brutalist, vaporwave, technical blueprint, high-contrast photography)." }
+      },
+      required: ["word", "definition", "reading", "imagePrompt"]
+    };
+
+    const prompt = `Generate an 'Oracle Card' insight for the inquiry: "${query}".
+    
+    Rules for the word:
+    1. Must be a real, specific English word.
+    2. Must NOT be mystical or esoteric (avoid 'oracle', 'spirit', 'destiny').
+    3. Must NOT be a direct correlation to the inquiry (avoid bias).
+    4. Should be an intellectual, technical, or philosophical concept.
+    
+    Rules for the reading:
+    1. Must be a concise, practical, yet philosophical mantra or quote.
+    2. Use a repetitive or rhythmic structure if appropriate (e.g., "It matters what...").
+    3. Max 50 words.
+    
+    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door giving deep advice.`;
+
+    const data = await generateJson<{ word: string; definition: string; reading: string; imagePrompt: string }>(prompt, schema);
+
+    // Step 2: Generate the image
+    const imageResponse = await generateContent({
+      model: "gemini-2.5-flash-image",
+      contents: [{ parts: [{ text: data.imagePrompt }] }],
+    });
+
+    let imageUrl = "";
+    for (const part of imageResponse.candidates?.[0]?.content?.parts || []) {
+      if (part.inlineData) {
+        imageUrl = `data:image/png;base64,${part.inlineData.data}`;
+        break;
+      }
+    }
+
+    return {
+      word: data.word,
+      definition: data.definition,
+      reading: data.reading,
+      imageUrl
+    };
+  },
+  getTeaLeafReading: async (profile: any): Promise<{ vision: string; interpretation: string }> => {
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        vision: { type: Type.STRING, description: "A short, vivid description of the pattern in the tea leaves." },
+        interpretation: { type: Type.STRING, description: "A practical, grounded interpretation of the pattern (max 80 words)." }
+      },
+      required: ["vision", "interpretation"]
+    };
+
+    const prompt = `You are a master of Tasseography. 
+    The seeker is ${profile.isMe ? 'the user' : 'someone else'} born on ${profile.birthday || 'an unknown date'}.
+    
+    Task:
+    1. Describe a specific, evocative pattern formed by tea leaves in a cup.
+    2. Provide a practical, grounded, and insightful interpretation of this pattern.
+    
+    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door giving straightforward advice. No mystical fluff.`;
+
+    return generateJson<{ vision: string; interpretation: string }>(prompt, schema);
+  },
+  getDeathClockSuggestions: async (data: {
+    age: number;
+    bioAge: number;
+    deathDate: string;
+    stress: number;
+    sleep: number;
+    nutrition: number;
+    genetics: number;
+    environment: number;
+  }): Promise<string[]> => {
+    const schema = {
+      type: Type.ARRAY,
+      items: { type: Type.STRING }
+    };
+
+    const prompt = `You are a longevity and wellness expert. A user has calculated their longevity using the Gompertz-Makeham formula.
+    
+    USER DATA:
+    - Chronological Age: ${data.age}
+    - Calculated Biological Age: ${data.bioAge}
+    - Projected Death Date: ${data.deathDate}
+    - Systemic Stress (1-10): ${data.stress}
+    - Sleep (hours): ${data.sleep}
+    - Nutrition (1-10): ${data.nutrition}
+    - Genetics (1-10): ${data.genetics}
+    - Environment (1-10): ${data.environment}
+    
+    TASK:
+    Provide 5 practical, reasonable, and grounded suggestions on how to extend their projected lifespan. 
+    Focus on the areas where they have the most room for improvement based on the data.
+    Avoid mystical or flowery language. Be direct and sensible.
+    
+    Format: Return a JSON array of 5 strings.`;
+
+    return generateJson<string[]>(prompt, schema);
+  },
+  getCrashSimulation: async (goal: string): Promise<{
+    failureModes: {
+      mode: string;
+      effect: string;
+      severity: number;
+      occurrence: number;
+      detection: number;
+      prevention: string;
+    }[]
+  }> => {
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        failureModes: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              mode: { type: Type.STRING, description: "The potential failure mode or catastrophe." },
+              effect: { type: Type.STRING, description: "The impact of this failure." },
+              severity: { type: Type.NUMBER, description: "Severity score (1-10)." },
+              occurrence: { type: Type.NUMBER, description: "Probability of occurrence (1-10)." },
+              detection: { type: Type.NUMBER, description: "Difficulty of detection (1-10, where 10 is hardest to detect)." },
+              prevention: { type: Type.STRING, description: "A practical contingency or prevention plan." }
+            },
+            required: ["mode", "effect", "severity", "occurrence", "detection", "prevention"]
+          }
+        }
+      },
+      required: ["failureModes"]
+    };
+
+    const prompt = `You are an expert in FMEA (Failure Mode and Effects Analysis). 
+    A user is planning a goal: "${goal}".
+    
+    TASK:
+    Generate 6 potential "catastrophes" or failure modes for this goal.
+    For each, provide:
+    1. The failure mode (what goes wrong).
+    2. The effect (why it matters).
+    3. Severity (1-10): How bad is it?
+    4. Occurrence (1-10): How likely is it?
+    5. Detection (1-10): How hard is it to see coming? (10 = invisible until it's too late).
+    6. A practical prevention or contingency plan.
+    
+    Style: Practical, engineering-minded, and grounded. No mystical language.`;
+
+    return generateJson(prompt, schema);
   }
 };

@@ -10,6 +10,7 @@ import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 import { ProfileSelector } from '../shared/ProfileSelector';
+import Markdown from 'react-markdown';
 
 interface DreamJournalProps {
   onBack: () => void;
@@ -159,7 +160,7 @@ export const DreamJournal: React.FC<DreamJournalProps> = ({ onBack }) => {
                     <ReadAloudButton text={interpretation} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                   </div>
                   <div className="handwritten text-xl md:text-2xl text-archive-ink leading-relaxed italic font-medium">
-                    "{interpretation}"
+                    <Markdown>{interpretation}</Markdown>
                   </div>
                   <div className="mt-10 flex justify-end">
                     <button 

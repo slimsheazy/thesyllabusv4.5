@@ -7,8 +7,10 @@ import { useProfile } from '../../hooks/useProfile';
 import { geminiService } from '../../services/geminiService';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
+import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ProfileSelector } from '../shared/ProfileSelector';
 import { ErrorBoundary } from '../ErrorBoundary';
+import Markdown from 'react-markdown';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, CartesianGrid, Cell } from 'recharts';
 
 interface GematriaToolProps {
@@ -251,8 +253,11 @@ export const GematriaTool: React.FC<GematriaToolProps> = ({ onBack }) => {
 
                 <div className="archive-card p-8 md:p-12 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-8 opacity-[0.02] select-none pointer-events-none text-8xl italic">VIBE</div>
+                  <div className="flex justify-end mb-4">
+                    <ReadAloudButton text={interpretation} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
+                  </div>
                   <div className="handwritten text-2xl md:text-3xl text-archive-ink leading-relaxed italic font-medium">
-                    "{interpretation}"
+                    <Markdown>{interpretation}</Markdown>
                   </div>
                 </div>
 

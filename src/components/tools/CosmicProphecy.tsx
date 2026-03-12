@@ -7,6 +7,7 @@ import { geminiService } from '../../services/geminiService';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 import { WritingEffect } from '../shared/WritingEffect';
+import { ReadAloudButton } from '../shared/ReadAloudButton';
 
 interface CosmicProphecyProps {
   onBack: () => void;
@@ -110,6 +111,9 @@ export const CosmicProphecy: React.FC<CosmicProphecyProps> = ({ onBack }) => {
               >
                 <div className="archive-card p-8 md:p-12 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-8 opacity-[0.02] select-none pointer-events-none text-8xl italic">FATE</div>
+                  <div className="flex justify-end mb-4">
+                    <ReadAloudButton text={story} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
+                  </div>
                   <div className="handwritten text-2xl md:text-3xl text-archive-ink leading-relaxed italic font-medium">
                     "<WritingEffect text={story} />"
                   </div>

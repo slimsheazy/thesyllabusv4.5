@@ -4,6 +4,7 @@ import { Calendar, Moon, Quote, Smile, Star, Search, Trash2, Clock, Eye, Downloa
 import { useSyllabusStore } from '../../store';
 import { geminiService } from '../../services/geminiService';
 import { ZineGenerator } from '../shared/ZineGenerator';
+import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 interface MasterArchiveProps {
@@ -282,6 +283,8 @@ export const MasterArchive: React.FC<MasterArchiveProps> = ({ onBack }) => {
                   <div className="flex items-center gap-3 mb-6">
                     <Brain className="text-archive-accent" size={18} />
                     <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-archive-accent font-bold">Deep Resonance Synthesis</span>
+                    <div className="flex-1" />
+                    <ReadAloudButton text={synthesis} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                   </div>
                   <div className="prose prose-sm max-w-none font-serif italic text-lg leading-relaxed text-archive-ink whitespace-pre-wrap">
                     {synthesis}
@@ -447,7 +450,10 @@ export const MasterArchive: React.FC<MasterArchiveProps> = ({ onBack }) => {
                   <selectedItem.icon size={24} className={selectedItem.color} />
                   <div>
                     <h3 className="text-[10px] font-mono uppercase tracking-widest opacity-40">{selectedItem.type} RECORD</h3>
-                    <h2 className="text-3xl font-serif italic">{selectedItem.title}</h2>
+                    <div className="flex items-center gap-4">
+                      <h2 className="text-3xl font-serif italic">{selectedItem.title}</h2>
+                      <ReadAloudButton text={`${selectedItem.content} ${selectedItem.metadata?.judgment || ''} ${selectedItem.metadata?.interpretation || ''} ${selectedItem.metadata?.insight || ''}`} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
+                    </div>
                   </div>
                 </div>
 

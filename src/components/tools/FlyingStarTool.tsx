@@ -6,6 +6,7 @@ import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
+import { ReadAloudButton } from '../shared/ReadAloudButton';
 
 interface FlyingStarToolProps {
   onBack: () => void;
@@ -161,10 +162,13 @@ export const FlyingStarTool: React.FC<FlyingStarToolProps> = ({ onBack }) => {
                     <div className="absolute top-0 right-0 p-8 opacity-[0.02] select-none pointer-events-none text-9xl italic">QI</div>
                     
                     <div className="space-y-8">
-                      <div className="flex items-center gap-3 border-b border-archive-line pb-4">
+                    <div className="flex justify-between items-center border-b border-archive-line pb-4">
+                      <div className="flex items-center gap-3">
                         <Zap className="text-archive-accent w-4 h-4" />
                         <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">Interpretation</span>
                       </div>
+                      <ReadAloudButton text={interpretation} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
+                    </div>
                       <p className="font-serif italic text-2xl leading-relaxed text-archive-ink">
                         "{interpretation}"
                       </p>

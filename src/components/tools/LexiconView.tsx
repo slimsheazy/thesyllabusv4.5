@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Book, Search, X, Clock, Trash2, Info } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
+import { ReadAloudButton } from '../shared/ReadAloudButton';
 
 interface LexiconViewProps {
   onBack: () => void;
@@ -99,7 +100,10 @@ export const LexiconView: React.FC<LexiconViewProps> = ({ onBack }) => {
 
               <div className="space-y-8">
                 <div className="space-y-2">
-                  <h2 className="text-5xl font-serif italic text-archive-accent">{selectedTerm}</h2>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-5xl font-serif italic text-archive-accent">{selectedTerm}</h2>
+                    <ReadAloudButton text={`${selectedTerm}: ${unlockedTerms[selectedTerm].definition}. ${unlockedTerms[selectedTerm].etymology || ''}`} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
+                  </div>
                   <div className="flex items-center gap-4 text-[10px] font-mono uppercase opacity-40">
                     <span className="flex items-center gap-1"><Clock size={12} /> {new Date(unlockedTerms[selectedTerm].discoveredAt).toLocaleDateString()}</span>
                     <span className="flex items-center gap-1"><Info size={12} /> Lexicon Entry</span>
