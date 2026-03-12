@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Sun, Moon, MapPin, Calendar, Clock, User, Settings2, Check, Bell, Trash2, Pin, PinOff, Search, Book, Brain, AlertTriangle } from 'lucide-react';
 import { useSyllabusStore } from '../store';
-import { Tooltip } from './Tooltip';
+import { Tooltip } from './shared/Tooltip';
 import { useSeekerLevel } from '../hooks/useSeekerLevel';
 
 import { TOOL_CATEGORIES, ALL_TOOLS } from '../constants/tools';
@@ -94,7 +94,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
             <div className="flex justify-between items-center relative z-10">
               <div className="flex items-center gap-2">
                 <span className="text-xl font-sans text-archive-accent">♁</span>
-                <span className="handwritten text-[10px] uppercase text-archive-accent tracking-widest">Resonance Calibration</span>
+                <span className="handwritten text-[10px] uppercase text-archive-accent tracking-widest">Profile Settings</span>
               </div>
               <div className="flex items-center gap-4">
                 <button 
@@ -115,14 +115,14 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
             {showNotifications ? (
               <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300 relative z-10">
                 <div className="flex justify-between items-center border-b border-archive-line pb-2">
-                  <span className="text-[9px] uppercase opacity-40">Celestial Transits</span>
+                  <span className="text-[9px] uppercase opacity-40">Astro Notifications</span>
                   <button onClick={clearNotifications} className="text-[9px] uppercase opacity-40 hover:text-red-500 flex items-center gap-1">
                     <Trash2 size={10} /> Clear
                   </button>
                 </div>
                 <div className="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
                   {!transitNotifications || transitNotifications.length === 0 ? (
-                    <p className="handwritten text-sm opacity-40 py-4 text-center italic">The stars are quiet for now.</p>
+                    <p className="handwritten text-sm opacity-40 py-4 text-center italic">No notifications yet.</p>
                   ) : (
                     transitNotifications.map((n) => (
                       <div 
@@ -143,7 +143,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
             ) : isEditingProfile ? (
               <div className="space-y-6 animate-in fade-in duration-300 relative z-10">
                 <div className="space-y-2">
-                  <label className="text-[9px] uppercase opacity-40 flex items-center gap-2"><User size={10} /> Who are you?</label>
+                  <label className="text-[9px] uppercase opacity-40 flex items-center gap-2"><User size={10} /> Name</label>
                   <input 
                     className="w-full bg-archive-bg p-3 border border-archive-line text-lg italic outline-none focus:border-archive-accent" 
                     value={userIdentity || ""} 
@@ -153,7 +153,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[9px] uppercase opacity-40 flex items-center gap-2"><Calendar size={10} /> Arrival Date</label>
+                    <label className="text-[9px] uppercase opacity-40 flex items-center gap-2"><Calendar size={10} /> Birth Date</label>
                     <input type="date" className="w-full bg-archive-bg p-3 border border-archive-line text-lg italic outline-none focus:border-archive-accent" value={userBirthday || ""} onChange={(e) => setUserBirthday(e.target.value)} />
                   </div>
                   <div className="space-y-2">
@@ -162,7 +162,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[9px] uppercase opacity-40 flex items-center gap-2">IANA Timezone</label>
+                  <label className="text-[9px] uppercase opacity-40 flex items-center gap-2">Timezone</label>
                   <div className="flex gap-2">
                     <input 
                       type="text" 
@@ -180,7 +180,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[9px] uppercase opacity-40 flex items-center gap-2"><MapPin size={10} /> Spatial Coordinates</label>
+                  <label className="text-[9px] uppercase opacity-40 flex items-center gap-2"><MapPin size={10} /> Birth Location</label>
                   <div className="flex gap-2">
                     <input 
                       type="text" 
@@ -213,13 +213,13 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
             ) : (
               <div className="space-y-4 relative z-10">
                 <p className="handwritten text-2xl italic text-archive-ink leading-tight">
-                  {userIdentity ? `Hi, ${userIdentity.split(' ')[0]}.` : "Let's set your frequency."}
+                  {userIdentity ? `Hi, ${userIdentity.split(' ')[0]}.` : "Set up your profile."}
                 </p>
                 <div className="flex flex-col gap-2">
                   {userBirthday && <span className="flex items-center gap-2 text-sm italic opacity-60"><Calendar size={14} className="opacity-40" /> Born: {userBirthday} {userBirthTime && `@ ${userBirthTime}`} ({userBirthTimezone})</span>}
                   {userLocation && <span className="flex items-center gap-2 text-sm italic opacity-60"><MapPin size={14} className="opacity-40" /> Location: {userLocation.name || "Synced"}</span>}
                 </div>
-                {isCalibrated && <div className="flex items-center gap-2 text-[9px] text-emerald-600 uppercase tracking-widest pt-2 border-t border-archive-line"><Check size={12} /> Calibration Locked ♁</div>}
+                {isCalibrated && <div className="flex items-center gap-2 text-[9px] text-emerald-600 uppercase tracking-widest pt-2 border-t border-archive-line"><Check size={12} /> Profile Set ♁</div>}
               </div>
             )}
           </section>
@@ -409,10 +409,10 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
             >
               <div className="flex items-center gap-4 text-red-500">
                 <AlertTriangle size={32} />
-                <h3 className="font-serif italic text-2xl">Irreversible Action</h3>
+                <h3 className="font-serif italic text-2xl">Are you sure?</h3>
               </div>
               <p className="handwritten text-lg italic opacity-60 leading-relaxed">
-                This will permanently erase all your recorded resonances, dreams, and insights. The Syllabus will be wiped clean. Are you absolutely sure?
+                This will permanently delete all your data. Are you sure?
               </p>
               <div className="flex gap-4 pt-4">
                 <button 

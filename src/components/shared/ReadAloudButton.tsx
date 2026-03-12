@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Volume2, VolumeX, Loader2 } from 'lucide-react';
-import { geminiService } from '../services/geminiService';
-import { useHaptics } from '../hooks/useHaptics';
+import { geminiService } from '../../services/geminiService';
+import { useHaptics } from '../../hooks/useHaptics';
 
 interface ReadAloudButtonProps {
   text: string;

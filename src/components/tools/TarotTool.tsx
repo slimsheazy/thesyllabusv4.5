@@ -6,7 +6,7 @@ import { TAROT_CARDS, TarotCard } from '../../data/tarotData';
 import { useHaptics } from '../../hooks/useHaptics';
 import { geminiService } from '../../services/geminiService';
 import { CardDisplay } from './Tarot/CardDisplay';
-import { ReadAloudButton } from '../ReadAloudButton';
+import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 
@@ -20,6 +20,19 @@ interface TarotToolProps {
   onBack: () => void;
 }
 
+const CELTIC_CROSS_POSITIONS = [
+  { label: "The Present", description: "Your current situation and state of mind." },
+  { label: "The Challenge", description: "The immediate obstacle or crossing influence." },
+  { label: "The Conscious", description: "What you are focusing on or aiming for." },
+  { label: "The Subconscious", description: "Underlying feelings or hidden influences." },
+  { label: "The Past", description: "Recent events that led to the current situation." },
+  { label: "The Future", description: "What is likely to happen next." },
+  { label: "Advice", description: "Suggested action or approach to take." },
+  { label: "Environment", description: "External factors and people's influence." },
+  { label: "Hopes & Fears", description: "Your internal expectations and anxieties." },
+  { label: "The Outcome", description: "The final result if current path continues." }
+];
+
 export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
   const { triggerClick, triggerSuccess } = useHaptics();
   const [drawnCards, setDrawnCards] = useState<DrawnCard[]>([]);
@@ -29,6 +42,7 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
   const [spread, setSpread] = useState<SpreadType>('one-card');
   const [showSpreadMenu, setShowSpreadMenu] = useState(false);
   const [synthesis, setSynthesis] = useState<string | null>(null);
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
   const drawCards = async () => {
     triggerClick();
@@ -57,7 +71,11 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
     // Start synthesis
     setIsSynthesizing(true);
     try {
-      const cardList = selected.map((c, i) => `${i + 1}. ${c.name} (${c.isReversed ? 'Reversed' : 'Upright'})`).join('\n');
+      const cardList = selected.map((c, i) => {
+        const posLabel = spread === 'celtic-cross' ? ` (${CELTIC_CROSS_POSITIONS[i].label})` : '';
+        return `${i + 1}. ${c.name}${posLabel} (${c.isReversed ? 'Reversed' : 'Upright'})`;
+      }).join('\n');
+      
       const prompt = `As a master Tarot reader, provide a concise synthesis for a ${spread} spread.
       Inquiry: "${question}"
       Cards drawn:
@@ -81,13 +99,148 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
     'celtic-cross': 'Celtic Cross (Comprehensive)'
   };
 
+  const renderCelticCross = () => {
+    return (
+      <div className="relative w-full max-w-5xl mx-auto min-h-[1000px] md:min-h-[800px] mt-12">
+        {/* The Cross */}
+        <div className="absolute left-1/2 top-[400px] md:top-[350px] -translate-x-1/2 -translate-y-1/2 w-[400px] h-[500px] md:left-[35%]">
+          {/* 1. Present */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+            <div 
+              onMouseEnter={() => setHoveredCard(0)}
+              onMouseLeave={() => setHoveredCard(null)}
+              className="relative"
+            >
+              <CardDisplay card={drawnCards[0]} isReversed={drawnCards[0].isReversed} className="w-24 h-40 md:w-28 md:h-44" />
+              <div className="text-center mt-2">
+                <span className="text-[8px] font-mono opacity-40 uppercase tracking-widest">{CELTIC_CROSS_POSITIONS[0].label}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Challenge (Horizontal) */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 rotate-90">
+            <div 
+              onMouseEnter={() => setHoveredCard(1)}
+              onMouseLeave={() => setHoveredCard(null)}
+              className="relative"
+            >
+              <CardDisplay card={drawnCards[1]} isReversed={drawnCards[1].isReversed} className="w-24 h-40 md:w-28 md:h-44" />
+              <div className="text-center mt-2 -rotate-90">
+                <span className="text-[8px] font-mono opacity-40 uppercase tracking-widest">{CELTIC_CROSS_POSITIONS[1].label}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Conscious (Above) */}
+          <div className="absolute left-1/2 top-0 -translate-x-1/2">
+            <div 
+              onMouseEnter={() => setHoveredCard(2)}
+              onMouseLeave={() => setHoveredCard(null)}
+              className="relative"
+            >
+              <CardDisplay card={drawnCards[2]} isReversed={drawnCards[2].isReversed} className="w-24 h-40 md:w-28 md:h-44" />
+              <div className="text-center mt-2">
+                <span className="text-[8px] font-mono opacity-40 uppercase tracking-widest">{CELTIC_CROSS_POSITIONS[2].label}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. Subconscious (Below) */}
+          <div className="absolute left-1/2 bottom-0 -translate-x-1/2">
+            <div 
+              onMouseEnter={() => setHoveredCard(3)}
+              onMouseLeave={() => setHoveredCard(null)}
+              className="relative"
+            >
+              <CardDisplay card={drawnCards[3]} isReversed={drawnCards[3].isReversed} className="w-24 h-40 md:w-28 md:h-44" />
+              <div className="text-center mt-2">
+                <span className="text-[8px] font-mono opacity-40 uppercase tracking-widest">{CELTIC_CROSS_POSITIONS[3].label}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 5. Past (Left) */}
+          <div className="absolute left-0 top-1/2 -translate-y-1/2">
+            <div 
+              onMouseEnter={() => setHoveredCard(4)}
+              onMouseLeave={() => setHoveredCard(null)}
+              className="relative"
+            >
+              <CardDisplay card={drawnCards[4]} isReversed={drawnCards[4].isReversed} className="w-24 h-40 md:w-28 md:h-44" />
+              <div className="text-center mt-2">
+                <span className="text-[8px] font-mono opacity-40 uppercase tracking-widest">{CELTIC_CROSS_POSITIONS[4].label}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 6. Future (Right) */}
+          <div className="absolute right-0 top-1/2 -translate-y-1/2">
+            <div 
+              onMouseEnter={() => setHoveredCard(5)}
+              onMouseLeave={() => setHoveredCard(null)}
+              className="relative"
+            >
+              <CardDisplay card={drawnCards[5]} isReversed={drawnCards[5].isReversed} className="w-24 h-40 md:w-28 md:h-44" />
+              <div className="text-center mt-2">
+                <span className="text-[8px] font-mono opacity-40 uppercase tracking-widest">{CELTIC_CROSS_POSITIONS[5].label}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* The Staff */}
+        <div className="absolute left-1/2 top-[850px] md:top-1/2 md:left-[80%] -translate-x-1/2 md:-translate-y-1/2 flex flex-col gap-8">
+          {[9, 8, 7, 6].map((idx) => (
+            <div 
+              key={idx}
+              onMouseEnter={() => setHoveredCard(idx)}
+              onMouseLeave={() => setHoveredCard(null)}
+              className="relative"
+            >
+              <CardDisplay card={drawnCards[idx]} isReversed={drawnCards[idx].isReversed} className="w-24 h-40 md:w-28 md:h-44" />
+              <div className="text-center mt-2">
+                <span className="text-[8px] font-mono opacity-40 uppercase tracking-widest">{CELTIC_CROSS_POSITIONS[idx].label}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Hover Interpretation Tooltip */}
+        <AnimatePresence>
+          {hoveredCard !== null && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-full max-w-md bg-white border border-archive-line p-6 shadow-2xl rounded-xl pointer-events-none"
+            >
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-mono text-archive-accent uppercase tracking-widest">{CELTIC_CROSS_POSITIONS[hoveredCard].label}</span>
+                  <span className="text-[10px] font-mono opacity-40 uppercase">{drawnCards[hoveredCard].isReversed ? 'Reversed' : 'Upright'}</span>
+                </div>
+                <h3 className="text-xl font-serif italic">{drawnCards[hoveredCard].name}</h3>
+                <p className="text-xs opacity-60 italic mb-2">{CELTIC_CROSS_POSITIONS[hoveredCard].description}</p>
+                <div className="h-px bg-archive-line opacity-20 my-2" />
+                <p className="text-sm leading-relaxed">
+                  {drawnCards[hoveredCard].isReversed ? drawnCards[hoveredCard].reversedMeaning : drawnCards[hoveredCard].uprightMeaning}
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  };
+
   return (
     <ToolLayout
       title="Tarot Reading"
-      subtitle="Consulting the symbolic archetypes of the collective archive"
+      subtitle="Archetypal insights for your situation."
       onBack={onBack}
-      tooltipTitle="The Symbolic Archive"
-      tooltipContent="Tarot is a system of archetypal imagery that mirrors the internal landscape. Each card is a fragment of the collective human archive."
+      tooltipTitle="About Tarot"
+      tooltipContent="Tarot uses archetypal imagery to reflect your internal state."
     >
       <div className="w-full flex flex-col lg:flex-row gap-10 lg:gap-16 items-start">
         <aside className="w-full lg:w-[400px] space-y-8 lg:sticky lg:top-20">
@@ -162,7 +315,7 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
                     </div>
                   ))}
                 </div>
-                <p className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Consulting the archetypes...</p>
+                <p className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Analyzing...</p>
               </motion.div>
             ) : drawnCards.length > 0 ? (
               <motion.div 
@@ -171,7 +324,7 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-16"
               >
-                <div className={`flex flex-wrap justify-center gap-8 ${spread === 'celtic-cross' ? 'max-w-4xl mx-auto' : ''}`}>
+                <div className={`flex flex-wrap justify-center gap-8 ${spread === 'celtic-cross' ? 'hidden' : ''}`}>
                   {drawnCards.map((card, idx) => (
                     <motion.div 
                       key={`${card.name}-${idx}`}
@@ -192,11 +345,13 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
                   ))}
                 </div>
 
+                {spread === 'celtic-cross' && renderCelticCross()}
+
                 <div className="space-y-8 max-w-3xl mx-auto">
                   {isSynthesizing ? (
                     <div className="archive-card p-10 flex flex-col items-center gap-4">
                       <Loader2 className="w-8 h-8 animate-spin text-archive-accent opacity-20" />
-                      <span className="handwritten text-archive-accent animate-pulse uppercase tracking-widest">Synthesizing Archetypes...</span>
+                      <span className="handwritten text-archive-accent animate-pulse uppercase tracking-widest">Analyzing...</span>
                     </div>
                   ) : synthesis && (
                     <div className="archive-card p-10 relative overflow-hidden">
@@ -204,7 +359,7 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
                       <div className="space-y-6">
                         <div className="flex items-center gap-3 border-b border-archive-line pb-4">
                           <Zap className="text-archive-accent w-4 h-4" />
-                          <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">Synthesis</span>
+                          <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">Result</span>
                         </div>
                         <p className="font-serif italic text-2xl leading-relaxed text-archive-ink">
                           "{synthesis}"
@@ -250,7 +405,7 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
                 className="h-full flex flex-col items-center justify-center py-40 opacity-[0.03] select-none pointer-events-none"
               >
                 <Layers size={160} />
-                <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">Awaiting Spread</p>
+                <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">Enter a question</p>
               </motion.div>
             )}
           </AnimatePresence>

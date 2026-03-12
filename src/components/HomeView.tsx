@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSyllabusStore } from '../store';
-import { ReadAloudButton } from './ReadAloudButton';
+import { ReadAloudButton } from './shared/ReadAloudButton';
 import { LiveResonance } from './LiveResonance';
 import { ALL_TOOLS } from '../constants/tools';
 import { Pin, ArrowRight, Book, Brain, Clock } from 'lucide-react';

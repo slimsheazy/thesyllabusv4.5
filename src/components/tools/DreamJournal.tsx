@@ -6,7 +6,7 @@ import { geminiService } from '../../services/geminiService';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useProfile } from '../../hooks/useProfile';
 import { exportAsImage, exportAsPDF } from '../../utils/exportUtils';
-import { ReadAloudButton } from '../ReadAloudButton';
+import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 import { ProfileSelector } from '../shared/ProfileSelector';

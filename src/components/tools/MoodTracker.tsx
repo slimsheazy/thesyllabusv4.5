@@ -7,7 +7,7 @@ import { useHaptics } from '../../hooks/useHaptics';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { geminiService } from '../../services/geminiService';
 import { exportAsImage, exportAsPDF } from '../../utils/exportUtils';
-import { ReadAloudButton } from '../ReadAloudButton';
+import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 

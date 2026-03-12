@@ -18,12 +18,12 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     symbol: "☽",
     items: [
       { name: "Horary", page: "HORARY", desc: "Specific answers based on the moment of inquiry." },
-      { name: "Tarot Reading", page: "TAROT", desc: "Structured card systems for situational reflection." },
-      { name: "The Oracle", page: "ORACLE", desc: "A linguistic mirror reflecting profound psychological concepts." },
-      { name: "Lenormand Spinner", page: "LENORMAND", desc: "A 3-reel slot machine for practical, punchy readings." },
-      { name: "Tea Leaf Reading", page: "TEA_LEAF", desc: "Interpretive patterns found in the dregs of the cup." },
-      { name: "Sabian Symbols", page: "SABIAN", desc: "360 symbolic descriptions for each zodiac degree." },
-      { name: "Synchronicity Decoder", page: "SYNCHRONICITY", desc: "Translate meaningful coincidences into actionable wisdom." },
+      { name: "Tarot Reading", page: "TAROT", desc: "Traditional card layouts for clarity and guidance." },
+      { name: "The Oracle", page: "ORACLE", desc: "A tool for psychological reflection and insight." },
+      { name: "Lenormand Spinner", page: "LENORMAND", desc: "A practical 3-card system for quick answers." },
+      { name: "Tea Leaf Reading", page: "TEA_LEAF", desc: "Reading patterns and symbols in tea leaves." },
+      { name: "Sabian Symbols", page: "SABIAN", desc: "Symbolic meanings for each degree of the zodiac." },
+      { name: "Synchronicity Decoder", page: "SYNCHRONICITY", desc: "Analyze coincidences for practical insights." },
     ]
   },
   {
@@ -31,12 +31,12 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     color: "var(--color-archive-ink)",
     symbol: "☊",
     items: [
-      { name: "The Birth Map", page: "BIRTH_CHART", desc: "Your unique cosmic blueprint from the moment of birth." },
-      { name: "Life Path Reader", page: "NUMEROLOGY", desc: "Numerical analysis of your birth date and name." },
-      { name: "Dream Journal", page: "DREAM_JOURNAL", desc: "Record and review nocturnal visions for recurring themes." },
-      { name: "Emotional Resonance", page: "MOOD", desc: "Track and visualize your emotional state over time." },
-      { name: "The Hall of Records", page: "AKASHIC", desc: "A conceptual repository of universal information." },
-      { name: "The Book of Life", page: "BOOK_OF_LIFE", desc: "Your personal chronicle of saved Akashic insights." },
+      { name: "The Birth Map", page: "BIRTH_CHART", desc: "Analysis of your astrological chart at birth." },
+      { name: "Life Path Reader", page: "NUMEROLOGY", desc: "Insights from your birth date and name numbers." },
+      { name: "Dream Journal", page: "DREAM_JOURNAL", desc: "Record and analyze recurring themes in your dreams." },
+      { name: "Emotional Resonance", page: "MOOD", desc: "Track and visualize your emotional patterns." },
+      { name: "The Hall of Records", page: "AKASHIC", desc: "A database for storing and retrieving insights." },
+      { name: "The Book of Life", page: "BOOK_OF_LIFE", desc: "Your personal collection of saved records." },
     ]
   },
   {
@@ -44,12 +44,12 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     color: "#6366f1",
     symbol: "☉",
     items: [
-      { name: "Daily Rituals", page: "RITUAL", desc: "Practical habits to maintain focus and clarity." },
-      { name: "Lost Item Finder", page: "LOST_ITEM", desc: "Horary techniques to help locate misplaced objects." },
-      { name: "Create a Sigil", page: "SIGIL", desc: "Craft personal symbols to represent specific goals." },
-      { name: "Name to Number", page: "GEMATRIA", desc: "Calculate numerical values of words to find themes." },
-      { name: "Check Your Home", page: "FLYING_STAR", desc: "Feng Shui analysis of energy movement in your space." },
-      { name: "Cosmic Prophecy", page: "MAD_LIBS", desc: "Creative narratives based on your inputs." },
+      { name: "Daily Rituals", page: "RITUAL", desc: "Simple habits for focus and clarity." },
+      { name: "Lost Item Finder", page: "LOST_ITEM", desc: "Techniques to help locate misplaced objects." },
+      { name: "Create a Sigil", page: "SIGIL", desc: "Design symbols to represent your goals." },
+      { name: "Name to Number", page: "GEMATRIA", desc: "Calculate numerical values of words." },
+      { name: "Check Your Home", page: "FLYING_STAR", desc: "Analyze the energy flow in your living space." },
+      { name: "Cosmic Prophecy", page: "MAD_LIBS", desc: "Generate short narratives based on your inputs." },
     ]
   },
   {
@@ -57,10 +57,10 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     color: "var(--color-archive-ink)",
     symbol: "☌",
     items: [
-      { name: "Master Archive", page: "MASTER_ARCHIVE", desc: "The central index of all recorded resonances." },
-      { name: "Lexicon", page: "LEXICON", desc: "Your discovered vocabulary and esoteric terms." },
-      { name: "The Librarian", page: "ORACLE_VIEW", desc: "Consult the archive's wisdom through dialogue." },
-      { name: "Syllabus Explorer", page: "EXPLORER", desc: "Browse and explore the various records." },
+      { name: "Master Archive", page: "MASTER_ARCHIVE", desc: "The central index of all your records." },
+      { name: "Lexicon", page: "LEXICON", desc: "A dictionary of terms you've discovered." },
+      { name: "The Librarian", page: "ORACLE_VIEW", desc: "Ask questions and get direct answers." },
+      { name: "Syllabus Explorer", page: "EXPLORER", desc: "Browse and manage your stored data." },
     ]
   }
 ];

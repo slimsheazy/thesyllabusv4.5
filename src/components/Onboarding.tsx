@@ -6,7 +6,7 @@ import { UserLocation } from '../types';
 import { analyzeBirthChart, BirthData } from '../services/astrologyService';
 import { generateBirthChartKey } from '../utils/hashUtils';
 import { useHaptics } from '../hooks/useHaptics';
-import { ReadAloudButton } from './ReadAloudButton';
+import { ReadAloudButton } from './shared/ReadAloudButton';
 
 export const Onboarding: React.FC = () => {
   const { triggerTick, triggerSuccess } = useHaptics();
@@ -172,10 +172,10 @@ export const Onboarding: React.FC = () => {
         <div className="relative z-10 space-y-10">
           <header className="space-y-2">
             <div className="flex items-center">
-              <span className="label-gidole text-archive-accent">Resonance Calibration</span>
+              <span className="label-gidole text-archive-accent">Setting Up</span>
             </div>
             <h2 className="subtitle-main leading-tight">WELCOME TO THE SYLLABUS</h2>
-            <p className="body-gidole opacity-60">Before we begin, we must synchronize your frequency with the chronicle.</p>
+            <p className="body-gidole opacity-60">Let's get your profile ready.</p>
           </header>
 
           <div className="min-h-[240px]">
@@ -222,7 +222,7 @@ export const Onboarding: React.FC = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-3">
                       <label className="label-gidole opacity-40 flex items-center gap-2">
-                        <Calendar size={12} /> Arrival Date
+                        <Calendar size={12} /> Birth Date
                       </label>
                       <input 
                         type="date" 
@@ -233,7 +233,7 @@ export const Onboarding: React.FC = () => {
                     </div>
                     <div className="space-y-3">
                       <label className="label-gidole opacity-40 flex items-center gap-2">
-                        <Clock size={12} /> Moment of Entry
+                        <Clock size={12} /> Birth Time
                       </label>
                       <input 
                         type="time" 
@@ -286,9 +286,9 @@ export const Onboarding: React.FC = () => {
                 >
                   <div className="space-y-4">
                     <label className="label-gidole opacity-40 flex items-center gap-2">
-                      <MapPin size={12} /> Spatial Coordinates
+                      <MapPin size={12} /> Birth Location
                     </label>
-                    <p className="body-gidole italic opacity-60">We need your current location to align the archive's tools with your local sky.</p>
+                    <p className="body-gidole italic opacity-60">We use this to calculate your astrological chart.</p>
                     
                     <button
                       onClick={detectLocation}
@@ -351,7 +351,7 @@ export const Onboarding: React.FC = () => {
                       onClick={handleFinishStep3}
                       className="brutalist-button w-full py-5 text-xl flex items-center justify-center gap-3"
                     >
-                      Review Calibration <ArrowRight size={20} />
+                      Review Details <ArrowRight size={20} />
                     </motion.button>
                   )}
                 </motion.div>
@@ -367,13 +367,13 @@ export const Onboarding: React.FC = () => {
                 >
                   <div className="space-y-4">
                     <label className="label-gidole opacity-40 flex items-center gap-2">
-                      <UserCheck size={12} /> Identity Verification
+                      <UserCheck size={12} /> Confirm Your Details
                     </label>
                     
                     {loadingSynopsis ? (
                       <div className="flex flex-col items-center justify-center py-12 space-y-4 bg-archive-bg border border-archive-line rounded-xl">
                         <Loader2 className="w-10 h-10 animate-spin text-archive-accent" />
-                        <p className="label-gidole text-sm opacity-60">Calculating your profile from the stars...</p>
+                        <p className="label-gidole text-sm opacity-60">Calculating your profile...</p>
                       </div>
                     ) : synopsis ? (
                       <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
@@ -480,7 +480,7 @@ export const Onboarding: React.FC = () => {
                       disabled={!synopsis || loadingSynopsis}
                       className="flex-[2] brutalist-button py-4 text-lg flex items-center justify-center gap-3 disabled:opacity-30"
                     >
-                      Enter the Syllabus <Check size={20} />
+                      Start Exploring <Check size={20} />
                     </button>
                   </div>
                 </motion.div>

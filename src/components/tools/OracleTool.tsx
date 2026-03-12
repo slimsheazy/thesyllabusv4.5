@@ -4,7 +4,7 @@ import { RefreshCw, Sparkles, AlertCircle, Volume2, FileText, Image as ImageIcon
 import { geminiService } from '../../services/geminiService';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
-import { ReadAloudButton } from '../ReadAloudButton';
+import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 import { Type } from "@google/genai";
@@ -89,10 +89,10 @@ export const OracleTool: React.FC<OracleToolProps> = ({ onBack }) => {
   return (
     <ToolLayout
       title="The Oracle"
-      subtitle="A linguistic mirror for the psyche"
+      subtitle="Psychological insights from language."
       onBack={onBack}
-      tooltipTitle="What is The Oracle?"
-      tooltipContent="A linguistic mirror that selects a profound concept to reflect your current situation through the lens of etymology and psychology."
+      tooltipTitle="About the Oracle"
+      tooltipContent="Uses language and psychology to provide insights into your situation."
     >
       <div className="w-full flex flex-col lg:flex-row gap-10 lg:gap-16 items-start">
         <aside className="w-full lg:w-[400px] space-y-8 lg:sticky lg:top-20">
@@ -144,7 +144,7 @@ export const OracleTool: React.FC<OracleToolProps> = ({ onBack }) => {
                   <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
                   <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">☉</div>
                 </div>
-                <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Consulting the linguistic archive...</span>
+                <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Analyzing...</span>
               </motion.div>
             ) : card ? (
               <motion.div 
@@ -216,7 +216,7 @@ export const OracleTool: React.FC<OracleToolProps> = ({ onBack }) => {
                 className="h-full flex flex-col items-center justify-center py-40 opacity-[0.03] select-none pointer-events-none"
               >
                 <Sparkles size={160} />
-                <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">Awaiting Query</p>
+                <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">Enter a question</p>
               </motion.div>
             )}
           </AnimatePresence>

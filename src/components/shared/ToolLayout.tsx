@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChevronLeft } from 'lucide-react';
-import { Tooltip } from '../Tooltip';
+import { Tooltip } from './Tooltip';
 
 interface ToolLayoutProps {
   title: string;
@@ -37,7 +37,7 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
           <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <h2 className="title-main text-4xl sm:text-5xl md:text-6xl">{title}</h2>
+                <h2 className="title-main text-5xl sm:text-7xl md:text-8xl">{title}</h2>
                 {tooltipTitle && tooltipContent && (
                   <Tooltip title={tooltipTitle} content={tooltipContent} />
                 )}

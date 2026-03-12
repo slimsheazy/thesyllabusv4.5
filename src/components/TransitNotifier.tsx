@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Bell, X, Sparkles, Info, AlertTriangle, CheckCircle, Volume2 } from 'lucide-react';
 import { useSyllabusStore } from '../store';
 import { getTransitNotifications } from '../services/astrologyService';
-import { ReadAloudButton } from './ReadAloudButton';
+import { ReadAloudButton } from './shared/ReadAloudButton';
 
 export const TransitNotifier: React.FC = () => {
   const { 

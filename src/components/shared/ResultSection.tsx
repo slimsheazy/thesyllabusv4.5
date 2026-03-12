@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { FileText, Image as ImageIcon, RefreshCw } from 'lucide-react';
 import { exportAsImage, exportAsPDF } from '../../utils/exportUtils';
-import { ReadAloudButton } from '../ReadAloudButton';
+import { ReadAloudButton } from './ReadAloudButton';
 
 interface ResultSectionProps {
   id: string;

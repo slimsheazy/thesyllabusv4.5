@@ -4,7 +4,7 @@ import { Sparkles, RefreshCw, Loader2, FileText, Image as ImageIcon, Volume2 } f
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useProfile } from '../../hooks/useProfile';
-import { ReadAloudButton } from '../ReadAloudButton';
+import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { GoogleGenAI } from "@google/genai";
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';

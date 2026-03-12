@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Calendar, Moon, Quote, Smile, Star, Search, Trash2, Clock, Eye, Download, X, Zap, Book, Printer, BarChart3, Brain, Loader2 } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { geminiService } from '../../services/geminiService';
-import { ZineGenerator } from '../ZineGenerator';
+import { ZineGenerator } from '../shared/ZineGenerator';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 interface MasterArchiveProps {

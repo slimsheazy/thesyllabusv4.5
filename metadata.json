@@ -1,6 +1,6 @@
 {
-  "name": "Remix: Remix: The Syllabus4",
-  "description": "An esoteric archive of tools and shared wisdom for navigating the big stuff in life.",
+  "name": "The Syllabus",
+  "description": "A practical archive of tools for navigating life's complexities.",
   "requestFramePermissions": [
     "geolocation",
     "camera",

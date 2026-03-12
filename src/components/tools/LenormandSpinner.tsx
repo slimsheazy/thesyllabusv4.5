@@ -4,7 +4,7 @@ import { RotateCw, Sparkles, Zap } from 'lucide-react';
 import { useHaptics } from '../../hooks/useHaptics';
 import { geminiService } from '../../services/geminiService';
 import { Type } from "@google/genai";
-import { ReadAloudButton } from '../ReadAloudButton';
+import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 
@@ -47,20 +47,8 @@ export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) =>
     
     setIsLoading(true);
     try {
-      const prompt = `Interpret these three Lenormand cards as a cohesive sentence in a 'Modern Noir' style. 
-      Cards: ${newResults[0]}, ${newResults[1]}, ${newResults[2]}.
-      Tone: Practical, punchy, down-to-earth, no mystical fluff. 
-      Format: One sentence only. Mention the card names in parentheses where appropriate.`;
-      
-      const response = await geminiService.generateJson<{ reading: string }>(prompt, {
-        type: Type.OBJECT,
-        properties: {
-          reading: { type: Type.STRING }
-        },
-        required: ['reading']
-      });
-      
-      setReading(response.reading);
+      const reading = await geminiService.interpretLenormand(newResults);
+      setReading(reading);
       triggerSuccess();
     } catch (error) {
       console.error("Failed to get reading:", error);
@@ -72,11 +60,11 @@ export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) =>
 
   return (
     <ToolLayout
-      title="The Lenormand Spinner"
-      subtitle="Practical insights from the mechanical archive"
+      title="Lenormand Spinner"
+      subtitle="Quick answers from the card spinner."
       onBack={onBack}
-      tooltipTitle="The Mechanical Oracle"
-      tooltipContent="A 36-card divination system known for its direct, practical, and literal interpretations. The spinner reduces the cosmic noise to a single, punchy frequency."
+      tooltipTitle="The Spinner"
+      tooltipContent="A simple 36-card system for direct answers."
     >
       <div className="w-full flex flex-col items-center gap-16">
         <div className="max-w-4xl w-full space-y-12">
@@ -167,7 +155,7 @@ export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) =>
                       <div className="w-2 h-2 bg-archive-accent rounded-full animate-bounce [animation-delay:0.2s]" />
                       <div className="w-2 h-2 bg-archive-accent rounded-full animate-bounce [animation-delay:0.4s]" />
                     </div>
-                    <span className="handwritten text-xl italic opacity-40">Decoding the sequence...</span>
+                    <span className="handwritten text-xl italic opacity-40">Analyzing...</span>
                   </motion.div>
                 ) : reading ? (
                   <motion.div
@@ -181,7 +169,7 @@ export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) =>
                       <div className="flex justify-between items-center mb-6">
                         <div className="flex items-center gap-3">
                           <Zap className="text-archive-accent w-4 h-4" />
-                          <h3 className="col-header border-none pb-0">Synthesis</h3>
+                          <h3 className="col-header border-none pb-0">Result</h3>
                         </div>
                         <ReadAloudButton text={reading} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                       </div>
@@ -198,7 +186,7 @@ export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) =>
                     className="space-y-4 py-10"
                   >
                     <Sparkles className="mx-auto w-8 h-8" />
-                    <p className="handwritten text-2xl italic">Three cards. One sentence. No fluff.</p>
+                    <p className="handwritten text-2xl italic">Three cards. One sentence.</p>
                   </motion.div>
                 )}
               </AnimatePresence>

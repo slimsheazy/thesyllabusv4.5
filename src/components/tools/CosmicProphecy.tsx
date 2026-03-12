@@ -6,7 +6,7 @@ import { useHaptics } from '../../hooks/useHaptics';
 import { geminiService } from '../../services/geminiService';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
-import { WritingEffect } from '../WritingEffect';
+import { WritingEffect } from '../shared/WritingEffect';
 
 interface CosmicProphecyProps {
   onBack: () => void;

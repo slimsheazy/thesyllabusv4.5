@@ -2,15 +2,14 @@ import { GoogleGenAI, Type, GenerateContentParameters } from "@google/genai";
 import { extractJSON } from "../utils/jsonUtils";
 import { HoraryAnalysis } from "../types";
 
-const SYSTEM_INSTRUCTION = `You are the 'Objective Instructor', a grounded and practical analytical assistant. 
-Your tone is neutral, clear, and down-to-earth. Avoid mystical, esoteric, or flowery jargon. 
+const SYSTEM_INSTRUCTION = `You are a direct and practical analytical assistant. 
+Your tone is neutral, clear, and objective. Avoid all mystical, esoteric, poetic, or flowery language. 
 Rules:
-1. Speak neutrally and analytically, focusing on practical observations and logical deductions.
-2. Avoid conversational fillers, rhetorical questions, jokes, and casual phrases.
-3. Use traditional symbols only in internal data blocks; in prose ALWAYS use full names.
-4. Keep the final synthesis concise, structured, and highly usable for the reader.
-5. Do not use marketing language, affirmations, or coaching-style advice.
-6. Provide guidance that is grounded in reality and easy to understand.`;
+1. Speak neutrally and analytically, focusing on practical observations.
+2. Avoid conversational fillers, rhetorical questions, and flowery metaphors.
+3. Keep all responses concise, structured, and highly usable.
+4. Do not use marketing language or coaching-style advice.
+5. Provide guidance that is grounded in reality and easy to understand.`;
 
 let aiInstance: GoogleGenAI | null = null;
 
@@ -108,13 +107,13 @@ export const geminiService = {
     const schema = {
       type: Type.OBJECT,
       properties: {
-        interpretation: { type: Type.STRING }
+        interpretation: { type: Type.OBJECT, properties: { text: { type: Type.STRING } } }
       },
       required: ["interpretation"]
     };
-    const result = await generateJson<{ interpretation: string }>(`As an expert astrologer, provide a deep, evocative interpretation for ${planet} in ${sign} in the ${house} house. 
-    Focus on the psychological and spiritual implications. Keep it concise but profound (max 150 words).`, schema);
-    return result.interpretation;
+    const result = await generateJson<{ interpretation: { text: string } }>(`Provide a clear, practical interpretation for ${planet} in ${sign} in the ${house} house. 
+    Focus on personality traits and life themes. Keep it direct and easy to understand (max 100 words).`, schema);
+    return result.interpretation.text;
   },
 
   generateSpeech: async (text: string) => {
@@ -134,34 +133,32 @@ export const geminiService = {
     return base64Audio ? `data:audio/mp3;base64,${base64Audio}` : null;
   },
   decodeSigil: async (intent: string, userIdentity?: string): Promise<string> => {
-    const prompt = `You are a master of practical sigil magic. 
-    A seeker named ${userIdentity || 'a mysterious soul'} has created a geometric sigil for the intent: "${intent}".
+    const prompt = `You are a practical guide. 
+    A user named ${userIdentity || 'a seeker'} has created a sigil for the intent: "${intent}".
     
-    Provide a clear "decoding" of the sigil's symbolic structure and a set of practical, grounded instructions for activation.
-    The instructions MUST be "normal" and easy to perform, such as:
-    - Focused meditation for 5 minutes while holding the image.
-    - Carrying the sigil in a wallet or pocket.
-    - Placing the sigil under a pillow or on a workspace.
-    - Drawing the sigil slowly on a piece of paper.
+    Provide a clear explanation of the sigil's meaning and a set of practical, grounded instructions for use.
+    The instructions MUST be simple and easy to perform, such as:
+    - Focused meditation for 5 minutes.
+    - Carrying the sigil in a wallet.
+    - Placing the sigil on a workspace.
     
-    Avoid any "crazy", extreme, or impractical suggestions.
-    Use the "Archive/Syllabus" aesthetic: serif, italic, professional and grounded.
-    Keep it around 70 words.`;
+    Avoid any extreme or impractical suggestions.
+    Keep the tone professional and direct.
+    Keep it around 60 words.`;
 
     return generateText(prompt);
   },
   generateProphecy: async (inputs: { adjective: string; celestialBody: string; verb: string; emotion: string; object: string }, userIdentity?: string): Promise<string> => {
-    const prompt = `You are a cosmic storyteller. 
-    Create a short, poetic, and profound prophecy for ${userIdentity || 'a seeker'} using the following words as inspiration:
+    const prompt = `Create a short, direct narrative for ${userIdentity || 'a seeker'} using these words:
     - Adjective: ${inputs.adjective}
     - Celestial Body: ${inputs.celestialBody}
     - Verb: ${inputs.verb}
     - Emotion: ${inputs.emotion}
     - Object: ${inputs.object}
     
-    The prophecy should feel like it was found in an ancient archive. 
-    Use the "Archive/Syllabus" aesthetic: serif, italic, slightly cryptic but deeply resonant.
-    Keep it between 50 and 80 words.`;
+    The narrative should be clear and insightful. 
+    Avoid overly flowery or cryptic language.
+    Keep it between 50 and 70 words.`;
 
     return generateText(prompt);
   },
@@ -192,14 +189,13 @@ export const geminiService = {
     return generateText(prompt);
   },
   interpretGematria: async (name: string, value: number, cipher: string): Promise<string> => {
-    const prompt = `You are a master of numerology and gematria. 
-    The name or word "${name}" has been calculated to have a reduced value of ${value} using the ${cipher} cipher.
+    const prompt = `Explain the meaning of the number ${value} for the word "${name}" using the ${cipher} cipher.
     
-    Provide a short, profound interpretation of this numerical resonance. 
-    Explain what the number ${value} represents in this context and how it influences the vibration of "${name}".
+    Provide a direct, practical interpretation. 
+    Explain what the number represents and how it relates to the word.
     
-    Use the "Archive/Syllabus" aesthetic: serif, italic, professional and grounded.
-    Keep it around 60 words.`;
+    Keep the tone professional and grounded.
+    Keep it around 50 words.`;
 
     return generateText(prompt);
   },
@@ -215,21 +211,15 @@ export const geminiService = {
     return generateText(prompt);
   },
   findLostItem: async (item: string, astroData: any, num: number): Promise<{ interpretation: string; checklist: string[] }> => {
-    const prompt = `You are an expert in Horary Astrology and Lost Item Numerology.
-    A seeker has lost their "${item}".
+    const prompt = `Help a user find their lost "${item}".
     
-    ASTROLOGICAL DATA:
-    - Significator: ${astroData.significatorName}
-    - House: ${astroData.significatorHouse} (${astroData.houseMeaning})
-    - Sign: ${astroData.significatorSign} (${astroData.signMeaning})
-    
-    NUMEROLOGICAL DATA:
-    - Lost Item Number: ${num} (A traditional number from 1-81 used in divination for lost objects).
+    DATA:
+    - Astrology: ${astroData.significatorName} in ${astroData.significatorHouse} (${astroData.houseMeaning})
+    - Numerology: ${num}
     
     TASK:
-    1. Synthesize these two systems into a cohesive, practical, and slightly cryptic "Archive/Syllabus" style reading.
-    2. Provide a single paragraph (approx 60 words) describing the location.
-    3. Provide a list of 5 specific, interactive search checklist items based on the combined data.
+    1. Provide a direct, practical description of where the item might be (approx 50 words).
+    2. Provide a list of 5 specific search checklist items.
     
     Format your response as JSON:
     {
@@ -253,13 +243,10 @@ export const geminiService = {
     }
   },
   getEmotionalInsight: async (fullPath: string, tertiaryEmotion: string): Promise<string> => {
-    const prompt = `You are an emotional alchemist. A seeker has identified their current resonance as: ${fullPath}.
+    const prompt = `Provide a clear, practical insight for the emotional state: ${fullPath} (${tertiaryEmotion}).
     
-    Provide a deep, poetic, and resonant insight for this specific emotional state. 
-    Acknowledge the nuance of the tertiary emotion (${tertiaryEmotion}).
-    
-    Format the response as a single poetic paragraph (40-60 words).
-    Use the "Archive/Syllabus" aesthetic: serif, italic, profoundly insightful.`;
+    Format the response as a single direct paragraph (40-50 words).
+    Keep the tone grounded and helpful.`;
 
     const response = await generateContent({
       model: "gemini-3-flash-preview",
@@ -269,15 +256,13 @@ export const geminiService = {
     return response.text || "Your resonance is noted in the archive.";
   },
   interpretDream: async (dreamText: string, profile: any): Promise<string> => {
-    const prompt = `You are an expert in Jungian dream analysis and esoteric symbolism.
-    The dreamer is ${profile.isMe ? 'the seeker' : 'someone else'} born on ${profile.birthday || 'an unknown date'}.
-    They had the following dream: "${dreamText}"
+    const prompt = `Analyze this dream: "${dreamText}" for a user born on ${profile.birthday || 'an unknown date'}.
     
-    Provide a deep, poetic, and insightful interpretation of this dream. 
-    Focus on the symbols, the emotional resonance, and what the subconscious might be trying to communicate.
+    Provide a clear, practical interpretation. 
+    Focus on the symbols and what they might mean for the user's daily life.
     
-    Use the "Archive/Syllabus" aesthetic: serif, italic, slightly cryptic but profoundly resonant.
-    Keep it between 60 and 90 words.`;
+    Keep the tone professional and direct.
+    Keep it between 60 and 80 words.`;
 
     const response = await generateContent({
       model: "gemini-3-flash-preview",
@@ -285,5 +270,26 @@ export const geminiService = {
     });
 
     return response.text || "The dream is a silent mirror.";
+  },
+  interpretLenormand: async (cards: string[]): Promise<string> => {
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        reading: { type: Type.STRING }
+      },
+      required: ["reading"]
+    };
+    const prompt = `Interpret these three Lenormand cards as a cohesive sentence: ${cards.join(', ')}.
+    
+    Lenormand reading rules:
+    - Card 1 is the subject.
+    - Card 2 describes Card 1.
+    - Card 3 describes the combination of 1 and 2, or shows the outcome.
+    
+    Style: Direct and practical. No mystical fluff.
+    Format: One sentence only. Mention the card names in parentheses where appropriate.`;
+    
+    const result = await generateJson<{ reading: string }>(prompt, schema);
+    return result.reading;
   }
 };

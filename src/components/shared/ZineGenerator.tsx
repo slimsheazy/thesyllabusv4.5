@@ -1,8 +1,8 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useSyllabusStore } from '../store';
+import { useSyllabusStore } from '../../store';
 import { Printer, X, Download, BookOpen, Scissors, Calendar as CalendarIcon } from 'lucide-react';
-import { exportAsPDF } from '../utils/exportUtils';
+import { exportAsPDF } from '../../utils/exportUtils';
 
 interface ZineGeneratorProps {
   onClose: () => void;
