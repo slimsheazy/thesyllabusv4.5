@@ -33,6 +33,16 @@ const CELTIC_CROSS_POSITIONS = [
   { label: "The Outcome", description: "The final result if current path continues." }
 ];
 
+const THREE_CARD_POSITIONS = [
+  { label: "Past", description: "The foundation or history of the situation." },
+  { label: "Present", description: "The current energy and immediate focus." },
+  { label: "Future", description: "The potential outcome or next phase." }
+];
+
+const ONE_CARD_POSITIONS = [
+  { label: "Insight", description: "The core message or singular focus for the inquiry." }
+];
+
 export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
   const { triggerClick, triggerSuccess } = useHaptics();
   const [drawnCards, setDrawnCards] = useState<DrawnCard[]>([]);
@@ -42,6 +52,7 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
   const [spread, setSpread] = useState<SpreadType>('one-card');
   const [showSpreadMenu, setShowSpreadMenu] = useState(false);
   const [synthesis, setSynthesis] = useState<string | null>(null);
+  const [cardInterpretations, setCardInterpretations] = useState<string[]>([]);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
   const drawCards = async () => {
@@ -52,6 +63,7 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
     setIsDrawing(true);
     setDrawnCards([]);
     setSynthesis(null);
+    setCardInterpretations([]);
     
     const numCards = spread === 'one-card' ? 1 : spread === 'three-card' ? 3 : 10;
     
@@ -71,23 +83,23 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
     // Start synthesis
     setIsSynthesizing(true);
     try {
-      const cardList = selected.map((c, i) => {
-        const posLabel = spread === 'celtic-cross' ? ` (${CELTIC_CROSS_POSITIONS[i].label})` : '';
-        return `${i + 1}. ${c.name}${posLabel} (${c.isReversed ? 'Reversed' : 'Upright'})`;
-      }).join('\n');
+      const positions = spread === 'one-card' ? ONE_CARD_POSITIONS : 
+                        spread === 'three-card' ? THREE_CARD_POSITIONS : 
+                        CELTIC_CROSS_POSITIONS;
+
+      const cardsForAI = selected.map((c, i) => ({
+        name: c.name,
+        isReversed: c.isReversed,
+        position: positions[i].label,
+        description: positions[i].description
+      }));
       
-      const prompt = `As a master Tarot reader, provide a concise synthesis for a ${spread} spread.
-      Inquiry: "${question}"
-      Cards drawn:
-      ${cardList}
-      
-      Synthesize these archetypes into a cohesive narrative for the seeker. 
-      Keep it under 100 words. Use the "Archive/Syllabus" aesthetic: poetic, direct, and slightly esoteric.`;
-      
-      const text = await geminiService.generateText(prompt);
-      setSynthesis(text);
+      const result = await geminiService.interpretTarot(question, spread, cardsForAI);
+      setSynthesis(result.synthesis);
+      setCardInterpretations(result.cardInterpretations);
     } catch (error) {
       console.error("Tarot synthesis failed", error);
+      setSynthesis("The archive is hazy. Please try again.");
     } finally {
       setIsSynthesizing(false);
     }
@@ -224,7 +236,7 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
                 <p className="text-xs opacity-60 italic mb-2">{CELTIC_CROSS_POSITIONS[hoveredCard].description}</p>
                 <div className="h-px bg-archive-line opacity-20 my-2" />
                 <p className="text-sm leading-relaxed">
-                  {drawnCards[hoveredCard].isReversed ? drawnCards[hoveredCard].reversedMeaning : drawnCards[hoveredCard].uprightMeaning}
+                  {cardInterpretations[hoveredCard] || (drawnCards[hoveredCard].isReversed ? drawnCards[hoveredCard].reversedMeaning : drawnCards[hoveredCard].uprightMeaning)}
                 </p>
               </div>
             </motion.div>
@@ -368,31 +380,38 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
                     </div>
                   )}
 
-                  {drawnCards.map((card, idx) => (
-                    <div key={`meaning-${idx}`} className="archive-card p-8 space-y-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <span className="text-[10px] font-mono text-archive-accent uppercase tracking-widest">{card.arcana} arcana</span>
-                          <h2 className="text-3xl font-serif italic mt-1">{card.name} {card.isReversed && <span className="text-sm opacity-40">(Reversed)</span>}</h2>
+                  {drawnCards.map((card, idx) => {
+                    const positions = spread === 'one-card' ? ONE_CARD_POSITIONS : 
+                                      spread === 'three-card' ? THREE_CARD_POSITIONS : 
+                                      CELTIC_CROSS_POSITIONS;
+                    const interpretation = cardInterpretations[idx] || (card.isReversed ? card.reversedMeaning : card.uprightMeaning);
+                    
+                    return (
+                      <div key={`meaning-${idx}`} className="archive-card p-8 space-y-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <span className="text-[10px] font-mono text-archive-accent uppercase tracking-widest">{card.arcana} arcana</span>
+                            <h2 className="text-3xl font-serif italic mt-1">{card.name} {card.isReversed && <span className="text-sm opacity-40">(Reversed)</span>}</h2>
+                          </div>
+                          <div className="flex flex-col items-end gap-2">
+                            <span className="text-[10px] font-mono opacity-30 uppercase tracking-widest">
+                              {positions[idx].label}
+                            </span>
+                            <ReadAloudButton text={interpretation} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
+                          </div>
                         </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <span className="text-[10px] font-mono opacity-30 uppercase tracking-widest">
-                            {spread === 'three-card' ? (idx === 0 ? 'Past' : idx === 1 ? 'Present' : 'Future') : `Position ${idx + 1}`}
-                          </span>
-                          <ReadAloudButton text={card.isReversed ? card.reversedMeaning : card.uprightMeaning} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
+                        <div className="font-serif italic text-xl leading-relaxed text-archive-ink border-l-2 border-archive-line pl-6">
+                          <Markdown>{`"${interpretation}"`}</Markdown>
                         </div>
                       </div>
-                      <div className="font-serif italic text-xl leading-relaxed text-archive-ink border-l-2 border-archive-line pl-6">
-                        <Markdown>{`"${card.isReversed ? card.reversedMeaning : card.uprightMeaning}"`}</Markdown>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <ResultSection
                   id="tarot-reading-content"
                   title="Archive Entry"
-                  content={`Spread: ${spread}\nInquiry: ${question}\n\nSynthesis: ${synthesis}\n\nCards: ${drawnCards.map(c => `${c.name} (${c.isReversed ? 'Reversed' : 'Upright'})`).join(', ')}`}
+                  content={`Spread: ${spread}\nInquiry: ${question}\n\nSynthesis: ${synthesis}\n\nCards:\n${drawnCards.map((c, i) => `${c.name} (${c.isReversed ? 'Reversed' : 'Upright'}) - ${cardInterpretations[i] || 'No interpretation'}`).join('\n\n')}`}
                   exportName={`tarot-${spread}`}
                   onClose={() => setDrawnCards([])}
                 />

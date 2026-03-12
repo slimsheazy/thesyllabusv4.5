@@ -291,5 +291,45 @@ export const geminiService = {
     
     const result = await generateJson<{ reading: string }>(prompt, schema);
     return result.reading;
+  },
+  interpretTarot: async (question: string, spread: string, cards: { name: string; isReversed: boolean; position: string; description: string }[]): Promise<{ synthesis: string; cardInterpretations: string[] }> => {
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        synthesis: { type: Type.STRING },
+        cardInterpretations: { 
+          type: Type.ARRAY, 
+          items: { type: Type.STRING } 
+        }
+      },
+      required: ["synthesis", "cardInterpretations"]
+    };
+
+    const cardList = cards.map((c, i) => 
+      `${i + 1}. ${c.name} (${c.isReversed ? 'Reversed' : 'Upright'}) at position "${c.position}" (${c.description})`
+    ).join('\n');
+
+    const prompt = `You are a master analytical tarot reader for "The Syllabus" archive. 
+    Inquiry: "${question}"
+    Spread: ${spread}
+    
+    Cards:
+    ${cardList}
+    
+    Task:
+    1. Provide a specific interpretation for EACH card in its specific position. Connect the card's archetype to the user's inquiry and the position's meaning.
+    2. Provide a cohesive synthesis (narrative) that ties the entire spread together.
+    
+    Style:
+    - Direct, practical, and grounded.
+    - No flowery or mystical fluff.
+    - Resonant and psychologically insightful.
+    - Professional and objective.
+    
+    Constraints:
+    - Synthesis: Max 120 words.
+    - Each card interpretation: Max 40 words.`;
+
+    return generateJson<{ synthesis: string; cardInterpretations: string[] }>(prompt, schema, "gemini-3.1-pro-preview");
   }
 };
