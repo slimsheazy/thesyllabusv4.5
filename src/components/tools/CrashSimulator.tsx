@@ -31,10 +31,23 @@ export const CrashSimulator: React.FC<{ onBack: () => void }> = ({ onBack }) => 
     
     try {
       const data = await geminiService.getCrashSimulation(goal);
-      const processed = data.failureModes.map(m => ({
-        ...m,
-        rpn: m.severity * m.occurrence * m.detection
-      })).sort((a, b) => b.rpn - a.rpn);
+      const processed = data.failureModes.map(m => {
+        // RPN (Risk Priority Number) is calculated by multiplying these three factors:
+        // Severity (S): Impact of the failure on the end goal (1-10).
+        // Occurrence (O): Probability that the failure will occur (1-10).
+        // Detection (D): Difficulty of detecting failure before it happens (1-10).
+        const severity = m.severity;
+        const occurrence = m.occurrence;
+        const detection = m.detection;
+        
+        // Final RPN = S * O * D
+        const rpn = severity * occurrence * detection;
+        
+        return {
+          ...m,
+          rpn
+        };
+      }).sort((a, b) => b.rpn - a.rpn);
 
       setResults(processed);
       recordCalculation();

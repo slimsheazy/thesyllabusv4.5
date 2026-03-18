@@ -174,9 +174,6 @@ export const SynchronicityDecoder: React.FC<SynchronicityDecoderProps> = ({ onBa
                       <Sparkles className="text-archive-accent w-5 h-5" />
                       <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">The Resonance</span>
                     </div>
-                    <div className="font-serif italic text-2xl md:text-3xl leading-relaxed text-archive-ink markdown-body">
-                      <LexiconText>{result}</LexiconText>
-                    </div>
                   </div>
 
                   <div className="mt-12 pt-10 border-t border-archive-line flex justify-center">

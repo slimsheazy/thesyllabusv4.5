@@ -1,17 +1,17 @@
 import { GoogleGenAI, Type, GenerateContentParameters, Modality } from "@google/genai";
 import { extractJSON } from "../utils/jsonUtils";
-import { HoraryAnalysis } from "../types";
+import { HoraryAnalysis, QuantumTimelineResult } from "../types";
 
-const SYSTEM_INSTRUCTION = `You are the Master Librarian of the Archive. 
-Your tone is analytical, objective, and slightly formal, yet profoundly insightful. 
+const SYSTEM_INSTRUCTION = `You are a technical analyst for the Archive.
+Your tone is professional, objective, and clear.
 Rules:
 1. Provide grounded, pattern-based observations.
-2. Use precise, evocative language that fits the "Archive" aesthetic-think "ink on parchment" and "cosmic record-keeping".
+2. Use precise, accessible language.
 3. Focus on real-world utility and psychological clarity.
 4. Keep all responses concise, structured, and highly usable.
 5. Avoid generic marketing jargon or "life coach" platitudes.
 6. When interpreting symbols, be specific and avoid vague generalities.
-7. Output strictly in clean, semantic text. Use standard line breaks (\n) for spacing and avoid excessive nested bullet points which frequently cause rendering skips.`;
+7. Output strictly in clean, semantic text. Use standard line breaks (\n) for spacing and avoid excessive nested bullet points.`;
 
 let aiInstance: GoogleGenAI | null = null;
 
@@ -59,6 +59,44 @@ export async function generateJson<T>(prompt: string, schema: any, model: string
   return extractJSON<T>(response.text || "{}");
 }
 
+export async function getElectionalAnalysis(intent: string, lat: number, lng: number, currentIso: string): Promise<{ isoDate: string; selectedDate: string; chartData: { ascendant: number; planets: { name: string; degree: number }[] } }> {
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      isoDate: { type: Type.STRING },
+      selectedDate: { type: Type.STRING },
+      chartData: {
+        type: Type.OBJECT,
+        properties: {
+          ascendant: { type: Type.NUMBER },
+          planets: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                name: { type: Type.STRING },
+                degree: { type: Type.NUMBER }
+              }
+            }
+          }
+        },
+        required: ["ascendant", "planets"]
+      }
+    },
+    required: ["isoDate", "selectedDate", "chartData"]
+  };
+  const prompt = `As an expert electional astrologer, find the optimal time for the following intent: "${intent}".
+  Location: Lat ${lat}, Lng ${lng}.
+  Current time: ${currentIso}.
+  
+  CRITICAL PROTOCOL:
+  1. Find an auspicious time in the future.
+  2. Calculate the chart for that time.
+  3. Return the date in ISO format and a human-readable format.
+  4. Provide the Ascendant and planetary positions.`;
+  return generateJson(prompt, schema, "gemini-3.1-pro-preview");
+}
+
 export const geminiService = {
   generateContent,
   generateText,
@@ -100,6 +138,57 @@ export const geminiService = {
     3. Identify the significators for the Querent (Lord of 1st) and the Quesited (Lord of the relevant house).
     4. Analyze the Moon's condition and its next aspects.
     5. Provide absolute degrees (0-360) for the Ascendant and all relevant planets for the chartData.`, schema);
+  },
+
+  getQuantumTimelineScan: async (data: { intent: string; signature: string }): Promise<QuantumTimelineResult> => {
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        currentReality: {
+          type: Type.OBJECT,
+          properties: {
+            stateLabel: { type: Type.STRING },
+            entropyLevel: { type: Type.STRING },
+            frequencyMarker: { type: Type.STRING },
+            realityFragments: { type: Type.ARRAY, items: { type: Type.STRING } }
+          },
+          required: ["stateLabel", "entropyLevel", "frequencyMarker", "realityFragments"]
+        },
+        desiredReality: {
+          type: Type.OBJECT,
+          properties: {
+            stateLabel: { type: Type.STRING },
+            entropyLevel: { type: Type.STRING },
+            frequencyMarker: { type: Type.STRING },
+            realityFragments: { type: Type.ARRAY, items: { type: Type.STRING } }
+          },
+          required: ["stateLabel", "entropyLevel", "frequencyMarker", "realityFragments"]
+        },
+        quantumJump: {
+          type: Type.OBJECT,
+          properties: {
+            behavioralDelta: { type: Type.STRING },
+            bridgeAction: { type: Type.STRING },
+            shiftFrequency: { type: Type.STRING }
+          },
+          required: ["behavioralDelta", "bridgeAction", "shiftFrequency"]
+        }
+      },
+      required: ["currentReality", "desiredReality", "quantumJump"]
+    };
+
+    const prompt = `As a quantum timeline analyst, analyze the following intent and signature:
+    Intent: "${data.intent}"
+    Signature: "${data.signature}"
+    
+    TASK:
+    1. Define the current reality state and the desired reality state.
+    2. Identify the differences (reality fragments).
+    3. Define the quantum jump (behavioral delta, bridge action, shift frequency).
+    
+    Style: Technical, analytical, high-density.`;
+
+    return generateJson<QuantumTimelineResult>(prompt, schema);
   },
 
   getWordDefinition: async (word: string) => {
@@ -223,7 +312,7 @@ export const geminiService = {
 
     return generateText(prompt);
   },
-  findLostItem: async (item: string, astroData: any): Promise<{ interpretation: string; checklist: string[] }> => {
+  findLostItem: async (item: string, numerologyData: { itemNumber: number; timeNumber: number; totalNumber: number }): Promise<{ interpretation: string; checklist: string[] }> => {
     const schema = {
       type: Type.OBJECT,
       properties: {
@@ -239,10 +328,10 @@ export const geminiService = {
     const prompt = `Help a user find their lost "${item}".
     
     DATA:
-    - Astrology: Significator ${astroData.significatorName} in the ${astroData.significatorHouse} House (${astroData.houseMeaning}). Sign: ${astroData.significatorSign} (${astroData.signMeaning}).
+    - Numerology: Item value: ${numerologyData.itemNumber}, Time value: ${numerologyData.timeNumber}, Total numerological resonance: ${numerologyData.totalNumber}.
     
     TASK:
-    1. Provide a direct, practical synthesis that uses the astrological significators to pinpoint the location.
+    1. Provide a direct, practical synthesis that uses the numerological resonance to pinpoint the location.
     2. Provide a list of 5 specific, practical search checklist items based on this synthesis.
     
     Style: Very practical, plain-spoken, and grounded. Like a sensible person next door giving straightforward advice. No mystical fluff.
@@ -252,8 +341,8 @@ export const geminiService = {
     return generateJson<{ interpretation: string; checklist: string[] }>(prompt, schema);
   },
   decodeSynchronicity: async (event: string, context: any): Promise<string> => {
-    const prompt = `You are an expert in Jungian synchronicity, esoteric symbolism, and pattern recognition.
-    A seeker has noticed a meaningful coincidence and wants to intuit its significance using the mechanism: ${context.mechanism}.
+    const prompt = `You are an expert in pattern recognition and symbolic analysis.
+    A user has noticed a meaningful coincidence and wants to understand its significance using the mechanism: ${context.mechanism}.
     
     COINCIDENCE: "${event}"
     
@@ -263,12 +352,12 @@ export const geminiService = {
     - User Birthday: ${context.userBirthday || 'Unknown'}
     
     TASK:
-    1. Decode the esoteric meaning of this synchronicity specifically through the lens of ${context.mechanism}.
-    2. Explain the "resonance" or message the universe might be trying to convey.
-    3. Provide a practical "alignment action" to honor this pattern.
+    1. Analyze the meaning of this coincidence through the lens of ${context.mechanism}.
+    2. Explain the significance or potential message in a clear, practical way.
+    3. Provide a concrete "alignment action" to apply this insight.
     
-    Style: The tone should be that of the Librarian-analytical, deeply symbolic, and insightful. 
-    Avoid generic fluff, but embrace the high-resonance language of the Archive. 
+    Style: The tone should be professional, analytical, and insightful. 
+    Avoid overly mystical or flowery language. Focus on clarity and practical application.
     Approx 100-150 words.`;
 
     return generateText(prompt);
@@ -576,11 +665,11 @@ export const geminiService = {
     - Birth Time: ${profile.birthTime}
     - Birth Location: ${profile.location.name}
     
-    CRITICAL CALCULATION PROTOCOL:
-    1. Calculate the positions of the 13 Design (Red) and 13 Personality (Black) activations.
-    2. Design activations are calculated exactly 88 degrees of solar arc before the birth moment.
-    3. Map these activations to the 64 Gates of the I Ching.
-    4. Determine the 9 Centers' status based on active channels (two connected gates).
+    CRITICAL CALCULATION PROTOCOL (MUST FOLLOW STANDARD HUMAN DESIGN CHARTS):
+    1. Calculate the exact planetary positions for both the Personality (Black) and Design (Red) charts.
+    2. The Design chart is calculated for the moment exactly 88 degrees of solar arc (approx. 88 days) before birth.
+    3. Map these 26 positions (13 Personality, 13 Design) to the 64 Gates of the I Ching based on the standard Human Design ephemeris.
+    4. Determine the 9 Centers' status (Defined/Undefined) based on the presence of active channels (both gates of a channel must be activated).
     5. Identify the Type, Strategy, Authority, and Profile based on the resulting BodyGraph.
     
     Provide a comprehensive analysis including:
@@ -591,7 +680,7 @@ export const geminiService = {
     5. Definition (Single, Split, etc.)
     6. Incarnation Cross
     7. A practical, grounded summary of their design.
-    8. Analysis of the 9 Centers (Head, Ajna, Throat, G, Heart, Sacral, Spleen, Solar Plexus, Root).
+    8. Analysis of the 9 Centers (Head, Ajna, Throat, G, Heart, Sacral, Spleen, Solar Plexus, Root). Each center description MUST explain its function and what it means to be Defined vs Undefined.
     9. A full list of active gates (1-64).
     
     Style: The tone should be that of the Librarian-analytical, formal, and profoundly insightful. Focus on practical application of the strategy and authority.`;

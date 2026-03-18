@@ -187,3 +187,27 @@ export interface House {
   keyword: string;
   contextKeyword?: string;
 }
+
+export interface QuantumTimelineResult {
+  currentReality: {
+    stateLabel: string;
+    entropyLevel: string;
+    frequencyMarker: string;
+    realityFragments: string[];
+  };
+  desiredReality: {
+    stateLabel: string;
+    entropyLevel: string;
+    frequencyMarker: string;
+    realityFragments: string[];
+  };
+  quantumJump: {
+    behavioralDelta: string;
+    bridgeAction: string;
+    shiftFrequency: string;
+  };
+}
+
+export interface ToolProps {
+  onBack: () => void;
+}

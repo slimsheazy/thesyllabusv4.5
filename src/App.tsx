@@ -24,7 +24,7 @@ const ToolRegistry: Record<string, React.LazyExoticComponent<React.FC<any>>> = {
   SABIAN: lazy(() => import('./components/tools/SabianSymbolsTool').then(m => ({ default: m.SabianSymbolsTool }))),
   TAROT: lazy(() => import('./components/tools/TarotTool').then(m => ({ default: m.TarotTool }))),
   BIRTH_CHART: lazy(() => import('./components/tools/BirthChartTool').then(m => ({ default: m.BirthChartTool }))),
-  FLYING_STAR: lazy(() => import('./components/tools/FlyingStarTool').then(m => ({ default: m.FlyingStarTool }))),
+  FLYING_STAR: lazy(() => import('./components/tools/BaguaMapTool').then(m => ({ default: m.BaguaMapTool }))),
   AKASHIC: lazy(() => import('./components/tools/AkashicRecordsTool').then(m => ({ default: m.AkashicRecordsTool }))),
   LOST_ITEM: lazy(() => import('./components/tools/LostItemFinder').then(m => ({ default: m.LostItemFinder }))),
   SIGIL: lazy(() => import('./components/tools/SigilGenerator').then(m => ({ default: m.SigilGenerator }))),

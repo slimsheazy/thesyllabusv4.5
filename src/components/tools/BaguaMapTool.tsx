@@ -7,49 +7,50 @@ import { useHaptics } from '../../hooks/useHaptics';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
+import { LexiconText } from '../shared/LexiconText';
 
-interface FlyingStarToolProps {
+interface BaguaMapToolProps {
   onBack: () => void;
 }
 
-export const FlyingStarTool: React.FC<FlyingStarToolProps> = ({ onBack }) => {
+const BAGUA_SECTORS = [
+  { id: 'career', name: 'Career', element: 'Water', color: 'bg-blue-900' },
+  { id: 'knowledge', name: 'Knowledge', element: 'Earth', color: 'bg-yellow-800' },
+  { id: 'family', name: 'Family', element: 'Wood', color: 'bg-green-800' },
+  { id: 'wealth', name: 'Wealth', element: 'Wood', color: 'bg-purple-800' },
+  { id: 'fame', name: 'Fame', element: 'Fire', color: 'bg-red-800' },
+  { id: 'relationship', name: 'Relationship', element: 'Earth', color: 'bg-pink-800' },
+  { id: 'children', name: 'Children', element: 'Metal', color: 'bg-gray-500' },
+  { id: 'helpful', name: 'Helpful People', element: 'Metal', color: 'bg-gray-300' },
+  { id: 'center', name: 'Center', element: 'Earth', color: 'bg-yellow-600' },
+];
+
+export const BaguaMapTool: React.FC<BaguaMapToolProps> = ({ onBack }) => {
   const { triggerClick, triggerSuccess } = useHaptics();
   const [facingDirection, setFacingDirection] = useState<string>('N');
   const [loading, setLoading] = useState(false);
-  const [grid, setGrid] = useState<number[][] | null>(null);
   const [interpretation, setInterpretation] = useState<string | null>(null);
   const { recordCalculation } = useSyllabusStore();
 
-  const calculateStars = async () => {
+  const calculateBagua = async () => {
     triggerClick();
     setLoading(true);
     try {
-      // Real Lo Shu Square is the base
-      const baseGrid = [
-        [4, 9, 2],
-        [3, 5, 7],
-        [8, 1, 6]
-      ];
+      const prompt = `As a Feng Shui expert, interpret a Bagua map for a home facing ${facingDirection}.
       
-      const prompt = `As a Feng Shui expert, interpret a Flying Star Bagua map for a home facing ${facingDirection}.
-      The current Lo Shu configuration is:
-      [4, 9, 2]
-      [3, 5, 7]
-      [8, 1, 6]
+      Provide a practical, grounded interpretation of the energy flow for each of the 8 Bagua sectors (Career, Knowledge, Family, Wealth, Fame, Relationship, Children, Helpful People).
       
-      Provide a practical, grounded interpretation of the energy flow. 
-      Identify one "wealth" sector and one "health" sector based on this orientation.
-      Suggest one simple remedy (e.g., placing a plant, a mirror, or a specific color).
-      Keep it under 80 words and use the "Archive/Syllabus" aesthetic (poetic but direct).`;
+      Focus on practical placement advice for each sector (e.g., "Place a plant here to boost growth" or "Keep this area clear to improve flow").
+      
+      Keep it practical, down-to-earth, and avoid complex technical jargon. Use the "Archive/Syllabus" aesthetic (poetic but direct).`;
 
       const text = await geminiService.generateText(prompt);
 
-      setGrid(baseGrid);
       setInterpretation(text || "The energy remains unmapped.");
       recordCalculation();
       triggerSuccess();
     } catch (error) {
-      console.error("Feng Shui calculation failed", error);
+      console.error("Bagua calculation failed", error);
       setInterpretation("The Qi is currently turbulent. Try re-mapping later.");
     } finally {
       setLoading(false);
@@ -58,15 +59,15 @@ export const FlyingStarTool: React.FC<FlyingStarToolProps> = ({ onBack }) => {
 
   return (
     <ToolLayout
-      title="Flying Star Feng Shui"
+      title="Bagua Map Feng Shui"
       subtitle="Harmonizing the energy flow of your physical archive"
       onBack={onBack}
       tooltipTitle="The Spatial Archive"
-      tooltipContent="A classical Feng Shui system that tracks the movement of energy (Qi) through time and space. The home is an extension of the internal archive."
+      tooltipContent="A user-friendly Feng Shui system that maps your home into 9 sectors, each corresponding to different aspects of your life."
     >
       <div className="w-full flex flex-col items-center">
         <AnimatePresence mode="wait">
-          {!grid && !loading ? (
+          {!interpretation && !loading ? (
             <motion.div 
               key="initial"
               initial={{ opacity: 0, y: 20 }}
@@ -111,7 +112,7 @@ export const FlyingStarTool: React.FC<FlyingStarToolProps> = ({ onBack }) => {
                 </div>
 
                 <button 
-                  onClick={calculateStars}
+                  onClick={calculateBagua}
                   className="brutalist-button w-full py-6 text-2xl flex items-center justify-center gap-4"
                 >
                   <Sparkles className="w-6 h-6" />
@@ -148,12 +149,11 @@ export const FlyingStarTool: React.FC<FlyingStarToolProps> = ({ onBack }) => {
                     <p className="font-mono text-[10px] opacity-40 uppercase tracking-widest">Facing {facingDirection}</p>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4 aspect-square max-w-md mx-auto lg:mx-0">
-                    {grid!.flat().map((star, idx) => (
-                      <div key={idx} className="archive-card flex flex-col items-center justify-center p-8 group hover:bg-archive-ink hover:text-archive-bg transition-all relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-2 opacity-[0.05] text-xs font-mono">{idx + 1}</div>
-                        <span className="text-5xl font-serif italic mb-2">{star}</span>
-                        <span className="text-[8px] font-mono uppercase opacity-40 group-hover:opacity-100 tracking-widest">Sector</span>
+                  <div className="grid grid-cols-3 gap-2 aspect-square max-w-md mx-auto lg:mx-0">
+                    {BAGUA_SECTORS.map((sector) => (
+                      <div key={sector.id} className={`archive-card flex flex-col items-center justify-center p-4 group hover:bg-archive-ink hover:text-archive-bg transition-all relative overflow-hidden ${sector.color} text-white`}>
+                        <span className="text-xs font-serif italic mb-1">{sector.name}</span>
+                        <span className="text-[8px] font-mono uppercase opacity-70 tracking-widest">{sector.element}</span>
                       </div>
                     ))}
                   </div>
@@ -171,14 +171,14 @@ export const FlyingStarTool: React.FC<FlyingStarToolProps> = ({ onBack }) => {
                       </div>
                       <ReadAloudButton text={interpretation} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                     </div>
-                      <p className="font-serif italic text-2xl leading-relaxed text-archive-ink">
-                        "{interpretation}"
-                      </p>
+                      <div className="font-serif italic text-xl leading-relaxed text-archive-ink markdown-body">
+                        <LexiconText>{interpretation}</LexiconText>
+                      </div>
                     </div>
 
                     <div className="mt-12 pt-10 border-t border-archive-line flex justify-center">
                       <button 
-                        onClick={() => setGrid(null)}
+                        onClick={() => setInterpretation(null)}
                         className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40 hover:opacity-100 flex items-center gap-2"
                       >
                         <RotateCcw className="w-3 h-3" /> Reset Analysis
@@ -187,13 +187,13 @@ export const FlyingStarTool: React.FC<FlyingStarToolProps> = ({ onBack }) => {
                   </div>
 
                   <ResultSection
-                    id="flying-star-content"
+                    id="bagua-map-content"
                     title="Archive Record"
-                    content={`Facing: ${facingDirection}\n\nGrid: ${grid!.flat().join(', ')}\n\nInterpretation: ${interpretation}`}
-                    exportName={`feng-shui-${facingDirection}`}
-                    onClose={() => setGrid(null)}
-                    type="FENG_SHUI"
-                    metadata={{ facingDirection, grid, interpretation }}
+                    content={`Facing: ${facingDirection}\n\nInterpretation: ${interpretation}`}
+                    exportName={`bagua-map-${facingDirection}`}
+                    onClose={() => setInterpretation(null)}
+                    type="BAGUA_MAP"
+                    metadata={{ facingDirection, interpretation }}
                   />
                 </div>
               </div>

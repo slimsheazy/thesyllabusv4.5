@@ -42,56 +42,62 @@ export const SigilGenerator: React.FC<SigilGeneratorProps> = ({ onBack }) => {
     setLoading(true);
     setInterpretation(null);
     
-    // Complex algorithm to generate a multi-layered sigil
+    // Improved algorithm for intricate sigils
     const processed = intent.toLowerCase().replace(/[^a-z]/g, '');
     const unique = Array.from(new Set(processed)).join('');
     
-    const gridPoints = [
-      {x: 20, y: 20}, {x: 50, y: 20}, {x: 80, y: 20},
-      {x: 20, y: 50}, {x: 50, y: 50}, {x: 80, y: 50},
-      {x: 20, y: 80}, {x: 50, y: 80}, {x: 80, y: 80},
-      {x: 35, y: 35}, {x: 65, y: 35}, {x: 35, y: 65}, {x: 65, y: 65},
-      {x: 50, y: 10}, {x: 50, y: 90}, {x: 10, y: 50}, {x: 90, y: 50},
-      {x: 25, y: 25}, {x: 75, y: 25}, {x: 25, y: 75}, {x: 75, y: 75}
-    ];
+    // Define more complex geometric points
+    const getPoint = (angle: number, radius: number) => ({
+      x: 50 + radius * Math.cos(angle),
+      y: 50 + radius * Math.sin(angle)
+    });
 
-    const points: {x: number, y: number}[] = [];
+    const paths: { d: string; strokeWidth: number; opacity: number }[] = [];
+
+    // 1. Nested Polygons
+    for (let i = 0; i < 3; i++) {
+      const sides = 3 + (unique.length % 5);
+      const radius = 20 + i * 10;
+      let d = "";
+      for (let j = 0; j <= sides; j++) {
+        const angle = (j / sides) * Math.PI * 2;
+        const p = getPoint(angle, radius);
+        d += (j === 0 ? "M " : "L ") + `${p.x} ${p.y} `;
+      }
+      paths.push({ d: d + "Z", strokeWidth: 0.5 + i * 0.3, opacity: 0.4 - i * 0.1 });
+    }
+
+    // 2. Circular Intersections
+    for (let i = 0; i < 4; i++) {
+      const angle = (i / 4) * Math.PI * 2;
+      const p = getPoint(angle, 25);
+      const d = `M ${p.x} ${p.y} A 20 20 0 1 0 ${p.x + 0.1} ${p.y + 0.1} Z`;
+      paths.push({ d, strokeWidth: 0.8, opacity: 0.3 });
+    }
+
+    // 3. Main Intent Path (Complex Bezier)
+    const points = [];
     for (let i = 0; i < unique.length; i++) {
-      const charCode = unique.charCodeAt(i);
-      const pointIndex = (charCode * (i + 1)) % gridPoints.length;
-      points.push(gridPoints[pointIndex]);
+      const angle = (unique.charCodeAt(i) / 255) * Math.PI * 2;
+      points.push(getPoint(angle, 35 + (i % 10) * 2));
     }
 
-    if (points.length < 5) {
-      // Add some geometric anchors if intent is short
-      points.push({x: 50, y: 50}, {x: 20, y: 80}, {x: 80, y: 80}, {x: 50, y: 20});
-    }
-
-    // Main Path: Using Bezier curves for complexity
-    let path = `M ${points[0].x} ${points[0].y} `;
+    let mainPath = `M ${points[0].x} ${points[0].y} `;
     for (let i = 1; i < points.length; i++) {
       const prev = points[i-1];
       const curr = points[i];
       const cx = (prev.x + curr.x) / 2;
       const cy = (prev.y + curr.y) / 2;
-      path += `Q ${prev.x} ${prev.y}, ${cx} ${cy} `;
-      path += `T ${curr.x} ${curr.y} `;
+      mainPath += `Q ${prev.x} ${prev.y}, ${cx} ${cy} T ${curr.x} ${curr.y} `;
     }
-    
-    // Add a secondary "resonance" path
-    let secondaryPath = `M ${100 - points[0].x} ${100 - points[0].y} `;
-    for (let i = 1; i < Math.min(points.length, 6); i++) {
-      const curr = points[i];
-      secondaryPath += `L ${100 - curr.x} ${100 - curr.y} `;
-    }
+    paths.push({ d: mainPath, strokeWidth: 1.5, opacity: 0.9 });
 
-    setSigil(`${path} ${secondaryPath}`);
+    setSigil(JSON.stringify(paths));
 
     try {
       const text = await geminiService.decodeSigil(intent, userIdentity || undefined);
       setInterpretation(text || "The symbol is charged with silent power.");
-      // Save to record but don't display as redundant text block
-      addSigil(intent, text || "The symbol is charged with silent power.", `${path} ${secondaryPath}`);
+      addSigil(intent, text || "The symbol is charged with silent power.", JSON.stringify(paths));
       recordCalculation();
       triggerSuccess();
     } catch (error) {
@@ -174,20 +180,21 @@ export const SigilGenerator: React.FC<SigilGeneratorProps> = ({ onBack }) => {
                       viewBox="0 0 100 100" 
                       className="w-full h-full drop-shadow-2xl"
                     >
-                      <motion.path 
-                        d={sigil} 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="1.2" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round"
-                        initial={{ pathLength: 0, opacity: 0 }}
-                        animate={{ pathLength: 1, opacity: 1 }}
-                        transition={{ duration: 3, ease: "easeInOut" }}
-                      />
-                      {/* Add some geometric accents */}
-                      <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="0.2" strokeDasharray="1 2" opacity="0.2" />
-                      <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="0.1" opacity="0.1" />
+                      {sigil && JSON.parse(sigil).map((path: { d: string; strokeWidth: number; opacity: number }, i: number) => (
+                        <motion.path 
+                          key={i}
+                          d={path.d} 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth={path.strokeWidth}
+                          strokeLinecap="round" 
+                          strokeLinejoin="round"
+                          opacity={path.opacity}
+                          initial={{ pathLength: 0, opacity: 0 }}
+                          animate={{ pathLength: 1, opacity: path.opacity }}
+                          transition={{ duration: 2 + i * 0.5, ease: "easeInOut" }}
+                        />
+                      ))}
                     </svg>
                   </div>
 

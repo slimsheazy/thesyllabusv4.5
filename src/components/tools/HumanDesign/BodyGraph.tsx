@@ -3,7 +3,9 @@ import { motion } from 'motion/react';
 
 interface BodyGraphProps {
   gates: number[];
-  centers: { name: string; status: 'Defined' | 'Undefined' }[];
+  centers: { name: string; status: 'Defined' | 'Undefined'; description: string }[];
+  onSelectCenter: (center: { name: string; status: 'Defined' | 'Undefined'; description: string }) => void;
+  onSelectGate: (gate: number) => void;
 }
 
 const CENTER_COORDS: Record<string, { x: number; y: number; shape: 'triangle' | 'square' | 'diamond' }> = {
@@ -18,7 +20,7 @@ const CENTER_COORDS: Record<string, { x: number; y: number; shape: 'triangle' | 
   'Root': { x: 50, y: 90, shape: 'square' }
 };
 
-export const BodyGraph: React.FC<BodyGraphProps> = ({ gates, centers }) => {
+export const BodyGraph: React.FC<BodyGraphProps> = ({ gates, centers, onSelectCenter, onSelectGate }) => {
   return (
     <div className="relative w-full aspect-[3/4] bg-archive-bg border border-archive-line rounded-archive p-4 overflow-hidden">
       <svg viewBox="0 0 100 100" className="w-full h-full">
@@ -40,7 +42,11 @@ export const BodyGraph: React.FC<BodyGraphProps> = ({ gates, centers }) => {
           const isDefined = centerData?.status === 'Defined';
           
           return (
-            <g key={name} className="transition-all duration-500">
+            <g 
+              key={name} 
+              className="transition-all duration-500 cursor-pointer hover:opacity-80"
+              onClick={() => centerData && onSelectCenter(centerData)}
+            >
               {coord.shape === 'triangle' && (
                 <polygon 
                   points={`${coord.x},${coord.y-4} ${coord.x-5},${coord.y+4} ${coord.x+5},${coord.y+4}`}
@@ -66,7 +72,7 @@ export const BodyGraph: React.FC<BodyGraphProps> = ({ gates, centers }) => {
               <text 
                 x={coord.x} y={coord.y + 8} 
                 textAnchor="middle" 
-                className="text-[2px] font-mono uppercase tracking-tighter fill-archive-ink/40"
+                className="text-[2px] font-mono uppercase tracking-tighter fill-archive-ink/40 pointer-events-none"
               >
                 {name}
               </text>
@@ -86,8 +92,9 @@ export const BodyGraph: React.FC<BodyGraphProps> = ({ gates, centers }) => {
             return (
               <circle 
                 key={i} 
-                cx={x} cy={y} r={isActive ? 0.8 : 0.3} 
-                className={`${isActive ? 'fill-archive-accent' : 'fill-archive-ink/20'}`}
+                cx={x} cy={y} r={isActive ? 1.2 : 0.5} 
+                className={`${isActive ? 'fill-archive-accent cursor-pointer hover:fill-archive-ink' : 'fill-archive-ink/20'}`}
+                onClick={() => isActive && onSelectGate(i + 1)}
               />
             );
           })}
@@ -104,8 +111,8 @@ export const BodyGraph: React.FC<BodyGraphProps> = ({ gates, centers }) => {
           </div>
         </div>
         <div className="text-right">
-          <p className="text-[8px] font-mono uppercase tracking-widest opacity-40">BodyGraph 1.0</p>
-          <p className="text-[6px] font-mono opacity-20 italic">Archive Resonance Verified</p>
+          <p className="text-[8px] font-mono uppercase tracking-widest opacity-40">BodyGraph 1.1</p>
+          <p className="text-[6px] font-mono opacity-20 italic">Interactive Mode</p>
         </div>
       </div>
     </div>

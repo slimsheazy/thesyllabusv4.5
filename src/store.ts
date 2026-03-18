@@ -35,6 +35,7 @@ interface SyllabusState {
   isEclipseMode: boolean;
   isCalibrated: boolean;
   userLocation: UserLocation | null;
+  userBirthLocation: UserLocation | null;
   userIdentity: string | null;
   userBirthday: string | null;
   userBirthTime: string;
@@ -70,6 +71,7 @@ interface SyllabusState {
   toggleEclipseMode: () => void;
   togglePinnedTool: (toolPage: string) => void;
   setUserLocation: (location: UserLocation | null) => void;
+  setUserBirthLocation: (location: UserLocation | null) => void;
   setUserIdentity: (identity: string | null) => void;
   setUserBirthday: (birthday: string | null) => void;
   setUserBirthTime: (time: string) => void;
@@ -126,6 +128,7 @@ export const useSyllabusStore = create<SyllabusState>()(
       isEclipseMode: false,
       isCalibrated: false,
       userLocation: null,
+      userBirthLocation: null,
       userIdentity: null,
       userBirthday: null,
       userBirthTime: "12:00",
@@ -157,6 +160,7 @@ export const useSyllabusStore = create<SyllabusState>()(
         calculationsRun: 0,
         isCalibrated: false,
         userLocation: null,
+        userBirthLocation: null,
         userIdentity: null,
         userBirthday: null,
         userBirthTime: "12:00",
@@ -193,6 +197,7 @@ export const useSyllabusStore = create<SyllabusState>()(
       })),
 
       setUserLocation: (location) => set({ userLocation: location }),
+      setUserBirthLocation: (location) => set({ userBirthLocation: location }),
       
       setUserIdentity: (identity) => set({ userIdentity: identity }),
       

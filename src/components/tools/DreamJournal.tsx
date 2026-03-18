@@ -170,9 +170,6 @@ export const DreamJournal: React.FC<DreamJournalProps> = ({ onBack }) => {
                       <h3 className="col-header border-none pb-0">Interpretation</h3>
                       <ReadAloudButton text={interpretation} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                     </div>
-                    <div className="handwritten text-xl md:text-2xl text-archive-ink leading-relaxed italic font-medium markdown-body">
-                      <LexiconText>{interpretation}</LexiconText>
-                    </div>
                     <div className="mt-10 flex justify-end">
                       <button 
                         onClick={saveDream}

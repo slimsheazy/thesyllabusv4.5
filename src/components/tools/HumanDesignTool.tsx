@@ -18,6 +18,8 @@ export const HumanDesignTool: React.FC<{ onBack: () => void }> = ({ onBack }) =>
   
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<HumanDesignAnalysis | null>(null);
+  const [selectedCenter, setSelectedCenter] = useState<any | null>(null);
+  const [selectedGate, setSelectedGate] = useState<number | null>(null);
 
   const runAnalysis = async () => {
     if (!profile.birthday || !profile.location.name) {
@@ -119,10 +121,15 @@ export const HumanDesignTool: React.FC<{ onBack: () => void }> = ({ onBack }) =>
               <div className="lg:col-span-1">
                 <div className="sticky top-24 space-y-4">
                   <h4 className="text-xs font-mono uppercase tracking-[0.3em] opacity-40 mb-4">Visual BodyGraph</h4>
-                  <BodyGraph gates={analysis?.gates || []} centers={analysis?.centers || []} />
+                  <BodyGraph 
+                    gates={analysis?.gates || []} 
+                    centers={analysis?.centers || []} 
+                    onSelectCenter={(center) => { setSelectedCenter(center); setSelectedGate(null); }}
+                    onSelectGate={(gate) => { setSelectedGate(gate); setSelectedCenter(null); }}
+                  />
                   <div className="p-4 bg-archive-ink/5 rounded-archive border border-archive-line">
                     <p className="text-[10px] leading-relaxed opacity-60 italic">
-                      The colored shapes represent defined centers, where energy is consistent. White shapes are undefined, where you are open to the environment.
+                      Click on centers or gates to reveal specific data points.
                     </p>
                   </div>
                 </div>
@@ -130,26 +137,51 @@ export const HumanDesignTool: React.FC<{ onBack: () => void }> = ({ onBack }) =>
 
               {/* Main Analysis */}
               <div className="lg:col-span-2 space-y-8">
-                <div className="archive-card p-10 space-y-8">
-                  <div className="space-y-4">
-                    <h3 className="text-3xl font-serif italic">The Librarian's Synthesis</h3>
+                {selectedCenter ? (
+                  <div className="archive-card p-10 space-y-4">
+                    <h3 className="text-3xl font-serif italic">{selectedCenter.name} Center</h3>
+                    <span className={`text-[10px] px-2 py-1 rounded-full font-mono uppercase tracking-tighter ${
+                      selectedCenter.status === 'Defined' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-archive-ink/10 opacity-40'
+                    }`}>
+                      {selectedCenter.status}
+                    </span>
                     <div className="horizontal-line opacity-20" />
                     <p className="text-lg leading-relaxed italic opacity-80">
-                      {analysis?.summary}
+                      {selectedCenter.description}
                     </p>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-archive-line">
-                    <div className="space-y-2">
-                      <span className="col-header">Incarnation Cross</span>
-                      <p className="text-sm font-medium">{analysis?.incarnationCross}</p>
+                ) : selectedGate ? (
+                  <div className="archive-card p-10 space-y-4">
+                    <h3 className="text-3xl font-serif italic">Gate {selectedGate}</h3>
+                    <div className="horizontal-line opacity-20" />
+                    <p className="text-lg leading-relaxed italic opacity-80">
+                      Gate {selectedGate} represents a specific energetic potential in your design.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="archive-card p-10 space-y-8">
+                    <div className="space-y-4">
+                      <h3 className="text-3xl font-serif italic">The Librarian's Synthesis</h3>
+                      <div className="horizontal-line opacity-20" />
+                      <p className="text-lg leading-relaxed italic opacity-80">
+                        {analysis?.summary}
+                      </p>
                     </div>
-                    <div className="space-y-2">
-                      <span className="col-header">Definition</span>
-                      <p className="text-sm font-medium">{analysis?.definition}</p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-archive-line">
+                      <div className="space-y-2">
+                        <span className="col-header">Incarnation Cross</span>
+                        <p className="text-sm font-medium">{analysis?.incarnationCross}</p>
+                      </div>
+                      <div className="space-y-2">
+                        <span className="col-header">Definition</span>
+                        <p className="text-sm font-medium">{analysis?.definition}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
+              </div>
+            </div>
 
                 {/* Centers Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -178,7 +210,6 @@ export const HumanDesignTool: React.FC<{ onBack: () => void }> = ({ onBack }) =>
                     </div>
                   ))}
                 </div>
-              </div>
 
               {/* Sidebar Info */}
               <div className="space-y-6">
@@ -210,7 +241,6 @@ export const HumanDesignTool: React.FC<{ onBack: () => void }> = ({ onBack }) =>
                   <RotateCcw className="w-3 h-3" /> Recalibrate Blueprint
                 </button>
               </div>
-            </div>
 
             <ResultSection
               id="human-design-result"

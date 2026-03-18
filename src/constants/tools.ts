@@ -57,7 +57,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
       { name: "Create a Sigil", page: "SIGIL", desc: "Design symbols to represent your goals." },
       { name: "Crash Simulator", page: "CRASH_SIMULATOR", desc: "A worst-case scenario planner using FMEA to prioritize contingency plans." },
       { name: "Name to Number", page: "GEMATRIA", desc: "Calculate numerical values of words." },
-      { name: "Check Your Home", page: "FLYING_STAR", desc: "Analyze the energy flow in your living space." },
+      { name: "Bagua Map", page: "FLYING_STAR", desc: "Analyze the energy flow in your living space using the Bagua Map." },
       { name: "Cosmic Prophecy", page: "MAD_LIBS", desc: "Generate short narratives based on your inputs." },
     ]
   },

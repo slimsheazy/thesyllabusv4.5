@@ -12,31 +12,34 @@ export const Onboarding: React.FC = () => {
   const { triggerTick, triggerSuccess } = useHaptics();
   const { 
     setUserIdentity, setUserBirthday, setUserBirthTime, 
-    setUserBirthTimezone, setUserLocation, isCalibrated,
+    setUserBirthTimezone, setUserLocation, setUserBirthLocation, isCalibrated,
     setCalibrated,
     userIdentity: storedIdentity, userBirthday: storedBirthday,
     userBirthTime: storedBirthTime, userBirthTimezone: storedTimezone,
-    userLocation: storedLocation,
+    userLocation: storedLocation, userBirthLocation: storedBirthLocation,
     birthChartCache, setBirthChartCache
   } = useSyllabusStore();
 
   const [step, setStep] = useState(() => {
     if (!storedIdentity) return 1;
     if (!storedBirthday) return 2;
-    if (!storedLocation) return 3;
-    return 4;
+    if (!storedBirthLocation) return 3;
+    if (!storedLocation) return 4;
+    return 5;
   });
   const [identity, setIdentity] = useState(storedIdentity || '');
   const [birthday, setBirthday] = useState(storedBirthday || '');
   const [birthTime, setBirthTime] = useState(storedBirthTime || '12:00');
   const [timezone, setTimezone] = useState(storedTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone);
   const [detecting, setDetecting] = useState(false);
-  const [location, setLocation] = useState<UserLocation | null>(storedLocation);
+  const [birthLocation, setBirthLocation] = useState<UserLocation | null>(storedBirthLocation);
+  const [currentLocation, setCurrentLocation] = useState<UserLocation | null>(storedLocation);
   const [manualLocation, setManualLocation] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isBirthLocation, setIsBirthLocation] = useState(true);
   
   const [synopsis, setSynopsis] = useState<any>(null);
   const [loadingSynopsis, setLoadingSynopsis] = useState(false);
@@ -53,6 +56,15 @@ export const Onboarding: React.FC = () => {
       setUserBirthTime(birthTime);
       setUserBirthTimezone(timezone);
       setStep(3);
+    } else if (step === 3 && birthLocation) {
+      triggerTick();
+      setUserBirthLocation(birthLocation);
+      setStep(4);
+    } else if (step === 4 && currentLocation) {
+      triggerTick();
+      setUserLocation(currentLocation);
+      setStep(5);
+      fetchSynopsis();
     }
   };
 
@@ -70,9 +82,11 @@ export const Onboarding: React.FC = () => {
           const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10`);
           const data = await response.json();
           const name = data.display_name.split(',')[0] || "Detected Location";
-          setLocation({ lat, lng, name });
+          if (isBirthLocation) setBirthLocation({ lat, lng, name });
+          else setCurrentLocation({ lat, lng, name });
         } catch (e) {
-          setLocation({ lat, lng, name: "Detected Location" });
+          if (isBirthLocation) setBirthLocation({ lat, lng, name: "Detected Location" });
+          else setCurrentLocation({ lat, lng, name: "Detected Location" });
         } finally {
           setDetecting(false);
         }
@@ -114,29 +128,22 @@ export const Onboarding: React.FC = () => {
   };
 
   const selectLocation = (item: any) => {
-    setLocation({
+    const loc = {
       lat: parseFloat(item.lat),
       lng: parseFloat(item.lon),
       name: item.display_name.split(',')[0]
-    });
+    };
+    if (isBirthLocation) setBirthLocation(loc);
+    else setCurrentLocation(loc);
     setManualLocation(item.display_name.split(',')[0]);
     setShowSuggestions(false);
     triggerTick();
   };
 
-  const handleFinishStep3 = async () => {
-    if (location) {
-      triggerTick();
-      setUserLocation(location);
-      setStep(4);
-      fetchSynopsis();
-    }
-  };
-
   const fetchSynopsis = async () => {
-    if (!birthday || !birthTime || !location) return;
+    if (!birthday || !birthTime || !birthLocation) return;
     
-    const cacheKey = generateBirthChartKey(birthday, birthTime, location.name || "Unknown", timezone);
+    const cacheKey = generateBirthChartKey(birthday, birthTime, birthLocation.name || "Unknown", timezone);
     const cached = birthChartCache[cacheKey];
     
     // If cached value exists and doesn't have "Unknown" or "Calculating..." signs, use it
@@ -152,10 +159,10 @@ export const Onboarding: React.FC = () => {
       const data: BirthData = {
         date: birthday,
         time: birthTime,
-        location: location.name || "Unknown",
+        location: birthLocation.name || "Unknown",
         timezone: timezone,
-        lat: location.lat,
-        lng: location.lng
+        lat: birthLocation.lat,
+        lng: birthLocation.lng
       };
       const result = await analyzeBirthChart(data);
       setSynopsis(result);
@@ -311,18 +318,18 @@ export const Onboarding: React.FC = () => {
                 >
                   <div className="space-y-4">
                     <label className="label-gidole opacity-40 flex items-center gap-2">
-                      LOCATION:
+                      CITY OF BIRTH:
                     </label>
                     <p className="body-gidole italic opacity-60">We use this to calculate your astrological chart.</p>
                     
                     <button
                       onClick={detectLocation}
                       disabled={detecting || searching}
-                      className={`w-full p-8 border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all rounded-xl ${location && !manualLocation ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-archive-bg border-archive-line hover:border-archive-accent group"}`}
+                      className={`w-full p-8 border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all rounded-xl ${birthLocation ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-archive-bg border-archive-line hover:border-archive-accent group"}`}
                     >
                       {detecting ? (
                         <span className="text-archive-accent animate-pulse font-mono text-xs uppercase tracking-widest">Scanning...</span>
-                      ) : location && !manualLocation ? (
+                      ) : birthLocation ? (
                         <>
                           <Check className="text-emerald-500 w-8 h-8" />
                           <span className="font-sans text-xs uppercase tracking-widest">Coordinates Locked</span>
@@ -375,7 +382,17 @@ export const Onboarding: React.FC = () => {
                             {suggestions.map((item, idx) => (
                               <button
                                 key={idx}
-                                onClick={() => selectLocation(item)}
+                                onClick={() => {
+                                  const loc = {
+                                    lat: parseFloat(item.lat),
+                                    lng: parseFloat(item.lon),
+                                    name: item.display_name.split(',')[0]
+                                  };
+                                  setBirthLocation(loc);
+                                  setManualLocation(item.display_name.split(',')[0]);
+                                  setShowSuggestions(false);
+                                  triggerTick();
+                                }}
                                 className="w-full text-left p-3 hover:bg-archive-bg border-b border-archive-line last:border-none transition-colors"
                               >
                                 <p className="text-xs font-medium">{item.display_name.split(',')[0]}</p>
@@ -389,19 +406,138 @@ export const Onboarding: React.FC = () => {
                       {searchError && (
                         <p className="text-[10px] text-red-500 italic mt-2 text-center">{searchError}</p>
                       )}
-                      {location && manualLocation && !searching && !showSuggestions && (
+                      {birthLocation && manualLocation && !searching && !showSuggestions && (
                         <p className="text-[10px] text-emerald-600 italic mt-2 text-center flex items-center justify-center gap-1">
-                          <Check className="w-3 h-3" /> Found: {location.name}
+                          <Check className="w-3 h-3" /> Found: {birthLocation.name}
                         </p>
                       )}
                     </div>
                   </div>
                   
-                  {location && (
+                  {birthLocation && (
                     <motion.button 
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      onClick={handleFinishStep3}
+                      onClick={handleNext}
+                      className="brutalist-button w-full py-5 text-xl flex items-center justify-center gap-3"
+                    >
+                      Continue <ArrowRight className="w-5 h-5" />
+                    </motion.button>
+                  )}
+                </motion.div>
+              )}
+
+              {step === 4 && (
+                <motion.div 
+                  key="step4"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-8"
+                >
+                  <div className="space-y-4">
+                    <label className="label-gidole opacity-40 flex items-center gap-2">
+                      CURRENT LOCATION:
+                    </label>
+                    <p className="body-gidole italic opacity-60">We use this for local transits.</p>
+                    
+                    <button
+                      onClick={detectLocation}
+                      disabled={detecting || searching}
+                      className={`w-full p-8 border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all rounded-xl ${currentLocation ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-archive-bg border-archive-line hover:border-archive-accent group"}`}
+                    >
+                      {detecting ? (
+                        <span className="text-archive-accent animate-pulse font-mono text-xs uppercase tracking-widest">Scanning...</span>
+                      ) : currentLocation ? (
+                        <>
+                          <Check className="text-emerald-500 w-8 h-8" />
+                          <span className="font-sans text-xs uppercase tracking-widest">Coordinates Locked</span>
+                        </>
+                      ) : (
+                        <>
+                          <Target className="text-archive-ink opacity-20 w-8 h-8" />
+                          <span className="font-sans text-xs uppercase tracking-widest">Pinpoint Location</span>
+                        </>
+                      )}
+                    </button>
+
+                    <div className="relative">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="h-px flex-1 bg-archive-line opacity-20" />
+                        <span className="text-[8px] uppercase opacity-30 tracking-[0.2em]">or search manually</span>
+                        <div className="h-px flex-1 bg-archive-line opacity-20" />
+                      </div>
+                      <div className="flex gap-2">
+                        <input 
+                          type="text"
+                          placeholder="Enter city, region, or landmark..."
+                          value={manualLocation}
+                          onChange={(e) => {
+                            setManualLocation(e.target.value);
+                            if (e.target.value.length < 2) {
+                              setShowSuggestions(false);
+                            }
+                          }}
+                          onKeyDown={(e) => e.key === 'Enter' && handleManualSearch()}
+                          className="flex-1 bg-archive-bg p-4 border border-archive-line text-sm italic outline-none focus:border-archive-accent"
+                        />
+                        <button 
+                          onClick={() => handleManualSearch()}
+                          disabled={searching || !manualLocation.trim()}
+                          className="px-6 border border-archive-line text-[10px] font-mono uppercase hover:bg-archive-ink hover:text-white transition-colors disabled:opacity-30"
+                        >
+                          {searching ? <RefreshCw className="w-4 h-4 animate-spin" /> : "Search"}
+                        </button>
+                      </div>
+
+                      <AnimatePresence>
+                        {showSuggestions && suggestions.length > 0 && (
+                          <motion.div 
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="absolute z-50 left-0 right-0 mt-1 bg-archive-bg border border-archive-line shadow-xl max-h-[200px] overflow-y-auto custom-scrollbar"
+                          >
+                            {suggestions.map((item, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => {
+                                  const loc = {
+                                    lat: parseFloat(item.lat),
+                                    lng: parseFloat(item.lon),
+                                    name: item.display_name.split(',')[0]
+                                  };
+                                  setCurrentLocation(loc);
+                                  setManualLocation(item.display_name.split(',')[0]);
+                                  setShowSuggestions(false);
+                                  triggerTick();
+                                }}
+                                className="w-full text-left p-3 hover:bg-archive-bg border-b border-archive-line last:border-none transition-colors"
+                              >
+                                <p className="text-xs font-medium">{item.display_name.split(',')[0]}</p>
+                                <p className="text-[10px] opacity-40 truncate">{item.display_name}</p>
+                              </button>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {searchError && (
+                        <p className="text-[10px] text-red-500 italic mt-2 text-center">{searchError}</p>
+                      )}
+                      {currentLocation && manualLocation && !searching && !showSuggestions && (
+                        <p className="text-[10px] text-emerald-600 italic mt-2 text-center flex items-center justify-center gap-1">
+                          <Check className="w-3 h-3" /> Found: {currentLocation.name}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {currentLocation && (
+                    <motion.button 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      onClick={handleNext}
                       className="brutalist-button w-full py-5 text-xl flex items-center justify-center gap-3"
                     >
                       Review Details <ArrowRight className="w-5 h-5" />

@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { PlanetGlyph, ZodiacGlyph } from './AstrologicalGlyphs';
 import { 
   Zap, Shield, Users, Moon, Sun, Leaf, Scale, Skull, 
   ArrowUpRight, Mountain, Waves, Fish, Heart, Sword, 
@@ -10,37 +11,11 @@ import { BirthChartPlanet } from '../../types';
 const SIGN_NAMES = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
 
 const getZodiacIcon = (sign: string) => {
-  switch (sign) {
-    case 'Aries': return <Zap className="w-4 h-4" />;
-    case 'Taurus': return <Shield className="w-4 h-4" />;
-    case 'Gemini': return <Users className="w-4 h-4" />;
-    case 'Cancer': return <Moon className="w-4 h-4" />;
-    case 'Leo': return <Sun className="w-4 h-4" />;
-    case 'Virgo': return <Leaf className="w-4 h-4" />;
-    case 'Libra': return <Scale className="w-4 h-4" />;
-    case 'Scorpio': return <Skull className="w-4 h-4" />;
-    case 'Sagittarius': return <ArrowUpRight className="w-4 h-4" />;
-    case 'Capricorn': return <Mountain className="w-4 h-4" />;
-    case 'Aquarius': return <Waves className="w-4 h-4" />;
-    case 'Pisces': return <Fish className="w-4 h-4" />;
-    default: return null;
-  }
+  return <ZodiacGlyph name={sign} className="w-5 h-5" />;
 };
 
 const getPlanetIcon = (planet: string) => {
-  switch (planet) {
-    case 'Sun': return <Sun className="w-4 h-4" />;
-    case 'Moon': return <Moon className="w-4 h-4" />;
-    case 'Mercury': return <Zap className="w-4 h-4" />;
-    case 'Venus': return <Heart className="w-4 h-4" />;
-    case 'Mars': return <Sword className="w-4 h-4" />;
-    case 'Jupiter': return <Crown className="w-4 h-4" />;
-    case 'Saturn': return <Clock className="w-4 h-4" />;
-    case 'Uranus': return <Wind className="w-4 h-4" />;
-    case 'Neptune': return <Waves className="w-4 h-4" />;
-    case 'Pluto': return <Skull className="w-4 h-4" />;
-    default: return null;
-  }
+  return <PlanetGlyph name={planet} className="w-5 h-5" />;
 };
 
 const getAspectIcon = (aspect: string) => {

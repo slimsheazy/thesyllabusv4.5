@@ -70,7 +70,6 @@ export const AkashicRecordsTool: React.FC<AkashicRecordsToolProps> = ({ onBack, 
       <div className="max-w-4xl mx-auto">
         <div className="space-y-12 text-center py-12">
           <div className="space-y-4">
-            <h2 className="title-main text-6xl tracking-tighter">Hall of Records</h2>
             <p className="opacity-60 font-mono text-xs uppercase tracking-[0.2em]">Query Central Data Repository</p>
           </div>
 

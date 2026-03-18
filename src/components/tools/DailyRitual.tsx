@@ -217,18 +217,12 @@ export const DailyRitual: React.FC<DailyRitualProps> = ({ onBack }) => {
                             <Sparkles className="text-archive-accent w-5 h-5" />
                             <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">The Ritual</span>
                           </div>
-                          <div className="font-serif italic text-3xl md:text-4xl leading-relaxed text-archive-ink markdown-body">
-                            <LexiconText>{ritual}</LexiconText>
-                          </div>
                         </div>
                         
                         {outcome && (
                           <div className="pt-10 border-t border-archive-line">
                             <div className="flex items-center gap-3 mb-4">
                               <span className="text-[10px] font-mono uppercase tracking-[0.3em] opacity-40">Expected Outcome</span>
-                            </div>
-                            <div className="font-serif text-xl text-archive-ink/70 italic markdown-body">
-                              <LexiconText>{outcome}</LexiconText>
                             </div>
                           </div>
                         )}
