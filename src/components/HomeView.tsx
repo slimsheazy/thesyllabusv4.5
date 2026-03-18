@@ -1,9 +1,9 @@
 import React from 'react';
+import { Sun, Star, ArrowRight, Clock, BookOpen, Brain } from 'lucide-react';
 import { useSyllabusStore } from '../store';
 import { ReadAloudButton } from './shared/ReadAloudButton';
 import { LiveResonance } from './LiveResonance';
 import { ALL_TOOLS } from '../constants/tools';
-import { Pin, ArrowRight, Book, Brain, Clock } from 'lucide-react';
 import { useSeekerLevel } from '../hooks/useSeekerLevel';
 
 interface HomeViewProps {
@@ -19,35 +19,35 @@ export const HomeView: React.FC<HomeViewProps> = ({ onEnter, onNavigate }) => {
 
   return (
     <div className="relative min-h-screen flex flex-col bg-archive-bg">
-      <div className="relative min-h-screen flex flex-col items-center justify-center p-6 sm:p-12 overflow-hidden">
-        <div className="max-w-4xl w-full space-y-6 sm:space-y-12 flex flex-col items-center py-12 z-10">
+      <div className="relative min-h-screen flex flex-col items-center justify-center p-4 sm:p-12 overflow-hidden">
+        <div className="max-w-4xl w-full space-y-8 sm:space-y-12 flex flex-col items-center py-8 sm:py-12 z-10">
           <header className="space-y-4 text-center max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-1000">
             <div className="flex flex-col items-center gap-2">
               <div className="px-3 py-0.5 border border-archive-line rounded-full bg-white shadow-sm flex items-center gap-2">
-                <span className="text-xs text-archive-accent animate-pulse">☉</span>
-                <span className="label-gidole opacity-40">
+                <Sun className="w-3 h-3 text-archive-accent animate-pulse" />
+                <span className="label-gidole opacity-40 text-[10px] sm:text-[14px]">
                   {userIdentity ? `Info on ${userIdentity}` : "Your Personal Study Guide"}
                 </span>
               </div>
               {calculationsRun > 0 && (
-                <div className="label-gidole text-archive-accent">
+                <div className="label-gidole text-archive-accent text-xs">
                   Your Level: {level}
                 </div>
               )}
             </div>
-            <h1 className="title-main text-archive-ink">the syllabus</h1>
+            <h1 className="title-main text-6xl text-archive-ink break-words">Welcome to the Syllabus</h1>
             <div className="flex flex-col items-center gap-4">
-              <p className="body-gidole opacity-60 max-w-md mx-auto">
+              <p className="body-gidole opacity-60 max-w-md mx-auto px-4 text-sm sm:text-[18px]">
                 A bunch of easy tools and shared tips to help you figure out the big stuff in life.
               </p>
-              <ReadAloudButton text="the syllabus. A bunch of easy tools and shared tips to help you figure out the big stuff in life." className="!p-2 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
+              <ReadAloudButton text="Welcome to the Syllabus. A bunch of easy tools and shared tips to help you figure out the big stuff in life." className="!p-2 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
             </div>
           </header>
 
-          <div className="flex gap-6 pt-4 pb-8 animate-in fade-in zoom-in-95 duration-1000 delay-300">
+          <div className="flex gap-6 pt-2 sm:pt-4 pb-4 sm:pb-8 animate-in fade-in zoom-in-95 duration-1000 delay-300">
             <button 
               onClick={onEnter}
-              className="brutalist-button px-12 py-5 text-xl bg-archive-ink text-archive-bg shadow-xl hover:scale-105 transition-transform"
+              className="brutalist-button px-8 sm:px-12 py-4 sm:py-5 text-lg sm:text-xl bg-archive-ink text-archive-bg shadow-xl hover:scale-105 transition-transform"
             >
               Start Exploring
             </button>
@@ -65,14 +65,14 @@ export const HomeView: React.FC<HomeViewProps> = ({ onEnter, onNavigate }) => {
         </div>
       </div>
 
-      <section className="border-t border-archive-line bg-white/30 backdrop-blur-sm py-20">
-        <div className="max-w-6xl mx-auto px-6 space-y-24">
+      <section className="border-t border-archive-line bg-white/30 backdrop-blur-sm py-12 sm:py-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-16 sm:space-y-24">
           <LiveResonance />
 
           {pinnedItems.length > 0 && (
             <div className="space-y-8">
               <div className="flex items-center gap-3 border-b border-archive-line pb-4">
-                <Pin className="text-archive-accent" size={20} />
+                <Star className="w-6 h-6 text-archive-accent" />
                 <h2 className="title-main text-4xl">Pinned Records</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -83,7 +83,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onEnter, onNavigate }) => {
                     className="archive-card-interactive p-8"
                   >
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
-                      <ArrowRight size={40} />
+                      <ArrowRight className="w-6 h-6" />
                     </div>
                     <h3 className="text-2xl font-serif italic mb-2 text-archive-ink group-hover:text-archive-accent transition-colors">{tool.name}</h3>
                     <p className="handwritten text-sm italic opacity-60 line-clamp-2">{tool.desc}</p>
@@ -98,7 +98,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onEnter, onNavigate }) => {
               onClick={() => onNavigate("MASTER_ARCHIVE")}
               className="archive-card-interactive p-10 group text-center space-y-4"
             >
-              <Clock className="mx-auto opacity-20 group-hover:opacity-100 group-hover:text-archive-accent transition-all" size={32} />
+              <Clock className="mx-auto opacity-20 group-hover:opacity-100 group-hover:text-archive-accent transition-all w-8 h-8" />
               <h3 className="text-xl font-serif italic">Master Archive</h3>
               <p className="text-[10px] font-mono uppercase opacity-40">View all recorded resonances</p>
             </button>
@@ -106,7 +106,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onEnter, onNavigate }) => {
               onClick={() => onNavigate("LEXICON")}
               className="archive-card-interactive p-10 group text-center space-y-4"
             >
-              <Book className="mx-auto opacity-20 group-hover:opacity-100 group-hover:text-archive-accent transition-all" size={32} />
+              <BookOpen className="mx-auto opacity-20 group-hover:opacity-100 group-hover:text-archive-accent transition-all w-8 h-8" />
               <h3 className="text-xl font-serif italic">Lexicon</h3>
               <p className="text-[10px] font-mono uppercase opacity-40">Your discovered vocabulary</p>
             </button>
@@ -114,7 +114,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onEnter, onNavigate }) => {
               onClick={() => onNavigate("ORACLE")}
               className="archive-card-interactive p-10 group text-center space-y-4"
             >
-              <Brain className="mx-auto opacity-20 group-hover:opacity-100 group-hover:text-archive-accent transition-all" size={32} />
+              <Brain className="mx-auto opacity-20 group-hover:opacity-100 group-hover:text-archive-accent transition-all w-8 h-8" />
               <h3 className="text-xl font-serif italic">The Librarian</h3>
               <p className="text-[10px] font-mono uppercase opacity-40">Consult the archive's wisdom</p>
             </button>

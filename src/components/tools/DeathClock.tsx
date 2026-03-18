@@ -1,16 +1,30 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Clock, Activity, Heart, Shield, Zap, RefreshCw, Info, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Clock, Hourglass, Zap, RotateCcw, TrendingUp, Shield, Heart } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { geminiService } from '../../services/geminiService';
 import { ToolLayout } from '../shared/ToolLayout';
+import { ResultSection } from '../shared/ResultSection';
 
 export const DeathClock: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const { recordCalculation } = useSyllabusStore();
+  const { recordCalculation, userBirthday } = useSyllabusStore();
   const { triggerClick, triggerSuccess } = useHaptics();
   
-  const [age, setAge] = useState<number>(30);
+  // Initialize age from birthday if available
+  const initialAge = React.useMemo(() => {
+    if (!userBirthday) return 30;
+    const birth = new Date(userBirthday);
+    const today = new Date();
+    let calculatedAge = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      calculatedAge--;
+    }
+    return Math.max(1, Math.min(100, calculatedAge));
+  }, [userBirthday]);
+
+  const [age, setAge] = useState<number>(initialAge);
   const [stress, setStress] = useState<number>(5);
   const [sleep, setSleep] = useState<number>(7);
   const [nutrition, setNutrition] = useState<number>(5);
@@ -77,8 +91,22 @@ export const DeathClock: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     let bioAge = Math.log(Math.max(0.00001, (mu_user_age - lambda_std) / alpha_std)) / beta_std;
     bioAge = Math.round(bioAge * 10) / 10;
 
-    const deathDate = new Date();
-    deathDate.setFullYear(deathDate.getFullYear() + yearsRemaining);
+    // Calculate Death Date
+    let deathDate: Date;
+    if (userBirthday) {
+      deathDate = new Date(userBirthday);
+      // Add fractional years to birth date
+      const totalDays = Math.floor(projectedLifespan * 365.25);
+      deathDate.setDate(deathDate.getDate() + totalDays);
+    } else {
+      deathDate = new Date();
+      // If no birthday, use today but randomize the day/month slightly so it's not "today"
+      // or just add yearsRemaining to today. 
+      // To avoid "today's date", let's add a random offset of days
+      const randomOffset = Math.floor(Math.random() * 365);
+      deathDate.setDate(deathDate.getDate() + randomOffset + Math.floor(yearsRemaining * 365.25));
+    }
+    
     const deathDateStr = deathDate.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 
     try {
@@ -244,7 +272,9 @@ export const DeathClock: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           >
             <div className="relative">
               <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
-              <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">⌛</div>
+              <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                <Hourglass className="w-6 h-6" />
+              </div>
             </div>
             <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Processing mortality data...</span>
           </motion.div>
@@ -255,61 +285,79 @@ export const DeathClock: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             className="space-y-12"
           >
             <div className="archive-card p-10 md:p-16 relative overflow-hidden border-2 border-archive-accent">
-              <div className="absolute top-0 right-0 p-8 opacity-[0.02] select-none pointer-events-none text-9xl italic">MORTALITY</div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-16 relative z-10">
-                <div className="space-y-10">
-                  <div className="space-y-2">
-                    <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.4em] font-bold">Biological Age</span>
-                    <div className="flex items-baseline gap-4">
-                      <h3 className="text-6xl font-serif italic">{results?.bioAge}</h3>
-                      <span className="text-sm opacity-40 italic">vs {age} chronological</span>
+              <ResultSection
+                id="death-clock-result"
+                type="DEATH_CLOCK"
+                title="Mortality Analysis"
+                content={`Biological Age: ${results?.bioAge}. Projected Death Date: ${results?.deathDate}. Years remaining: ${results?.yearsRemaining}.`}
+                exportName={`death-clock-${age}`}
+                metadata={{
+                  age,
+                  bioAge: results?.bioAge,
+                  deathDate: results?.deathDate,
+                  yearsRemaining: results?.yearsRemaining,
+                  stress,
+                  sleep,
+                  nutrition,
+                  genetics,
+                  environment
+                }}
+              >
+                <div className="absolute top-0 right-0 p-8 opacity-[0.02] select-none pointer-events-none text-9xl italic">MORTALITY</div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-16 relative z-10">
+                  <div className="space-y-10">
+                    <div className="space-y-2">
+                      <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.4em] font-bold">Biological Age</span>
+                      <div className="flex items-baseline gap-4">
+                        <h3 className="text-6xl font-serif italic">{results?.bioAge}</h3>
+                        <span className="text-sm opacity-40 italic">vs {age} chronological</span>
+                      </div>
+                      <div className="w-full h-1 bg-archive-line mt-4">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Math.min(100, (results?.bioAge || 0) / age * 50)}%` }}
+                          className={`h-full ${results!.bioAge > age ? 'bg-red-500' : 'bg-green-500'}`}
+                        />
+                      </div>
                     </div>
-                    <div className="w-full h-1 bg-archive-line mt-4">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(100, (results?.bioAge || 0) / age * 50)}%` }}
-                        className={`h-full ${results!.bioAge > age ? 'bg-red-500' : 'bg-green-500'}`}
-                      />
+
+                    <div className="space-y-2">
+                      <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.4em] font-bold">Projected Death Date</span>
+                      <h3 className="text-3xl font-serif italic text-archive-ink">{results?.deathDate}</h3>
+                      <p className="text-sm opacity-60 italic">Approximately {results?.yearsRemaining} years remaining.</p>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.4em] font-bold">Projected Death Date</span>
-                    <h3 className="text-3xl font-serif italic text-archive-ink">{results?.deathDate}</h3>
-                    <p className="text-sm opacity-60 italic">Approximately {results?.yearsRemaining} years remaining.</p>
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-3">
+                      <Zap className="text-archive-accent w-5 h-5" />
+                      <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">Longevity Suggestions</span>
+                    </div>
+                    <ul className="space-y-4">
+                      {results?.suggestions.map((s, i) => (
+                        <motion.li 
+                          key={i}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.1 }}
+                          className="flex gap-4 text-sm italic font-serif leading-relaxed"
+                        >
+                          <span className="text-archive-accent font-mono text-[10px] mt-1">0{i+1}</span>
+                          <span>{s}</span>
+                        </motion.li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
-
-                <div className="space-y-8">
-                  <div className="flex items-center gap-3">
-                    <Zap className="text-archive-accent w-5 h-5" />
-                    <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">Longevity Suggestions</span>
-                  </div>
-                  <ul className="space-y-4">
-                    {results?.suggestions.map((s, i) => (
-                      <motion.li 
-                        key={i}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="flex gap-4 text-sm italic font-serif leading-relaxed"
-                      >
-                        <span className="text-archive-accent font-mono text-[10px] mt-1">0{i+1}</span>
-                        <span>{s}</span>
-                      </motion.li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+              </ResultSection>
 
               <div className="mt-16 pt-10 border-t border-archive-line flex justify-center">
                 <button 
                   onClick={() => setResults(null)}
                   className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40 hover:opacity-100 flex items-center gap-2"
                 >
-                  <RefreshCw className="w-3 h-3" />
-                  RECALCULATE
+                  <RotateCcw className="w-3 h-3" /> RECALCULATE
                 </button>
               </div>
             </div>
@@ -317,7 +365,7 @@ export const DeathClock: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="archive-card p-6 flex items-start gap-4">
                 <div className="p-2 bg-archive-accent/10 rounded-full text-archive-accent">
-                  <Activity size={20} />
+                  <TrendingUp className="w-5 h-5" />
                 </div>
                 <div className="space-y-1">
                   <h4 className="text-xs font-bold uppercase tracking-widest">Intrinsic Aging</h4>
@@ -326,7 +374,7 @@ export const DeathClock: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               </div>
               <div className="archive-card p-6 flex items-start gap-4">
                 <div className="p-2 bg-archive-accent/10 rounded-full text-archive-accent">
-                  <Shield size={20} />
+                  <Shield className="w-5 h-5" />
                 </div>
                 <div className="space-y-1">
                   <h4 className="text-xs font-bold uppercase tracking-widest">Extrinsic Risk</h4>
@@ -335,7 +383,7 @@ export const DeathClock: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               </div>
               <div className="archive-card p-6 flex items-start gap-4">
                 <div className="p-2 bg-archive-accent/10 rounded-full text-archive-accent">
-                  <Heart size={20} />
+                  <Heart className="w-5 h-5" />
                 </div>
                 <div className="space-y-1">
                   <h4 className="text-xs font-bold uppercase tracking-widest">Resilience</h4>

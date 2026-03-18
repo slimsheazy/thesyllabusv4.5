@@ -1,9 +1,58 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { 
+  Zap, Shield, Users, Moon, Sun, Leaf, Scale, Skull, 
+  ArrowUpRight, Mountain, Waves, Fish, Heart, Sword, 
+  Crown, Clock, Wind, Circle, ArrowLeftRight, Triangle, Square, Asterisk
+} from 'lucide-react';
 import { BirthChartPlanet } from '../../types';
 
-const SYMBOLS = ["♈︎", "♉︎", "♊︎", "♋︎", "♌︎", "♍︎", "♎︎", "♏︎", "♐︎", "♑︎", "♒︎", "♓︎"];
 const SIGN_NAMES = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
+
+const getZodiacIcon = (sign: string) => {
+  switch (sign) {
+    case 'Aries': return <Zap className="w-4 h-4" />;
+    case 'Taurus': return <Shield className="w-4 h-4" />;
+    case 'Gemini': return <Users className="w-4 h-4" />;
+    case 'Cancer': return <Moon className="w-4 h-4" />;
+    case 'Leo': return <Sun className="w-4 h-4" />;
+    case 'Virgo': return <Leaf className="w-4 h-4" />;
+    case 'Libra': return <Scale className="w-4 h-4" />;
+    case 'Scorpio': return <Skull className="w-4 h-4" />;
+    case 'Sagittarius': return <ArrowUpRight className="w-4 h-4" />;
+    case 'Capricorn': return <Mountain className="w-4 h-4" />;
+    case 'Aquarius': return <Waves className="w-4 h-4" />;
+    case 'Pisces': return <Fish className="w-4 h-4" />;
+    default: return null;
+  }
+};
+
+const getPlanetIcon = (planet: string) => {
+  switch (planet) {
+    case 'Sun': return <Sun className="w-4 h-4" />;
+    case 'Moon': return <Moon className="w-4 h-4" />;
+    case 'Mercury': return <Zap className="w-4 h-4" />;
+    case 'Venus': return <Heart className="w-4 h-4" />;
+    case 'Mars': return <Sword className="w-4 h-4" />;
+    case 'Jupiter': return <Crown className="w-4 h-4" />;
+    case 'Saturn': return <Clock className="w-4 h-4" />;
+    case 'Uranus': return <Wind className="w-4 h-4" />;
+    case 'Neptune': return <Waves className="w-4 h-4" />;
+    case 'Pluto': return <Skull className="w-4 h-4" />;
+    default: return null;
+  }
+};
+
+const getAspectIcon = (aspect: string) => {
+  switch (aspect) {
+    case 'Conjunction': return <Circle className="w-3 h-3" />;
+    case 'Opposition': return <ArrowLeftRight className="w-3 h-3" />;
+    case 'Trine': return <Triangle className="w-3 h-3" />;
+    case 'Square': return <Square className="w-3 h-3" />;
+    case 'Sextile': return <Asterisk className="w-3 h-3" />;
+    default: return null;
+  }
+};
 
 interface ZodiacWheelProps {
   size?: number;
@@ -11,29 +60,6 @@ interface ZodiacWheelProps {
   ascendantDegree?: number;
   onPlanetClick?: (planet: BirthChartPlanet) => void;
 }
-
-const PLANET_SYMBOLS: Record<string, string> = {
-  "Sun": "☉",
-  "Moon": "☽",
-  "Mercury": "☿",
-  "Venus": "♀",
-  "Mars": "♂",
-  "Jupiter": "♃",
-  "Saturn": "♄",
-  "Uranus": "♅",
-  "Neptune": "♆",
-  "Pluto": "♇",
-  "Ascendant": "ASC",
-  "MC": "MC"
-};
-
-const ASPECTS = [
-  { name: "Conjunction", angle: 0, orb: 8, symbol: "☌" },
-  { name: "Opposition", angle: 180, orb: 8, symbol: "☍" },
-  { name: "Trine", angle: 120, orb: 8, symbol: "△" },
-  { name: "Square", angle: 90, orb: 8, symbol: "□" },
-  { name: "Sextile", angle: 60, orb: 6, symbol: "⚹" }
-];
 
 export const ZodiacWheel: React.FC<ZodiacWheelProps> = React.memo(({ size: initialSize, planets = [], ascendantDegree = 0, onPlanetClick }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -90,7 +116,7 @@ export const ZodiacWheel: React.FC<ZodiacWheelProps> = React.memo(({ size: initi
   };
 
   const calculateAspects = (targetPlanet: BirthChartPlanet) => {
-    const results: { planet: string; aspect: string; symbol: string; diff: number }[] = [];
+    const results: { planet: string; aspect: string; diff: number }[] = [];
     
     planets.forEach(other => {
       if (other.name === targetPlanet.name) return;
@@ -104,7 +130,6 @@ export const ZodiacWheel: React.FC<ZodiacWheelProps> = React.memo(({ size: initi
           results.push({
             planet: other.name,
             aspect: aspect.name,
-            symbol: aspect.symbol,
             diff: orb
           });
         }
@@ -113,6 +138,14 @@ export const ZodiacWheel: React.FC<ZodiacWheelProps> = React.memo(({ size: initi
     
     return results;
   };
+
+  const ASPECTS = [
+    { name: "Conjunction", angle: 0, orb: 8 },
+    { name: "Opposition", angle: 180, orb: 8 },
+    { name: "Trine", angle: 120, orb: 8 },
+    { name: "Square", angle: 90, orb: 8 },
+    { name: "Sextile", angle: 60, orb: 6 }
+  ];
 
   // Pre-calculate paths for better performance
   const signDividersPath = useMemo(() => {
@@ -154,18 +187,20 @@ export const ZodiacWheel: React.FC<ZodiacWheelProps> = React.memo(({ size: initi
         <path d={signDividersPath} stroke="currentColor" strokeWidth="1" className="opacity-20" fill="none" />
 
         {/* Zodiac Sign Symbols */}
-        {SYMBOLS.map((symbol, i) => {
+        {SIGN_NAMES.map((name, i) => {
           const midDeg = i * 30 + 15;
           const pText = getCoords(midDeg, symbolRadius);
           return (
-            <text 
+            <foreignObject 
               key={i}
-              x={pText.x} y={pText.y} 
-              textAnchor="middle" dominantBaseline="middle" 
-              className="text-lg font-serif opacity-60 fill-current"
+              x={pText.x - 8} y={pText.y - 8} 
+              width="16" height="16"
+              className="opacity-60"
             >
-              {symbol}
-            </text>
+              <div className="flex items-center justify-center w-full h-full text-archive-ink">
+                {getZodiacIcon(name)}
+              </div>
+            </foreignObject>
           );
         })}
         
@@ -241,7 +276,6 @@ export const ZodiacWheel: React.FC<ZodiacWheelProps> = React.memo(({ size: initi
         {/* Planets */}
         {planets.map((planet, i) => {
           const pPos = getCoords(planet.degree, innerRadius - 10);
-          const symbol = planet.symbol || PLANET_SYMBOLS[planet.name] || "?";
           const isHovered = hoveredPlanet?.name === planet.name;
           
           return (
@@ -262,17 +296,18 @@ export const ZodiacWheel: React.FC<ZodiacWheelProps> = React.memo(({ size: initi
                 className={isHovered ? "text-archive-accent" : "text-archive-accent opacity-60"} 
               />
               
-              <motion.text 
+              <motion.g
                 animate={{ 
                   y: isHovered ? -18 : -12,
                   scale: isHovered ? 1.2 : 1
                 }}
-                x={pPos.x} y={pPos.y} 
-                textAnchor="middle" 
-                className={`text-xs font-serif fill-current ${isHovered ? "text-archive-accent" : "text-archive-accent opacity-60"}`}
               >
-                {symbol}
-              </motion.text>
+                <foreignObject x={pPos.x - 8} y={pPos.y - 8} width="16" height="16">
+                  <div className={`flex items-center justify-center w-full h-full ${isHovered ? "text-archive-accent" : "text-archive-accent opacity-60"}`}>
+                    {getPlanetIcon(planet.name) || <span className="text-[10px] font-mono">{planet.name.slice(0, 2)}</span>}
+                  </div>
+                </foreignObject>
+              </motion.g>
             </g>
           );
         })}
@@ -306,13 +341,18 @@ export const ZodiacWheel: React.FC<ZodiacWheelProps> = React.memo(({ size: initi
             <div className="space-y-3">
               <div className="flex items-center justify-between border-b border-archive-line pb-1">
                 <span className="font-serif italic text-lg">{hoveredPlanet.name}</span>
-                <span className="text-archive-accent text-xl">{PLANET_SYMBOLS[hoveredPlanet.name]}</span>
+                <span className="text-archive-accent">
+                  {getPlanetIcon(hoveredPlanet.name)}
+                </span>
               </div>
               
               <div className="space-y-1">
                 <div className="flex justify-between text-[10px] font-mono uppercase opacity-60">
                   <span>Sign</span>
-                  <span className="text-archive-ink">{getSign(hoveredPlanet.degree).name} {getSign(hoveredPlanet.degree).degree.toFixed(1)}°</span>
+                  <span className="text-archive-ink flex items-center gap-1">
+                    {getZodiacIcon(getSign(hoveredPlanet.degree).name)}
+                    {getSign(hoveredPlanet.degree).name} {getSign(hoveredPlanet.degree).degree.toFixed(1)}deg
+                  </span>
                 </div>
                 <div className="flex justify-between text-[10px] font-mono uppercase opacity-60">
                   <span>House</span>
@@ -326,7 +366,7 @@ export const ZodiacWheel: React.FC<ZodiacWheelProps> = React.memo(({ size: initi
                   {calculateAspects(hoveredPlanet).map((asp, idx) => (
                     <div key={idx} className="flex justify-between items-center text-[10px] font-mono">
                       <span className="opacity-60 flex items-center gap-1">
-                        <span className="text-archive-accent">{asp.symbol}</span> {asp.aspect}
+                        <span className="text-archive-accent">{getAspectIcon(asp.aspect)}</span> {asp.aspect}
                       </span>
                       <span className="opacity-40">w/ {asp.planet}</span>
                     </div>

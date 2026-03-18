@@ -15,7 +15,7 @@ export const SymbolCard: React.FC<SymbolCardProps> = ({ symbol, onClick }) => {
       className="p-6 border border-archive-line bg-white shadow-sm hover:shadow-md transition-all cursor-pointer group"
     >
       <div className="flex justify-between items-start mb-4">
-        <span className="data-value text-archive-accent">{symbol.degree}° {symbol.sign.toUpperCase()}</span>
+        <span className="data-value text-archive-accent">{symbol.degree} deg {symbol.sign.toUpperCase()}</span>
         <span className="text-[10px] font-mono opacity-20 group-hover:opacity-100 transition-opacity"></span>
       </div>
       <p className="font-serif italic text-lg leading-relaxed text-archive-ink">

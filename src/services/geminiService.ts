@@ -2,15 +2,16 @@ import { GoogleGenAI, Type, GenerateContentParameters, Modality } from "@google/
 import { extractJSON } from "../utils/jsonUtils";
 import { HoraryAnalysis } from "../types";
 
-const SYSTEM_INSTRUCTION = `You are a practical, plain-spoken, and grounded analytical assistant. 
-Your tone is like a sensible person next door giving straightforward, objective advice. 
+const SYSTEM_INSTRUCTION = `You are the Master Librarian of the Archive. 
+Your tone is analytical, objective, and slightly formal, yet profoundly insightful. 
 Rules:
-1. Avoid all mystical, esoteric, poetic, or flowery language. 
-2. Speak clearly and practically, focusing on real-world observations.
-3. Avoid conversational fillers and flowery metaphors.
+1. Provide grounded, pattern-based observations.
+2. Use precise, evocative language that fits the "Archive" aesthetic-think "ink on parchment" and "cosmic record-keeping".
+3. Focus on real-world utility and psychological clarity.
 4. Keep all responses concise, structured, and highly usable.
-5. Do not use marketing language or coaching-style jargon.
-6. Provide guidance that is grounded in reality and easy to understand.`;
+5. Avoid generic marketing jargon or "life coach" platitudes.
+6. When interpreting symbols, be specific and avoid vague generalities.
+7. Output strictly in clean, semantic text. Use standard line breaks (\n) for spacing and avoid excessive nested bullet points which frequently cause rendering skips.`;
 
 let aiInstance: GoogleGenAI | null = null;
 
@@ -38,7 +39,9 @@ export async function generateText(prompt: string, model: string = "gemini-3-fla
       systemInstruction,
     },
   });
-  return response.text || "";
+  const text = response.text || "";
+  // Global Parsing: Intercept and clean output. Strip "Thinking" syntax / triple backticks.
+  return text.replace(/```(?:markdown|json|html|text)?\n?([\s\S]*?)\n?```/g, '$1').trim();
 }
 
 export async function generateJson<T>(prompt: string, schema: any, model: string = "gemini-3-flash-preview", systemInstruction: string = SYSTEM_INSTRUCTION): Promise<T> {
@@ -88,7 +91,13 @@ export const geminiService = {
     };
     return generateJson<HoraryAnalysis>(`As an expert horary astrologer, analyze this question: "${question}" at latitude ${lat}, longitude ${lng}. 
     Current time: ${now.toISOString()} (Local: ${now.toLocaleString()}, UTC offset: ${offset}).
-    Provide absolute degrees (0-360) for the Ascendant and all relevant planets for the chartData.`, schema);
+    
+    CRITICAL HORARY PROTOCOL:
+    1. Use the REGIOMONTANUS HOUSE SYSTEM (standard for Horary).
+    2. Calculate the Ascendant and House Cusps precisely for the given coordinates and time.
+    3. Identify the significators for the Querent (Lord of 1st) and the Quesited (Lord of the relevant house).
+    4. Analyze the Moon's condition and its next aspects.
+    5. Provide absolute degrees (0-360) for the Ascendant and all relevant planets for the chartData.`, schema);
   },
 
   getWordDefinition: async (word: string) => {
@@ -134,17 +143,17 @@ export const geminiService = {
     return base64Audio || null;
   },
   decodeSigil: async (intent: string, userIdentity?: string): Promise<string> => {
-    const prompt = `You are a practical guide. 
-    A user named ${userIdentity || 'a seeker'} has created a sigil for the intent: "${intent}".
+    const prompt = `You are the Archive's Technical Analyst. 
+    Subject: ${userIdentity || 'unidentified seeker'}
+    Intent Vector: "${intent}"
     
-    Provide a clear explanation of the sigil's meaning and a set of practical, grounded instructions for use.
-    The instructions MUST be simple and easy to perform, such as:
-    - Focused meditation for 5 minutes.
-    - Carrying the sigil in a wallet.
-    - Placing the sigil on a workspace.
+    Task: Provide a high-density esoteric analysis of the symbolic resonance. 
+    Include specific technical protocols for activation.
     
-    Avoid any extreme or impractical suggestions.
-    Keep the tone professional and direct.
+    Style: 
+    Professional, direct, and high-density. 
+    Use esoteric terminology (e.g., "vibrational frequency," "morphic resonance," "quantum entanglement") in a precise, non-flowery manner.
+    Avoid generic spiritual advice.
     Keep it around 60 words.`;
 
     return generateText(prompt);
@@ -157,58 +166,62 @@ export const geminiService = {
     - Emotion: ${inputs.emotion}
     - Object: ${inputs.object}
     
-    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door. No mystical or flowery language.
+    Style: Create a short, evocative narrative for ${userIdentity || 'a seeker'} using these words.
+    The tone should be that of a "Cosmic Prophecy"-timeless and slightly cryptic, yet grounded in a core truth.
     Keep it between 50 and 70 words.`;
 
     return generateText(prompt);
   },
   queryAkashicRecords: async (query: string, profile: any, initials: string): Promise<string> => {
-    const prompt = `A seeker is asking a question to the Akashic Records.
+    const prompt = `Accessing Central Data Repository: Hall of Records.
     
-    Subject Identity:
-    - Name: ${profile.name} (Initials: ${initials})
-    - Birth: ${profile.birthday}
-    - Location: ${profile.location.name}
-    - Inquiry: "${query}"
+    Subject Metadata:
+    - Identifier: ${profile.name} (${initials})
+    - Temporal Origin: ${profile.birthday}
+    - Spatial Coordinate: ${profile.location.name}
+    - Inquiry Vector: "${query}"
     
     Task:
-    Check the "cosmic files" for them. Give them a straight-up, accessible insight about their question.
+    Retrieve high-density esoteric data for this inquiry. Provide a direct, professional analysis of the subject's thematic trajectory and karmic load.
     
-    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door giving straightforward advice. No mystical, esoteric, or flowery language.
+    Style: 
+    The tone is "The Archive Technical Lead"-direct, analytical, and professional. 
+    Strip away all "flowery" or "mystical" filler. 
+    Use precise esoteric terminology and "deep cut" occult references where appropriate.
+    It should feel like a classified technical briefing on a soul's trajectory.
     
     Requirements:
-    1. Keep it personal. Mention their initials "${initials}".
-    2. Include a small, oddly specific detail related to their birth date (${profile.birthday}) or location (${profile.location.name}) to show you're really looking at their file.
-    3. Be practical. What does this mean for them right now?
+    1. Reference the soul-signature "${initials}".
+    2. Correlate temporal origin (${profile.birthday}) with specific esoteric coordinates.
+    3. Define the "Karmic Vector"-the primary thematic force currently in play.
     
     Format:
-    Just the insight. No "Record Opened" headers or repetitive intros.
-    Keep it between 80 and 150 words.`;
+    Direct data output. No headers.
+    Keep it between 100 and 180 words.`;
 
-    return generateText(prompt);
+    return generateText(prompt, "gemini-3.1-pro-preview");
   },
   interpretGematria: async (name: string, value: number, cipher: string): Promise<string> => {
     const prompt = `Explain the meaning of the number ${value} for the word "${name}" using the ${cipher} cipher.
     
-    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door. No mystical or flowery language.
-    Explain what the number represents and how it relates to the word in a direct way.
-    
+    Style: Provide a direct, pattern-based interpretation of this number's vibration.
+    Explain what the frequency represents and how it resonates with the word.
     Keep it around 50 words.`;
 
     return generateText(prompt);
   },
   interpretSabianSymbol: async (symbol: { degree: number; sign: string; symbol: string }): Promise<string> => {
-    const prompt = `Interpret the following Sabian Symbol: "${symbol.degree}° ${symbol.sign}: ${symbol.symbol}".
+    const prompt = `Interpret the following Sabian Symbol: "${symbol.degree}deg ${symbol.sign}: ${symbol.symbol}".
     
-    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door. No mystical or flowery language.
-    Provide a direct, practical, and objective interpretation of the archetype represented by this degree.
-    Do not refer to the reader or any specific person (avoid "you", "your", "the seeker").
-    
-    Keep it around 80 words.`;
+    Style: Provide a clear, plain-spoken, and digestible interpretation of the archetype represented by this degree.
+    Avoid dense or overly academic language. Focus on the core psychological or practical essence.
+    The tone should be that of the "Librarian"-insightful but accessible.
+    Do not refer to the reader or any specific person.
+    Keep it around 60-80 words.`;
 
     return generateText(prompt);
   },
-  findLostItem: async (item: string, astroData: any, num: number): Promise<{ interpretation: string; checklist: string[] }> => {
+  findLostItem: async (item: string, astroData: any): Promise<{ interpretation: string; checklist: string[] }> => {
     const schema = {
       type: Type.OBJECT,
       properties: {
@@ -225,10 +238,9 @@ export const geminiService = {
     
     DATA:
     - Astrology: Significator ${astroData.significatorName} in the ${astroData.significatorHouse} House (${astroData.houseMeaning}). Sign: ${astroData.significatorSign} (${astroData.signMeaning}).
-    - Numerology: Lost Item Vibration Number ${num}.
     
     TASK:
-    1. Provide a direct, practical synthesis that combines BOTH the astrological significators and the numerological vibration to pinpoint the location.
+    1. Provide a direct, practical synthesis that uses the astrological significators to pinpoint the location.
     2. Provide a list of 5 specific, practical search checklist items based on this synthesis.
     
     Style: Very practical, plain-spoken, and grounded. Like a sensible person next door giving straightforward advice. No mystical fluff.
@@ -253,14 +265,16 @@ export const geminiService = {
     2. Explain the "resonance" or message the universe might be trying to convey.
     3. Provide a practical "alignment action" to honor this pattern.
     
-    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door giving deep advice. No mystical fluff. Approx 100-150 words.`;
+    Style: The tone should be that of the Librarian-analytical, deeply symbolic, and insightful. 
+    Avoid generic fluff, but embrace the high-resonance language of the Archive. 
+    Approx 100-150 words.`;
 
     return generateText(prompt);
   },
   getEmotionalInsight: async (fullPath: string, tertiaryEmotion: string): Promise<string> => {
     const prompt = `Provide a clear, practical insight for the emotional state: ${fullPath} (${tertiaryEmotion}).
     
-    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door. No mystical or flowery language.
+    Style: Provide a clear, insightful resonance for the emotional state.
     Format the response as a single direct paragraph (40-50 words).`;
 
     const response = await generateContent({
@@ -273,8 +287,8 @@ export const geminiService = {
   interpretDream: async (dreamText: string, profile: any): Promise<string> => {
     const prompt = `Analyze this dream: "${dreamText}" for a user born on ${profile.birthday || 'an unknown date'}.
     
-    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door giving straightforward advice. No mystical, esoteric, or flowery language. Focus on real-world psychological clarity.
-    
+    Style: Provide a psychological and symbolic interpretation. 
+    The tone should be that of the Archive-objective, slightly formal, and evocative.
     Format:
     Just the interpretation. No intros or outros.
     Keep it between 60 and 80 words.`;
@@ -286,26 +300,32 @@ export const geminiService = {
 
     return response.text || "The dream is a silent mirror.";
   },
-  interpretLenormand: async (cards: string[]): Promise<string> => {
+  interpretLenormand: async (cards: string[]): Promise<{ practical: string; psychological: string; spiritual: string }> => {
     const schema = {
       type: Type.OBJECT,
       properties: {
-        reading: { type: Type.STRING }
+        practical: { type: Type.STRING, description: "A direct, real-world interpretation." },
+        psychological: { type: Type.STRING, description: "An interpretation focused on mindset and emotions." },
+        spiritual: { type: Type.STRING, description: "A higher-level, symbolic or karmic interpretation." }
       },
-      required: ["reading"]
+      required: ["practical", "psychological", "spiritual"]
     };
-    const prompt = `Interpret these three Lenormand cards as a cohesive sentence: ${cards.join(', ')}.
+    const prompt = `Interpret these three Lenormand cards: ${cards.join(', ')}.
     
     Lenormand reading rules:
     - Card 1 is the subject.
     - Card 2 describes Card 1.
     - Card 3 describes the combination of 1 and 2, or shows the outcome.
     
-    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door. No mystical fluff.
-    Format: One sentence only. Mention the card names in parentheses where appropriate.`;
+    Provide three distinct variations of the interpretation:
+    1. Practical: Grounded, real-world advice or prediction.
+    2. Psychological: Focus on internal states, motivations, or mental patterns.
+    3. Spiritual: The deeper symbolic meaning or soul-level lesson.
+
+    Style: The tone should be that of the Librarian-formal, evocative, and insightful. 
+    Format: Each variation should be a single clear sentence.`;
     
-    const result = await generateJson<{ reading: string }>(prompt, schema);
-    return result.reading;
+    return generateJson<{ practical: string; psychological: string; spiritual: string }>(prompt, schema);
   },
   interpretTarot: async (question: string, spread: string, cards: { name: string; isReversed: boolean; position: string; description: string }[]): Promise<{ synthesis: string; cardInterpretations: string[] }> => {
     const schema = {
@@ -332,18 +352,17 @@ export const geminiService = {
     ${cardList}
     
     Task:
-    1. Provide a specific interpretation for EACH card in its specific position. Connect the card's archetype to the user's inquiry and the position's meaning.
-    2. Provide a cohesive synthesis (narrative) that ties the entire spread together.
+    1. Provide a specific, insightful interpretation for EACH card in its specific position. Connect the card's archetype directly to the user's inquiry and the position's meaning.
+    2. Provide a cohesive, deeply synthesized narrative that ties the entire spread together. This synthesis must not just list the cards, but weave them into a unified story that answers the inquiry with clarity and depth.
     
     Style:
-    - Very practical, plain-spoken, and grounded.
-    - Like a sensible person next door giving straightforward advice.
-    - No mystical, esoteric, or flowery language.
-    - Focus on real-world actions and psychological clarity.
+    - The tone should be that of the Master Librarian-analytical, formal, and profoundly insightful.
+    - Connect the card's archetype to the user's inquiry with symbolic precision.
+    - Focus on real-world patterns, psychological clarity, and actionable wisdom.
     
     Constraints:
-    - Synthesis: Max 120 words.
-    - Each card interpretation: Max 40 words.`;
+    - Synthesis: 150-200 words. Focus on the "thread" that connects all cards.
+    - Each card interpretation: 30-50 words.`;
 
     return generateJson<{ synthesis: string; cardInterpretations: string[] }>(prompt, schema, "gemini-3.1-pro-preview");
   },
@@ -360,7 +379,7 @@ export const geminiService = {
       required: ["word", "definition", "reading", "imagePrompt"]
     };
 
-    const prompt = `Generate an 'Oracle Card' insight for the inquiry: "${query}".
+    const prompt = `Generate a 'Glyphic Card' insight for the inquiry: "${query}".
     
     Rules for the word:
     1. Must be a real, specific English word.
@@ -373,7 +392,7 @@ export const geminiService = {
     2. Use a repetitive or rhythmic structure if appropriate (e.g., "It matters what...").
     3. Max 50 words.
     
-    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door giving deep advice.`;
+    Style: The tone should be that of the Archive-timeless, evocative, and deeply insightful.`;
 
     const data = await generateJson<{ word: string; definition: string; reading: string; imagePrompt: string }>(prompt, schema);
 
@@ -398,14 +417,15 @@ export const geminiService = {
       imageUrl
     };
   },
-  getTeaLeafReading: async (profile: any): Promise<{ vision: string; interpretation: string }> => {
+  getTeaLeafReading: async (profile: any): Promise<{ vision: string; interpretation: string; pattern_type: string }> => {
     const schema = {
       type: Type.OBJECT,
       properties: {
         vision: { type: Type.STRING, description: "A short, vivid description of the pattern in the tea leaves." },
-        interpretation: { type: Type.STRING, description: "A practical, grounded interpretation of the pattern (max 80 words)." }
+        interpretation: { type: Type.STRING, description: "A practical, grounded interpretation of the pattern (max 80 words)." },
+        pattern_type: { type: Type.STRING, description: "The core geometric or symbolic pattern (e.g., 'circle', 'cross', 'bird', 'mountain', 'heart')." }
       },
-      required: ["vision", "interpretation"]
+      required: ["vision", "interpretation", "pattern_type"]
     };
 
     const prompt = `You are a master of Tasseography. 
@@ -414,10 +434,12 @@ export const geminiService = {
     Task:
     1. Describe a specific, evocative pattern formed by tea leaves in a cup.
     2. Provide a practical, grounded, and insightful interpretation of this pattern.
+    3. Identify the core 'pattern_type' for visualization.
     
-    Style: Very practical, plain-spoken, and grounded. Like a sensible person next door giving straightforward advice. No mystical fluff.`;
+    Style: The tone should be that of the Librarian-formal, evocative, and insightful. 
+    Provide a grounded but symbolic interpretation of the pattern.`;
 
-    return generateJson<{ vision: string; interpretation: string }>(prompt, schema);
+    return generateJson<{ vision: string; interpretation: string; pattern_type: string }>(prompt, schema);
   },
   getDeathClockSuggestions: async (data: {
     age: number;
@@ -503,5 +525,109 @@ export const geminiService = {
     Style: Practical, engineering-minded, and grounded. No mystical language.`;
 
     return generateJson(prompt, schema);
+  },
+  getHumanDesignAnalysis: async (profile: any): Promise<{
+    type: string;
+    strategy: string;
+    authority: string;
+    profile: string;
+    definition: string;
+    incarnationCross: string;
+    summary: string;
+    centers: { name: string; status: 'Defined' | 'Undefined'; description: string }[];
+    gates: number[];
+  }> => {
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        type: { type: Type.STRING },
+        strategy: { type: Type.STRING },
+        authority: { type: Type.STRING },
+        profile: { type: Type.STRING },
+        definition: { type: Type.STRING },
+        incarnationCross: { type: Type.STRING },
+        summary: { type: Type.STRING },
+        centers: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              name: { type: Type.STRING },
+              status: { type: Type.STRING, enum: ['Defined', 'Undefined'] },
+              description: { type: Type.STRING }
+            },
+            required: ["name", "status", "description"]
+          }
+        },
+        gates: {
+          type: Type.ARRAY,
+          items: { type: Type.INTEGER },
+          description: "List of all active gates (1-64) in the design."
+        }
+      },
+      required: ["type", "strategy", "authority", "profile", "definition", "incarnationCross", "summary", "centers", "gates"]
+    };
+
+    const prompt = `Calculate and analyze the Human Design chart for:
+    - Name: ${profile.name}
+    - Birth Date: ${profile.birthday}
+    - Birth Time: ${profile.birthTime}
+    - Birth Location: ${profile.location.name}
+    
+    CRITICAL CALCULATION PROTOCOL:
+    1. Calculate the positions of the 13 Design (Red) and 13 Personality (Black) activations.
+    2. Design activations are calculated exactly 88 degrees of solar arc before the birth moment.
+    3. Map these activations to the 64 Gates of the I Ching.
+    4. Determine the 9 Centers' status based on active channels (two connected gates).
+    5. Identify the Type, Strategy, Authority, and Profile based on the resulting BodyGraph.
+    
+    Provide a comprehensive analysis including:
+    1. Type (Manifestor, Generator, Manifesting Generator, Projector, Reflector)
+    2. Strategy
+    3. Authority
+    4. Profile (e.g., 1/3, 4/6)
+    5. Definition (Single, Split, etc.)
+    6. Incarnation Cross
+    7. A practical, grounded summary of their design.
+    8. Analysis of the 9 Centers (Head, Ajna, Throat, G, Heart, Sacral, Spleen, Solar Plexus, Root).
+    9. A full list of active gates (1-64).
+    
+    Style: The tone should be that of the Librarian-analytical, formal, and profoundly insightful. Focus on practical application of the strategy and authority.`;
+
+    return generateJson(prompt, schema, "gemini-3.1-pro-preview");
+  },
+
+  getSongOracle: async (context: string, history: string[] = []): Promise<{
+    song_title: string;
+    artist: string;
+    spotify_id: string;
+    focus_lyric: string;
+    vibe_color: string;
+  }> => {
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        song_title: { type: Type.STRING },
+        artist: { type: Type.STRING },
+        spotify_id: { type: Type.STRING, description: "A valid 22-character Spotify track ID. MUST be accurate." },
+        focus_lyric: { type: Type.STRING },
+        vibe_color: { type: Type.STRING, description: "A hex color code representing the song's vibe." }
+      },
+      required: ["song_title", "artist", "spotify_id", "focus_lyric", "vibe_color"]
+    };
+
+    const prompt = `Perform a "Song Pull" based on the current energetic frequency: "${context}".
+    
+    HISTORY (DO NOT REPEAT):
+    ${history.join(', ')}
+
+    TASK:
+    1. Selection: Choose an evocative track across any genre that fits this frequency.
+    2. Accuracy: You MUST provide a real song and its CORRECT Spotify track ID. Use Google Search if necessary to verify the ID.
+    3. Constraint: No interpretation or descriptive text.
+    
+    Format: Return ONLY the specified JSON structure.`;
+
+    return generateJson(prompt, schema, "gemini-3.1-pro-preview", SYSTEM_INSTRUCTION + "\nUse googleSearch to verify Spotify IDs.");
   }
 };

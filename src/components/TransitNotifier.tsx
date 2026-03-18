@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bell, X, Sparkles, Info, AlertTriangle, CheckCircle, Volume2 } from 'lucide-react';
+import { Info, AlertTriangle, Check } from 'lucide-react';
 import { useSyllabusStore } from '../store';
 import { getTransitNotifications } from '../services/astrologyService';
 import { ReadAloudButton } from './shared/ReadAloudButton';
@@ -71,10 +71,10 @@ export const TransitNotifier: React.FC = () => {
             exit={{ opacity: 0, scale: 0.95 }}
             className="pointer-events-auto bg-white border border-archive-line shadow-2xl p-3 sm:p-4 rounded-xl flex gap-3 sm:gap-4 items-start group"
           >
-            <div className="mt-1 flex-shrink-0">
-              {notification.type === 'info' && <Info size={18} className="text-blue-500" />}
-              {notification.type === 'warning' && <AlertTriangle size={18} className="text-amber-500" />}
-              {notification.type === 'success' && <CheckCircle size={18} className="text-emerald-500" />}
+            <div className="mt-1 flex-shrink-0 font-mono text-sm">
+              {notification.type === 'info' && <Info className="w-4 h-4 text-blue-500" />}
+              {notification.type === 'warning' && <AlertTriangle className="w-4 h-4 text-amber-500" />}
+              {notification.type === 'success' && <Check className="w-4 h-4 text-emerald-500" />}
             </div>
             <div className="flex-1 min-w-0 space-y-1">
               <div className="flex justify-between items-center">
@@ -90,9 +90,9 @@ export const TransitNotifier: React.FC = () => {
             </div>
             <button 
               onClick={() => markNotificationRead(notification.id)}
-              className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-1 hover:bg-archive-ink/5 rounded flex-shrink-0"
+              className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-1 hover:bg-archive-ink/5 rounded flex-shrink-0 text-[10px] font-mono opacity-40"
             >
-              <X size={16} className="opacity-40" />
+              CLOSE
             </button>
           </motion.div>
         ))}

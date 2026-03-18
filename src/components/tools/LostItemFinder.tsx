@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, MapPin, Sparkles, RefreshCw, Info, CheckCircle2, Circle } from 'lucide-react';
+import { Crosshair, Search, Sun, Check, Circle } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useProfile } from '../../hooks/useProfile';
@@ -53,12 +53,10 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
   const { profile, setMe, setSomeoneElse, updateProfile } = useProfile();
   
   const [item, setItem] = useState('');
-  const [seedNumber, setSeedNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState<string>('');
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [horaryDetails, setHoraryDetails] = useState<{ significator: string; house: number; sign: string } | null>(null);
-  const [numerologyNumber, setNumerologyNumber] = useState<number | null>(null);
   const [chartData, setChartData] = useState<{ planets: any[]; ascendant: number } | null>(null);
   const [checklist, setChecklist] = useState<{ text: string; checked: boolean }[]>([]);
 
@@ -115,16 +113,6 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
         sign: significatorSign
       });
 
-      setLoadingStep('Calculating numerical vibration...');
-      let num: number;
-      if (seedNumber && !isNaN(parseInt(seedNumber))) {
-        num = (parseInt(seedNumber) % 81) || 81;
-      } else {
-        const hash = Math.abs(item.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + now.getTime());
-        num = (hash % 81) || 81;
-      }
-      setNumerologyNumber(num);
-
       const astroData = {
         significatorName,
         significatorHouse,
@@ -136,7 +124,7 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
       setLoadingStep('Synthesizing cosmic data...');
       
       // Add a timeout to the AI call to prevent indefinite hanging
-      const dataPromise = geminiService.findLostItem(item, astroData, num);
+      const dataPromise = geminiService.findLostItem(item, astroData);
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error("The cosmic archive is taking too long to respond.")), 20000)
       );
@@ -177,7 +165,7 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
             <div className="archive-form-group mt-6">
               <label className="archive-label">Search Location</label>
               <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
+                <Crosshair className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
                 <input 
                   type="text" 
                   value={profile.location.name || ""}
@@ -201,16 +189,6 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
                     className="archive-input pl-10 !text-lg !italic"
                   />
                 </div>
-              </div>
-              <div className="archive-form-group">
-                <label className="archive-label">Seed Number (Optional)</label>
-                <input 
-                  type="number" 
-                  placeholder="1-99" 
-                  value={seedNumber}
-                  onChange={(e) => setSeedNumber(e.target.value)}
-                  className="archive-input !text-lg !font-mono"
-                />
               </div>
             </div>
 
@@ -236,7 +214,9 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
               >
                 <div className="relative">
                   <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
-                  <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">☉</div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Sun className="w-6 h-6 opacity-20" />
+                  </div>
                 </div>
                 <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">
                   {loadingStep || "Triangulating the resonance..."}
@@ -254,18 +234,14 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
                   <div className="flex justify-between items-start mb-8">
                     <div className="flex items-center gap-6">
                       <div className="flex items-center gap-2">
-                        <MapPin className="text-archive-accent w-4 h-4" />
+                        <Crosshair className="text-archive-accent w-5 h-5" />
                         <span className="text-[10px] font-mono text-archive-accent uppercase tracking-widest">Astro-Horary</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="text-archive-accent w-4 h-4" />
-                        <span className="text-[10px] font-mono text-archive-accent uppercase tracking-widest">Numerological</span>
                       </div>
                     </div>
                     <ReadAloudButton text={suggestion} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                   </div>
                   
-                  <div className="font-serif italic text-2xl leading-relaxed text-archive-ink mb-8">
+                  <div className="font-serif italic text-2xl leading-relaxed text-archive-ink mb-8 markdown-body">
                     <Markdown>{suggestion}</Markdown>
                   </div>
                   
@@ -281,7 +257,7 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
                   
                   {horaryDetails && (
                     <div className="mt-8 space-y-8">
-                      <div className="pt-6 border-t border-archive-line grid grid-cols-3 gap-4">
+                      <div className="pt-6 border-t border-archive-line grid grid-cols-2 gap-4">
                         <div className="text-center group relative">
                           <span className="col-header block mb-1">Significator</span>
                           <span className="text-[10px] font-mono">{horaryDetails.significator}</span>
@@ -289,18 +265,11 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
                             The planet representing the lost item in this horary chart.
                           </div>
                         </div>
-                        <div className="text-center border-x border-archive-line group relative">
+                        <div className="text-center border-l border-archive-line group relative">
                           <span className="col-header block mb-1">House</span>
                           <span className="text-[10px] font-mono">{horaryDetails.house}</span>
                           <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-archive-ink text-archive-bg text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
                             {HOUSE_MEANINGS[horaryDetails.house]}
-                          </div>
-                        </div>
-                        <div className="text-center group relative">
-                          <span className="col-header block mb-1">Lost #</span>
-                          <span className="text-[10px] font-mono">{numerologyNumber}</span>
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-archive-ink text-archive-bg text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
-                            The Lost Item Number (1-81) derived from the seeker's vibration.
                           </div>
                         </div>
                       </div>
@@ -315,7 +284,7 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
                               className={`flex items-start gap-3 p-3 border rounded-archive transition-all text-left ${item.checked ? 'bg-archive-line/20 border-archive-line opacity-40' : 'bg-white border-archive-line hover:border-archive-ink'}`}
                             >
                               <div className="mt-0.5 flex-shrink-0">
-                                {item.checked ? <CheckCircle2 className="w-4 h-4 text-archive-ink" /> : <Circle className="w-4 h-4 text-archive-ink/20" />}
+                                {item.checked ? <Check className="text-archive-ink w-3 h-3" /> : <Circle className="text-archive-ink/20 w-3 h-3" />}
                               </div>
                               <span className={`text-sm font-serif italic ${item.checked ? 'line-through' : ''}`}>
                                 {item.text}
@@ -334,6 +303,12 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
                   content={suggestion}
                   exportName={`lost-item-${item}`}
                   onClose={() => setSuggestion(null)}
+                  type="LOST_ITEM"
+                  metadata={{
+                    item,
+                    horaryDetails,
+                    suggestion
+                  }}
                 />
               </motion.div>
             ) : (
@@ -343,7 +318,7 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
                 animate={{ opacity: 1 }}
                 className="h-full flex flex-col items-center justify-center py-40 opacity-[0.03] select-none pointer-events-none"
               >
-                <Search size={160} />
+                <Search className="w-32 h-32" />
                 <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">Awaiting Search</p>
               </motion.div>
             )}

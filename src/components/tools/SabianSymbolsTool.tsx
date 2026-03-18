@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Sparkles, RefreshCw, Loader2, X } from 'lucide-react';
+import { Search, Sparkles, RotateCcw, X } from 'lucide-react';
 import { SABIAN_SYMBOLS, SabianSymbol } from '../../data/sabianData';
 import { SymbolCard } from './Sabian/SymbolCard';
 import { geminiService } from "../../services/geminiService";
@@ -56,7 +56,7 @@ export const SabianSymbolsTool: React.FC<SabianSymbolsToolProps> = ({ onBack }) 
   const getPersonalSymbol = () => {
     triggerClick();
     if (!profile.birthday) {
-      alert("Please set your birthday in your profile first.");
+      console.error("Birthday not set in profile.");
       return;
     }
     const hash = hashString(profile.birthday);
@@ -105,7 +105,7 @@ export const SabianSymbolsTool: React.FC<SabianSymbolsToolProps> = ({ onBack }) 
       headerRight={
         <div className="flex items-center gap-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40 w-4 h-4" />
             <input 
               type="text" 
               placeholder="Search symbols..." 
@@ -126,8 +126,8 @@ export const SabianSymbolsTool: React.FC<SabianSymbolsToolProps> = ({ onBack }) 
             onClick={getRandomSymbol}
             className="flex items-center gap-2 bg-archive-ink text-archive-bg px-4 py-2 text-sm font-mono hover:opacity-90 transition-opacity rounded-archive"
           >
-            <RefreshCw className="w-4 h-4" />
-            <span>RANDOM ORACLE</span>
+            <RotateCcw className="w-4 h-4" />
+            <span>RANDOM GLYPHIC</span>
           </button>
         </div>
       }
@@ -153,7 +153,7 @@ export const SabianSymbolsTool: React.FC<SabianSymbolsToolProps> = ({ onBack }) 
 
         <div className="max-w-6xl mx-auto w-full">
           <div className="mb-12">
-            <h2 className="title-main text-6xl mb-2">The Oracle of Degrees</h2>
+            <h2 className="title-main text-6xl mb-2">The Glyphic of Degrees</h2>
             <p className="opacity-50 uppercase text-xs tracking-syllabus">360 degrees of symbolic wisdom</p>
           </div>
 
@@ -184,11 +184,11 @@ export const SabianSymbolsTool: React.FC<SabianSymbolsToolProps> = ({ onBack }) 
                 onClick={() => setSelectedSymbol(null)}
                 className="absolute top-4 right-4 p-2 opacity-40 hover:opacity-100 transition-opacity"
               >
-                <X size={20} />
+                <X className="w-6 h-6" />
               </button>
 
               <div className="mb-8">
-                <span className="data-value text-archive-accent text-lg">{selectedSymbol.degree}° {selectedSymbol.sign.toUpperCase()}</span>
+                <span className="data-value text-archive-accent text-lg">{selectedSymbol.degree} deg {selectedSymbol.sign.toUpperCase()}</span>
               </div>
 
               <p className="font-serif italic text-3xl leading-snug text-archive-ink mb-12">
@@ -201,14 +201,13 @@ export const SabianSymbolsTool: React.FC<SabianSymbolsToolProps> = ({ onBack }) 
                     onClick={() => getInterpretation(selectedSymbol)}
                     className="brutalist-button px-8 py-3 text-sm flex items-center gap-2 mx-auto"
                   >
-                    <Sparkles className="w-4 h-4" />
-                    DECODE RESONANCE
+                    <Sparkles className="w-4 h-4" /> DECODE RESONANCE
                   </button>
                 )}
 
                 {loading && (
                   <div className="flex flex-col items-center gap-4 py-8">
-                    <Loader2 className="w-8 h-8 animate-spin opacity-20" />
+                    <div className="w-8 h-8 border-2 border-archive-accent border-t-transparent animate-spin rounded-full opacity-20" />
                     <p className="handwritten opacity-40">Consulting the oracle...</p>
                   </div>
                 )}
@@ -221,12 +220,14 @@ export const SabianSymbolsTool: React.FC<SabianSymbolsToolProps> = ({ onBack }) 
                     exportName={`sabian-${selectedSymbol.sign}-${selectedSymbol.degree}`}
                     onClose={() => setInterpretation(null)}
                     className="text-left"
+                    type="SABIAN_SYMBOL"
+                    metadata={{ symbol: selectedSymbol, interpretation }}
                   />
                 )}
               </div>
 
               <div className="pt-8 border-t border-archive-line mt-12">
-                <p className="text-[10px] font-mono uppercase tracking-[0.3em] opacity-40">The Sabian Oracle has spoken</p>
+                <p className="text-[10px] font-mono uppercase tracking-[0.3em] opacity-40">The Sabian Glyphic has spoken</p>
               </div>
             </div>
           </div>

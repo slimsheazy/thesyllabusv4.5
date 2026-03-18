@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Tooltip } from './Tooltip';
 
 interface ToolLayoutProps {
@@ -29,7 +29,7 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
         onClick={onBack} 
         className="fixed top-4 right-4 sm:top-8 sm:right-8 brutalist-button !text-[10px] sm:!text-sm !px-3 sm:!px-4 !py-1 z-50 bg-surface shadow-xl flex items-center gap-2"
       >
-        <ChevronLeft size={14} /> Back
+        <ArrowLeft className="w-3 h-3" /> Back
       </button>
 
       <div className="w-full flex flex-col gap-8 md:gap-12">

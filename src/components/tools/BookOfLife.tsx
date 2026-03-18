@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Book, Star, Trash2, ChevronLeft, ChevronRight, Edit3, Save, X, Sparkles, Archive } from 'lucide-react';
+import { BookOpen, Folder, Sparkles, Pencil, Star } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
+import Markdown from 'react-markdown';
 
 interface BookOfLifeProps {
   onBack: () => void;
@@ -60,7 +61,7 @@ export const BookOfLife: React.FC<BookOfLifeProps> = ({ onBack }) => {
   };
 
   const handleDelete = () => {
-    if (currentEntry && confirm("Eradicate this record from your Book of Life?")) {
+    if (currentEntry) {
       removeAkashicEntry(currentEntry.id);
       if (currentPage >= akashicHistory.length - 1 && currentPage > 0) {
         setCurrentPage(prev => prev - 1);
@@ -80,7 +81,7 @@ export const BookOfLife: React.FC<BookOfLifeProps> = ({ onBack }) => {
       <div className="w-full flex flex-col gap-12 pb-32">
         {akashicHistory.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-40 opacity-[0.03] select-none pointer-events-none">
-            <Book size={160} />
+            <BookOpen className="w-32 h-32" />
             <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">The Pages are Blank</p>
             <p className="font-serif italic text-xl mt-4">Consult the Akashic Records to begin your chronicle.</p>
           </div>
@@ -89,7 +90,7 @@ export const BookOfLife: React.FC<BookOfLifeProps> = ({ onBack }) => {
             {/* Pagination Controls */}
             <div className="flex items-center justify-between border-b border-archive-line pb-4">
               <div className="flex items-center gap-4">
-                <Archive size={16} className="opacity-40" />
+                <Folder className="w-3 h-3 opacity-40" />
                 <span className="text-[10px] font-mono uppercase tracking-widest opacity-40">
                   Folio {currentPage + 1} of {akashicHistory.length}
                 </span>
@@ -98,16 +99,16 @@ export const BookOfLife: React.FC<BookOfLifeProps> = ({ onBack }) => {
                 <button 
                   onClick={handlePrev}
                   disabled={currentPage === 0}
-                  className="p-2 border border-archive-line hover:bg-archive-ink hover:text-archive-bg disabled:opacity-10 transition-all rounded-archive"
+                  className="p-2 border border-archive-line hover:bg-archive-ink hover:text-archive-bg disabled:opacity-10 transition-all rounded-archive text-xs"
                 >
-                  <ChevronLeft size={16} />
+                  PREV
                 </button>
                 <button 
                   onClick={handleNext}
                   disabled={currentPage === totalPages - 1}
-                  className="p-2 border border-archive-line hover:bg-archive-ink hover:text-archive-bg disabled:opacity-10 transition-all rounded-archive"
+                  className="p-2 border border-archive-line hover:bg-archive-ink hover:text-archive-bg disabled:opacity-10 transition-all rounded-archive text-xs"
                 >
-                  <ChevronRight size={16} />
+                  NEXT
                 </button>
               </div>
             </div>
@@ -139,13 +140,13 @@ export const BookOfLife: React.FC<BookOfLifeProps> = ({ onBack }) => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <p className="archive-label flex items-center gap-2">
-                        <Sparkles size={10} /> The Insight
+                        <Sparkles className="w-3 h-3" /> The Insight
                       </p>
                       <ReadAloudButton text={currentEntry.insight} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                     </div>
-                    <p className="font-serif italic text-3xl leading-relaxed text-archive-ink">
-                      {currentEntry.insight}
-                    </p>
+                    <div className="font-serif italic text-3xl leading-relaxed text-archive-ink markdown-body">
+                      <Markdown>{currentEntry.insight}</Markdown>
+                    </div>
                   </div>
 
                   <div className="pt-12 border-t border-archive-line space-y-6">
@@ -156,7 +157,7 @@ export const BookOfLife: React.FC<BookOfLifeProps> = ({ onBack }) => {
                           onClick={startEditing}
                           className="text-[9px] font-mono uppercase opacity-40 hover:opacity-100 flex items-center gap-1 transition-opacity"
                         >
-                          <Edit3 size={10} /> {currentEntry.reflection ? 'Edit' : 'Add Note'}
+                          <Pencil className="w-3 h-3" /> {currentEntry.reflection ? 'Edit' : 'Add Note'}
                         </button>
                       )}
                     </div>
@@ -173,7 +174,7 @@ export const BookOfLife: React.FC<BookOfLifeProps> = ({ onBack }) => {
                         <div className="flex justify-end gap-4 mt-4">
                           <button onClick={() => setEditingId(null)} className="text-[10px] font-mono uppercase opacity-40 hover:opacity-100">Cancel</button>
                           <button onClick={saveReflection} className="text-[10px] font-mono uppercase text-archive-accent flex items-center gap-2 font-bold">
-                            <Save size={12} /> Save Reflection
+                            SAVE REFLECTION
                           </button>
                         </div>
                       </div>
@@ -195,7 +196,7 @@ export const BookOfLife: React.FC<BookOfLifeProps> = ({ onBack }) => {
                           onClick={() => setResonance(star)}
                           className={`transition-all ${star <= (currentEntry.resonance || 0) ? 'text-archive-accent scale-110' : 'text-archive-ink/10 hover:text-archive-ink/30'}`}
                         >
-                          <Star size={18} fill={star <= (currentEntry.resonance || 0) ? "currentColor" : "none"} />
+                          <Star className={`w-5 h-5 ${star <= (currentEntry.resonance || 0) ? 'fill-current' : ''}`} />
                         </button>
                       ))}
                     </div>
@@ -203,10 +204,10 @@ export const BookOfLife: React.FC<BookOfLifeProps> = ({ onBack }) => {
 
                   <button 
                     onClick={handleDelete}
-                    className="text-red-500/20 hover:text-red-500 transition-colors p-2"
+                    className="text-red-500/20 hover:text-red-500 transition-colors p-2 text-xs font-mono"
                     title="Eradicate Record"
                   >
-                    <Trash2 size={18} />
+                    DELETE
                   </button>
                 </div>
               </motion.div>

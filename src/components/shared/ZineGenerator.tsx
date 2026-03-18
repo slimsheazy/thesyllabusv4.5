@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Compass } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
-import { Printer, X, Download, BookOpen, Scissors, Calendar as CalendarIcon } from 'lucide-react';
 import { exportAsPDF } from '../../utils/exportUtils';
 
 interface ZineGeneratorProps {
@@ -94,7 +94,7 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
         {/* Header */}
         <header className="p-6 border-b border-archive-line flex items-center justify-between bg-white/50 backdrop-blur-sm">
           <div className="flex items-center gap-4">
-            <BookOpen className="text-archive-accent" />
+            <span className="text-archive-accent font-mono text-xs">[BOOK]</span>
             <div>
               <h2 className="font-serif italic text-xl">Personal Almanac Generator</h2>
               <div className="flex gap-2 mt-1">
@@ -116,14 +116,10 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
               disabled={isExporting}
               className="brutalist-button !py-2 !px-4 flex items-center gap-2 text-sm"
             >
-              {isExporting ? 'Generating...' : (
-                <>
-                  <Printer size={16} /> Print to Zine
-                </>
-              )}
+              {isExporting ? 'Generating...' : 'Print to Zine'}
             </button>
-            <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-full transition-colors">
-              <X size={20} />
+            <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-full transition-colors text-xs font-mono">
+              CLOSE
             </button>
           </div>
         </header>
@@ -132,9 +128,9 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
         <div className="flex-1 overflow-y-auto p-12 bg-zinc-200/50 custom-scrollbar">
           <div className="max-w-4xl mx-auto">
             <div className="mb-8 flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.3em] opacity-30">
-              <Scissors size={14} /> 
+              <span>[CUT]</span> 
               <span>Fold along the lines for the physical archive</span>
-              <Scissors size={14} className="rotate-180" />
+              <span>[CUT]</span>
             </div>
 
             {/* The Zine Content */}
@@ -153,7 +149,9 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
             >
               {/* Page 1: Cover */}
               <div className={`h-[148.5mm] border-b border-dashed ${currentStyle.border} p-12 flex flex-col justify-between relative`}>
-                <div className="absolute top-0 right-0 p-8 opacity-5 text-9xl font-sans">☊</div>
+                <div className="absolute top-0 right-0 p-8 opacity-5">
+                  <Compass className="w-24 h-24" />
+                </div>
                 <div className="space-y-4">
                   <div className={`h-px w-12 ${theme === 'OCCULT' ? 'bg-archive-bg' : 'bg-archive-ink'}`} />
                   <p className="text-[10px] uppercase tracking-[0.5em] font-mono">The Syllabus Chronicle</p>
@@ -172,7 +170,7 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
 
                 <div className="flex justify-between items-end">
                   <div className="text-[8px] font-mono uppercase opacity-30 leading-tight">
-                    Vol. 01 • No. {new Date().getMonth() + 1}<br />
+                    Vol. 01 - No. {new Date().getMonth() + 1}<br />
                     Archived Resonance Data
                   </div>
                   <div className={`w-16 h-16 border ${theme === 'OCCULT' ? 'border-white/10' : 'border-archive-ink/20'} flex items-center justify-center`}>
@@ -284,13 +282,13 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
 
         {/* Footer Info */}
         <footer className="p-6 border-t border-archive-line bg-white/50 flex justify-between items-center">
-          <p className="text-[10px] font-mono opacity-40">Format: A4 Booklet • 4 Pages • High Resolution</p>
+          <p className="text-[10px] font-mono opacity-40">Format: A4 Booklet - 4 Pages - High Resolution</p>
           <div className="flex gap-4">
             <div className="flex items-center gap-2 text-[10px] font-mono opacity-40">
-              <Scissors size={12} /> Cut
+              CUT
             </div>
             <div className="flex items-center gap-2 text-[10px] font-mono opacity-40">
-              <BookOpen size={12} /> Fold
+              FOLD
             </div>
           </div>
         </footer>

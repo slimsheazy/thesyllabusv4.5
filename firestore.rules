@@ -1,0 +1,99 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: archives
+// Document ID: auto-generated
+// Fields:
+//   - url: string (required)
+//   - title: string (required)
+//   - description: string (required)
+//   - userId: string (required, immutable)
+//   - userName: string (required)
+//   - captureDate: string (required, ISO 8601)
+//   - size: string (optional)
+//   - status: string (required, enum: complete, pending, failed)
+//   - tags: list (optional)
+//   - thumbnail: string (optional)
+//
+// Collection: comments
+// Document ID: auto-generated
+// Fields:
+//   - archiveId: string (required, immutable)
+//   - userId: string (required, immutable)
+//   - userName: string (required)
+//   - userPhoto: string (optional)
+//   - text: string (required)
+//   - createdAt: string (required, ISO 8601)
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidDateString(dateStr) {
+      return dateStr is string && dateStr.matches("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z?$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidArchive(data) {
+      return data.keys().hasAll(['url', 'title', 'description', 'userId', 'userName', 'captureDate', 'status']) &&
+             data.url is string && data.url.size() > 0 && data.url.size() < 2048 &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.description is string && data.description.size() > 0 && data.description.size() < 2000 &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.userName is string && data.userName.size() > 0 &&
+             isValidDateString(data.captureDate) &&
+             data.status in ['complete', 'pending', 'failed'];
+    }
+
+    function isValidComment(data) {
+      return data.keys().hasAll(['archiveId', 'userId', 'userName', 'text', 'createdAt']) &&
+             data.archiveId is string &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.userName is string && data.userName.size() > 0 &&
+             data.text is string && data.text.size() > 0 && data.text.size() < 1000 &&
+             isValidDateString(data.createdAt);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /archives/{archiveId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && isValidArchive(request.resource.data);
+      allow update: if isOwner(resource.data.userId) && isValidArchive(request.resource.data) &&
+                      request.resource.data.userId == resource.data.userId;
+      allow delete: if isOwner(resource.data.userId);
+    }
+
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && isValidComment(request.resource.data);
+      allow update: if isOwner(resource.data.userId) && isValidComment(request.resource.data) &&
+                      request.resource.data.userId == resource.data.userId &&
+                      request.resource.data.archiveId == resource.data.archiveId;
+      allow delete: if isOwner(resource.data.userId);
+    }
+  }
+}

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { HelpCircle } from 'lucide-react';
 
 interface TooltipProps {
   content: string;
@@ -16,10 +15,10 @@ export const Tooltip: React.FC<TooltipProps> = ({ content, title }) => {
         onMouseEnter={() => setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
         onClick={() => setIsOpen(!isOpen)}
-        className="text-archive-ink/20 hover:text-archive-accent transition-colors"
+        className="text-archive-ink/20 hover:text-archive-accent transition-colors font-mono text-xs"
         aria-label="What is this?"
       >
-        <HelpCircle size={16} />
+        [?]
       </button>
 
       <AnimatePresence>

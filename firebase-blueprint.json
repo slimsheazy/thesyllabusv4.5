@@ -1,0 +1,46 @@
+{
+  "entities": {
+    "ArchivedSite": {
+      "title": "Archived Site",
+      "description": "A website submitted by a user to the archive.",
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "The URL of the website." },
+        "title": { "type": "string", "description": "The title of the website." },
+        "description": { "type": "string", "description": "A brief description of the website." },
+        "userId": { "type": "string", "description": "The ID of the user who submitted the site." },
+        "userName": { "type": "string", "description": "The name of the user who submitted the site." },
+        "captureDate": { "type": "string", "format": "date-time", "description": "When the site was archived." },
+        "size": { "type": "string", "description": "The size of the archive." },
+        "status": { "type": "string", "enum": ["complete", "pending", "failed"], "description": "The status of the archive process." },
+        "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags associated with the site." },
+        "thumbnail": { "type": "string", "description": "Optional thumbnail URL." }
+      },
+      "required": ["url", "title", "description", "userId", "userName", "captureDate", "status"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "A comment left by a user on an archived site.",
+      "type": "object",
+      "properties": {
+        "archiveId": { "type": "string", "description": "The ID of the archived site being commented on." },
+        "userId": { "type": "string", "description": "The ID of the user who left the comment." },
+        "userName": { "type": "string", "description": "The name of the user who left the comment." },
+        "userPhoto": { "type": "string", "description": "Optional photo URL of the user." },
+        "text": { "type": "string", "description": "The content of the comment." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the comment was created." }
+      },
+      "required": ["archiveId", "userId", "userName", "text", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/archives/{archiveId}": {
+      "schema": "ArchivedSite",
+      "description": "Collection of archived websites."
+    },
+    "/comments/{commentId}": {
+      "schema": "Comment",
+      "description": "Collection of comments on archived websites."
+    }
+  }
+}

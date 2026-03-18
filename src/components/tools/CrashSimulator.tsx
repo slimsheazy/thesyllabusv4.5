@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { AlertTriangle, ShieldAlert, BarChart3, RefreshCw, Info, CheckCircle2, Search, Zap, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, Search, Zap, BarChart, Check, RotateCcw, Loader2 } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { geminiService } from '../../services/geminiService';
@@ -63,7 +63,7 @@ export const CrashSimulator: React.FC<{ onBack: () => void }> = ({ onBack }) => 
           >
             <div className="space-y-6 text-center max-w-2xl mx-auto">
               <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto text-red-600">
-                <ShieldAlert size={32} />
+                <AlertTriangle className="w-8 h-8" />
               </div>
               <div className="space-y-2">
                 <h3 className="text-2xl font-serif italic">Worst-Case Scenario Planner</h3>
@@ -84,7 +84,7 @@ export const CrashSimulator: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                     placeholder="e.g., Starting a boutique coffee shop"
                     className="w-full bg-archive-bg border-2 border-archive-line p-5 font-serif italic text-xl focus:border-archive-accent outline-none transition-colors pr-12"
                   />
-                  <Search className="absolute right-4 top-1/2 -translate-y-1/2 opacity-20" size={20} />
+                  <Search className="absolute right-4 top-1/2 -translate-y-1/2 opacity-20 w-5 h-5" />
                 </div>
               </label>
             </div>
@@ -107,8 +107,10 @@ export const CrashSimulator: React.FC<{ onBack: () => void }> = ({ onBack }) => 
             className="flex flex-col items-center justify-center py-40 gap-8"
           >
             <div className="relative">
-              <div className="w-16 h-16 border-2 border-red-500 border-t-transparent animate-spin rounded-full" />
-              <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">⚠️</div>
+              <Loader2 className="w-16 h-16 text-red-500 animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
             </div>
             <span className="handwritten text-lg text-red-600 animate-pulse uppercase tracking-[0.3em]">Analyzing failure modes...</span>
           </motion.div>
@@ -128,10 +130,10 @@ export const CrashSimulator: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                     <h3 className="text-4xl font-serif italic text-archive-ink">{goal}</h3>
                   </div>
                   <div className="flex items-center gap-4 bg-red-500/5 px-6 py-3 border border-red-500/10">
-                    <BarChart3 className="text-red-600 w-5 h-5" />
+                    <BarChart className="text-red-600 w-5 h-5" />
                     <div className="text-left">
                       <span className="block text-[8px] font-mono uppercase opacity-40">Risk Priority Number</span>
-                      <span className="block text-sm font-bold font-mono">RPN = S × O × D</span>
+                      <span className="block text-sm font-bold font-mono">RPN = S x O x D</span>
                     </div>
                   </div>
                 </div>
@@ -159,13 +161,13 @@ export const CrashSimulator: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                           <td className="py-6 text-center font-mono text-sm opacity-60">{m.occurrence}</td>
                           <td className="py-6 text-center font-mono text-sm opacity-60">{m.detection}</td>
                           <td className="py-6 text-center">
-                            <span className={`font-mono font-bold px-2 py-1 ${m.rpn > 300 ? 'bg-red-500 text-white' : m.rpn > 150 ? 'bg-orange-500/10 text-orange-600' : 'bg-green-500/10 text-green-600'}`}>
+                            <span className={`font-mono font-bold px-2 py-1 ${m.rpn > 300 ? 'bg-red-500 text-white' : m.rpn > 150 ? 'bg-amber-500/10 text-amber-600' : 'bg-green-500/10 text-green-600'}`}>
                               {m.rpn}
                             </span>
                           </td>
                           <td className="py-6 pl-4">
                             <div className="flex items-start gap-3">
-                              <ShieldCheck className="w-4 h-4 text-green-600 mt-1 shrink-0" />
+                              <Check className="text-green-600 mt-1 shrink-0 w-3 h-3" />
                               <p className="text-sm italic font-serif leading-relaxed opacity-80">{m.prevention}</p>
                             </div>
                           </td>
@@ -195,8 +197,7 @@ export const CrashSimulator: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                     onClick={() => setResults(null)}
                     className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40 hover:opacity-100 flex items-center gap-2"
                   >
-                    <RefreshCw className="w-3 h-3" />
-                    NEW SIMULATION
+                    <RotateCcw className="w-3 h-3" /> NEW SIMULATION
                   </button>
                 </div>
               </div>

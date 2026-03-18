@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Palette, RefreshCw, Loader2, Sparkles, Zap } from 'lucide-react';
+import { Sun, Zap, RotateCcw } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { geminiService } from '../../services/geminiService';
@@ -66,7 +66,7 @@ export const ColorOracle: React.FC<ColorOracleProps> = ({ onBack }) => {
 
   return (
     <ToolLayout
-      title="The Color Oracle"
+      title="Color Glyphic"
       subtitle="Vibrational frequencies of the chromatic archive"
       onBack={onBack}
       tooltipTitle="Chromatic Resonance"
@@ -98,7 +98,6 @@ export const ColorOracle: React.FC<ColorOracleProps> = ({ onBack }) => {
                 onClick={drawColor}
                 className="brutalist-button px-16 py-6 text-2xl flex items-center gap-4 mx-auto group"
               >
-                <Palette className="w-6 h-6 group-hover:rotate-12 transition-transform" />
                 DRAW A COLOR
               </button>
             </motion.div>
@@ -112,7 +111,9 @@ export const ColorOracle: React.FC<ColorOracleProps> = ({ onBack }) => {
             >
               <div className="relative">
                 <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
-                <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">☉</div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Sun className="w-6 h-6 opacity-20" />
+                </div>
               </div>
               <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Mixing the pigments of destiny...</span>
             </motion.div>
@@ -151,8 +152,7 @@ export const ColorOracle: React.FC<ColorOracleProps> = ({ onBack }) => {
                     onClick={() => setColor(null)}
                     className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40 hover:opacity-100 flex items-center gap-2"
                   >
-                    <RefreshCw className="w-3 h-3" />
-                    Draw Another
+                    <RotateCcw className="w-3 h-3" /> Draw Another
                   </button>
                 </div>
               </div>
@@ -163,6 +163,8 @@ export const ColorOracle: React.FC<ColorOracleProps> = ({ onBack }) => {
                 content={`Color: ${color!.name} (${color!.hex})\n\nMeaning: ${color!.meaning}`}
                 exportName={`color-${color!.name.toLowerCase().replace(/\s+/g, '-')}`}
                 onClose={() => setColor(null)}
+                type="COLOR_ORACLE"
+                metadata={{ color }}
               />
             </motion.div>
           )}

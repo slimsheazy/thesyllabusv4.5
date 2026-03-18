@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Markdown from 'react-markdown';
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPin, Calendar, Clock, Sparkles, RefreshCw, Loader2, AlertCircle, Compass } from 'lucide-react';
+import { MapPin, AlertTriangle, Sun, Compass, Sparkles, RotateCcw, Loader2, Moon, Heart, Sword, Crown, Clock, Zap, Circle } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useProfile } from '../../hooks/useProfile';
@@ -210,13 +210,13 @@ export const BirthChartTool: React.FC<BirthChartToolProps> = ({ onBack }) => {
               disabled={loading || (view === 'NATAL' && !isValid)} 
               className={`brutalist-button w-full py-5 text-xl transition-all flex items-center justify-center gap-3 mt-8 ${(loading || (view === 'NATAL' && !isValid)) ? "opacity-30" : ""}`}
             >
-              {loading ? <Loader2 className="animate-spin" size={20} /> : <Sparkles size={20} />}
+              {loading ? <Loader2 className="animate-spin w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
               {view === 'NATAL' ? "GENERATE MAP" : "OBSERVE SKY"}
             </button>
 
             {error && (
               <div className="p-4 bg-red-50 border border-red-100 rounded-archive flex items-center gap-3 text-red-600 text-[10px] italic mt-4">
-                <AlertCircle className="w-4 h-4" />
+                <AlertTriangle className="w-4 h-4" />
                 {error}
               </div>
             )}
@@ -235,7 +235,9 @@ export const BirthChartTool: React.FC<BirthChartToolProps> = ({ onBack }) => {
               >
                 <div className="relative">
                   <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
-                  <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">☉</div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Sun className="w-6 h-6 opacity-20" />
+                  </div>
                 </div>
                 <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Mapping the celestial spheres...</span>
               </motion.div>
@@ -248,22 +250,43 @@ export const BirthChartTool: React.FC<BirthChartToolProps> = ({ onBack }) => {
               >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {[
-                    { label: 'Sun Sign', value: analysis.sunSign, symbol: '☉' },
-                    { label: 'Moon Sign', value: analysis.moonSign, symbol: '☽' },
+                    { label: 'Sun Sign', value: analysis.sunSign, symbol: <Sun className="w-12 h-12" /> },
+                    { label: 'Moon Sign', value: analysis.moonSign, symbol: <Moon className="w-12 h-12" /> },
                     { label: 'Rising Sign', value: analysis.risingSign, symbol: 'ASC' },
                   ].map((item) => (
                     <div key={item.label} className="archive-card p-8 text-center relative overflow-hidden group">
-                      <span className="absolute -right-4 -bottom-4 text-7xl opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">{item.symbol}</span>
+                      <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">{item.symbol}</div>
                       <p className="col-header mb-2">{item.label}</p>
                       <p className="text-2xl font-serif italic">{item.value}</p>
                     </div>
                   ))}
                 </div>
 
+                {view === 'CURRENT' && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="archive-card p-6 border-l-4 border-archive-accent">
+                      <p className="col-header mb-1">Lunar Phase</p>
+                      <p className="text-lg font-serif italic">{analysis.lunarPhase || 'Calculating...'}</p>
+                    </div>
+                    <div className="archive-card p-6 border-l-4 border-archive-accent">
+                      <p className="col-header mb-1">Retrogrades</p>
+                      <p className="text-lg font-serif italic">
+                        {analysis.retrogrades && analysis.retrogrades.length > 0 
+                          ? analysis.retrogrades.join(', ') 
+                          : 'None'}
+                      </p>
+                    </div>
+                    <div className="archive-card p-6 border-l-4 border-archive-accent">
+                      <p className="col-header mb-1">Void-of-Course</p>
+                      <p className="text-lg font-serif italic">{analysis.voidOfCourse ? 'Yes' : 'No'}</p>
+                    </div>
+                  </div>
+                )}
+
                 {analysis.chartData && (
                   <div className="space-y-8">
                     <div className="flex items-center gap-3 border-b border-archive-line pb-2">
-                      <Compass size={16} className="opacity-40" />
+                      <Compass className="w-5 h-5 opacity-40" />
                       <h3 className="col-header border-none pb-0">Celestial Configuration</h3>
                     </div>
                     <div className="w-full max-w-lg mx-auto">
@@ -299,18 +322,18 @@ export const BirthChartTool: React.FC<BirthChartToolProps> = ({ onBack }) => {
                           <div className="space-y-6">
                             <div className="flex items-center gap-4 border-b border-archive-line pb-4">
                               <div className="w-12 h-12 rounded-full border border-archive-accent flex items-center justify-center text-2xl text-archive-accent">
-                                {selectedPlanet.name === 'Sun' ? '☉' : 
-                                 selectedPlanet.name === 'Moon' ? '☽' : 
-                                 selectedPlanet.name === 'Mercury' ? '☿' : 
-                                 selectedPlanet.name === 'Venus' ? '♀' : 
-                                 selectedPlanet.name === 'Mars' ? '♂' : 
-                                 selectedPlanet.name === 'Jupiter' ? '♃' : 
-                                 selectedPlanet.name === 'Saturn' ? '♄' : '○'}
+                                {selectedPlanet.name === 'Sun' ? <Sun className="w-6 h-6" /> : 
+                                 selectedPlanet.name === 'Moon' ? <Moon className="w-6 h-6" /> : 
+                                 selectedPlanet.name === 'Mercury' ? <Zap className="w-6 h-6" /> : 
+                                 selectedPlanet.name === 'Venus' ? <Heart className="w-6 h-6" /> : 
+                                 selectedPlanet.name === 'Mars' ? <Sword className="w-6 h-6" /> : 
+                                 selectedPlanet.name === 'Jupiter' ? <Crown className="w-6 h-6" /> : 
+                                 selectedPlanet.name === 'Saturn' ? <Clock className="w-6 h-6" /> : <Circle className="w-6 h-6" />}
                               </div>
                               <div>
                                 <h4 className="text-2xl font-serif italic">{selectedPlanet.name} Interpretation</h4>
                                 <p className="text-[10px] font-mono uppercase opacity-40">
-                                  {Math.floor(selectedPlanet.degree / 30 * 30 % 30)}° {["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"][Math.floor(selectedPlanet.degree / 30)]} • House {Math.floor(((selectedPlanet.degree - (analysis?.chartData?.ascendant || 0) + 360) % 360) / 30) + 1}
+                                  {Math.floor(selectedPlanet.degree / 30 * 30 % 30)} deg {["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"][Math.floor(selectedPlanet.degree / 30)]} - House {Math.floor(((selectedPlanet.degree - (analysis?.chartData?.ascendant || 0) + 360) % 360) / 30) + 1}
                                 </p>
                               </div>
                             </div>
@@ -360,12 +383,48 @@ export const BirthChartTool: React.FC<BirthChartToolProps> = ({ onBack }) => {
                   </div>
                 </div>
 
+                {analysis.aspects && analysis.aspects.length > 0 && (
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-3 border-b border-archive-line pb-2">
+                      <Sparkles className="w-5 h-5 opacity-40" />
+                      <h3 className="col-header border-none pb-0">Planetary Aspects</h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {analysis.aspects.map((aspect, i) => (
+                        <div key={i} className="archive-card p-6 space-y-3 border-l-2 border-archive-accent/30 hover:border-archive-accent transition-colors">
+                          <div className="flex justify-between items-start">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-bold">{aspect.planet1}</span>
+                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono uppercase tracking-tighter ${
+                                aspect.type === 'Conjunction' ? 'bg-blue-100 text-blue-700' :
+                                aspect.type === 'Opposition' ? 'bg-red-100 text-red-700' :
+                                aspect.type === 'Trine' ? 'bg-emerald-100 text-emerald-700' :
+                                aspect.type === 'Square' ? 'bg-amber-100 text-amber-700' :
+                                'bg-purple-100 text-purple-700'
+                              }`}>
+                                {aspect.type}
+                              </span>
+                              <span className="text-sm font-bold">{aspect.planet2}</span>
+                            </div>
+                            <span className="text-[10px] font-mono opacity-40">Orb: {aspect.orb.toFixed(1)} deg</span>
+                          </div>
+                          <p className="text-sm italic opacity-70 leading-relaxed">
+                            {aspect.interpretation}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <ResultSection
                   id="birth-chart-content"
                   title="Final Synthesis"
                   content={analysis.summary}
                   exportName={`birth-chart-${profile.birthday}`}
                   onClose={() => setAnalysis(null)}
+                  type="BIRTH_CHART"
+                  metadata={{ profile, view, analysis }}
                 />
               </motion.div>
             ) : (
@@ -375,7 +434,7 @@ export const BirthChartTool: React.FC<BirthChartToolProps> = ({ onBack }) => {
                 animate={{ opacity: 1 }}
                 className="h-full flex flex-col items-center justify-center py-40 opacity-[0.03] select-none pointer-events-none"
               >
-                <RefreshCw size={160} />
+                <RotateCcw className="w-32 h-32" />
                 <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">Awaiting Configuration</p>
               </motion.div>
             )}

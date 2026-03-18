@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { RefreshCw, Sparkles, AlertCircle, Volume2, FileText, Image as ImageIcon, Search } from 'lucide-react';
+import { Search, AlertTriangle, Sun, Image } from 'lucide-react';
 import { geminiService } from '../../services/geminiService';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
@@ -57,10 +57,10 @@ export const GlyphicTool: React.FC<GlyphicToolProps> = ({ onBack }) => {
 
   return (
     <ToolLayout
-      title="The Oracle"
+      title="Glyphic"
       subtitle="Visual and conceptual insights."
       onBack={onBack}
-      tooltipTitle="About The Oracle"
+      tooltipTitle="About Glyphic"
       tooltipContent="Generates a unique visual and conceptual anchor based on your inquiry, providing a symbolic card for contemplation."
     >
       <div className="w-full flex flex-col lg:flex-row gap-10 lg:gap-16 items-start">
@@ -92,7 +92,7 @@ export const GlyphicTool: React.FC<GlyphicToolProps> = ({ onBack }) => {
 
             {error && (
               <div className="p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-red-600 text-[10px] italic">
-                <AlertCircle className="w-4 h-4" />
+                <AlertTriangle className="w-4 h-4" />
                 {error}
               </div>
             )}
@@ -111,7 +111,9 @@ export const GlyphicTool: React.FC<GlyphicToolProps> = ({ onBack }) => {
               >
                 <div className="relative">
                   <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
-                  <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">☉</div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Sun className="w-6 h-6 opacity-20" />
+                  </div>
                 </div>
                 <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Drawing from the deep...</span>
               </motion.div>
@@ -122,7 +124,7 @@ export const GlyphicTool: React.FC<GlyphicToolProps> = ({ onBack }) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-12"
               >
-                {/* Oracle Card Aesthetic */}
+                {/* Glyphic Card Aesthetic */}
                 <div className="max-w-xl mx-auto archive-card !p-0 shadow-2xl overflow-hidden bg-black border-4 border-archive-ink">
                   <div className="relative aspect-[3/4] bg-archive-ink flex items-center justify-center overflow-hidden">
                     {result.imageUrl ? (
@@ -167,11 +169,13 @@ export const GlyphicTool: React.FC<GlyphicToolProps> = ({ onBack }) => {
                 </div>
 
                 <ResultSection
-                  id="oracle-card-content"
+                  id="glyphic-card-content"
                   title="Archive Record"
                   content={`${result.word}\n\n${result.definition}\n\n${result.reading}`}
-                  exportName={`oracle-${result.word.toLowerCase()}`}
+                  exportName={`glyphic-${result.word.toLowerCase()}`}
                   onClose={() => setResult(null)}
+                  type="GLYPHIC"
+                  metadata={{ query, result }}
                 />
               </motion.div>
             ) : (
@@ -181,7 +185,7 @@ export const GlyphicTool: React.FC<GlyphicToolProps> = ({ onBack }) => {
                 animate={{ opacity: 1 }}
                 className="h-full flex flex-col items-center justify-center py-40 opacity-[0.03] select-none pointer-events-none"
               >
-                <ImageIcon size={160} />
+                <Image className="w-32 h-32" />
                 <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">Awaiting Inquiry</p>
               </motion.div>
             )}

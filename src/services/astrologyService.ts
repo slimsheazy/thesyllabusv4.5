@@ -23,7 +23,7 @@ export const analyzeBirthChart = async (data: BirthData): Promise<BirthChartAnal
   // Calculate real positions using astronomy-engine for the prompt context
   const birthDate = dt.toJSDate();
   const realPositions = getAllPlanetPositions(birthDate);
-  const positionsString = realPositions.map(p => `${p.name}: ${p.sign} ${p.degree.toFixed(2)}°`).join(', ');
+  const positionsString = realPositions.map(p => `${p.name}: ${p.sign} ${p.degree.toFixed(2)}deg`).join(', ');
 
   const prompt = `Analyze the birth chart for the following subject:
   Birth Date: ${data.date}
@@ -50,6 +50,9 @@ export const analyzeBirthChart = async (data: BirthData): Promise<BirthChartAnal
     "risingSign": "string",
     "summary": "string (Markdown, analytical and grounded tone)",
     "traits": ["string", "string", ...],
+    "aspects": [
+      { "planet1": "string", "planet2": "string", "type": "string", "angle": number, "orb": number, "interpretation": "string" }
+    ],
     "chartData": {
       "ascendant": number (0-360),
       "planets": [
@@ -73,6 +76,21 @@ export const analyzeBirthChart = async (data: BirthData): Promise<BirthChartAnal
       traits: { 
         type: Type.ARRAY, 
         items: { type: Type.STRING } 
+      },
+      aspects: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            planet1: { type: Type.STRING },
+            planet2: { type: Type.STRING },
+            type: { type: Type.STRING, enum: ['Conjunction', 'Sextile', 'Square', 'Trine', 'Opposition'] },
+            angle: { type: Type.NUMBER },
+            orb: { type: Type.NUMBER },
+            interpretation: { type: Type.STRING }
+          },
+          required: ["planet1", "planet2", "type", "angle", "orb", "interpretation"]
+        }
       },
       chartData: {
         type: Type.OBJECT,
@@ -135,6 +153,7 @@ export const analyzeBirthChart = async (data: BirthData): Promise<BirthChartAnal
           lifePath: calculateLifePath(data.date),
           summary: "The archive is currently experiencing high resonance interference. Please try re-calibrating in a moment.",
           traits: [],
+          aspects: [],
           chartData: {
             ascendant: 0,
             planets: []
@@ -240,7 +259,7 @@ export const getTransitNotifications = async (data: BirthData): Promise<TransitN
   }
 
   // 5. Interpret exact aspects
-  const aspectsString = significantAspects.map(a => `Transit ${a.planet1} ${a.type} Natal ${a.planet2} (Orb: ${a.orb.toFixed(2)}°)`).join('\n');
+  const aspectsString = significantAspects.map(a => `Transit ${a.planet1} ${a.type} Natal ${a.planet2} (Orb: ${a.orb.toFixed(2)}deg)`).join('\n');
   
   const prompt = `As an expert analyst, interpret these EXACT planetary aspects occurring right now for a subject:
   Subject Birth: ${data.date} at ${data.time} in ${data.location}.
@@ -263,7 +282,7 @@ export const getTransitNotifications = async (data: BirthData): Promise<TransitN
 export const getCurrentSky = async (): Promise<BirthChartAnalysis> => {
   const now = new Date();
   const realPositions = getAllPlanetPositions(now);
-  const positionsString = realPositions.map(p => `${p.name}: ${p.sign} ${p.degree.toFixed(2)}°`).join(', ');
+  const positionsString = realPositions.map(p => `${p.name}: ${p.sign} ${p.degree.toFixed(2)}deg`).join(', ');
 
   const prompt = `Analyze the current planetary configuration (The "Now" Chart).
   Current Time: ${now.toISOString()}
@@ -273,14 +292,24 @@ export const getCurrentSky = async (): Promise<BirthChartAnalysis> => {
   
   Task:
   Provide a high-level analysis of the collective energy right now.
+  Include specific details about:
+  1. The current Lunar Phase (e.g., Waxing Gibbous, New Moon).
+  2. Any planets currently in Retrograde.
+  3. Whether the Moon is currently Void-of-Course.
   
   Return the analysis in this JSON format:
   {
     "sunSign": "string",
     "moonSign": "string",
-    "risingSign": "string (Use 'Unknown' as rising depends on location)",
+    "risingSign": "string (Use 'Unknown')",
     "summary": "string (Markdown, analytical and grounded tone)",
     "traits": ["string", "string", ...],
+    "lunarPhase": "string",
+    "retrogrades": ["string", ...],
+    "voidOfCourse": boolean,
+    "aspects": [
+      { "planet1": "string", "planet2": "string", "type": "string", "angle": number, "orb": number, "interpretation": "string" }
+    ],
     "chartData": {
       "ascendant": 0,
       "planets": [
@@ -302,6 +331,24 @@ export const getCurrentSky = async (): Promise<BirthChartAnalysis> => {
       risingSign: { type: Type.STRING },
       summary: { type: Type.STRING },
       traits: { type: Type.ARRAY, items: { type: Type.STRING } },
+      lunarPhase: { type: Type.STRING },
+      retrogrades: { type: Type.ARRAY, items: { type: Type.STRING } },
+      voidOfCourse: { type: Type.BOOLEAN },
+      aspects: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            planet1: { type: Type.STRING },
+            planet2: { type: Type.STRING },
+            type: { type: Type.STRING, enum: ['Conjunction', 'Sextile', 'Square', 'Trine', 'Opposition'] },
+            angle: { type: Type.NUMBER },
+            orb: { type: Type.NUMBER },
+            interpretation: { type: Type.STRING }
+          },
+          required: ["planet1", "planet2", "type", "angle", "orb", "interpretation"]
+        }
+      },
       chartData: {
         type: Type.OBJECT,
         properties: {
@@ -327,7 +374,8 @@ export const getCurrentSky = async (): Promise<BirthChartAnalysis> => {
           calculationNotes: { type: Type.STRING }
         }
       }
-    }
+    },
+    required: ["sunSign", "moonSign", "risingSign", "summary", "traits", "lunarPhase", "retrogrades", "voidOfCourse", "chartData", "metadata"]
   };
 
   return geminiService.generateJson<BirthChartAnalysis>(prompt, schema);

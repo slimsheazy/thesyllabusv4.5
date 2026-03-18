@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Sun, Moon, MapPin, Calendar, Clock, User, Settings2, Check, Bell, Trash2, Pin, PinOff, Search, Book, Brain, AlertTriangle } from 'lucide-react';
+import { 
+  Bell, Settings, X, User, Calendar, Clock, MapPin, 
+  Search, Star, Home, Clock3, BookOpen, Brain, 
+  Moon, Sun, AlertTriangle, ArrowRight, Compass, Globe, Check, Link
+} from 'lucide-react';
 import { useSyllabusStore } from '../store';
 import { Tooltip } from './shared/Tooltip';
 import { useSeekerLevel } from '../hooks/useSeekerLevel';
@@ -42,6 +46,16 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
 
   const categories = TOOL_CATEGORIES;
   const pinnedItems = ALL_TOOLS.filter(tool => pinnedTools.includes(tool.page));
+
+  const getCategoryIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'Moon': return <Moon className="w-6 h-6" />;
+      case 'Compass': return <Compass className="w-6 h-6" />;
+      case 'Sun': return <Sun className="w-6 h-6" />;
+      case 'Link': return <Link className="w-6 h-6" />;
+      default: return null;
+    }
+  };
 
   const handleManualSearch = async () => {
     if (!manualLocation.trim()) return;
@@ -90,10 +104,12 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
       <div className={`absolute top-0 left-0 h-full w-full md:w-[480px] bg-archive-bg border-r border-archive-line transition-transform duration-500 shadow-2xl flex flex-col ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="p-6 sm:p-10 pt-24 flex-grow overflow-y-auto custom-scrollbar">
           <section className="mb-12 p-8 border border-archive-line bg-white shadow-xl rounded-xl space-y-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none text-6xl font-sans">☊</div>
+            <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+              <Compass className="w-24 h-24" />
+            </div>
             <div className="flex justify-between items-center relative z-10">
               <div className="flex items-center gap-2">
-                <span className="text-xl font-sans text-archive-accent">♁</span>
+                <Globe className="w-5 h-5 text-archive-accent" />
                 <span className="handwritten text-[10px] uppercase text-archive-accent tracking-widest">Profile Settings</span>
               </div>
               <div className="flex items-center gap-4">
@@ -101,13 +117,13 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                   onClick={() => setShowNotifications(!showNotifications)} 
                   className="relative text-archive-ink/40 hover:text-archive-accent transition-colors"
                 >
-                  <Bell size={16} />
+                  <Bell className="w-5 h-5" />
                   {transitNotifications.some(n => !n.isRead) && (
                     <span className="absolute -top-1 -right-1 w-2 h-2 bg-archive-accent rounded-full border border-white" />
                   )}
                 </button>
                 <button onClick={() => setIsEditingProfile(!isEditingProfile)} className="text-[10px] uppercase flex items-center gap-1 hover:text-archive-accent transition-colors">
-                  {isEditingProfile ? <X size={14} /> : <Settings2 size={14} />}
+                  {isEditingProfile ? <X className="w-4 h-4" /> : <Settings className="w-4 h-4" />}
                 </button>
               </div>
             </div>
@@ -117,7 +133,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                 <div className="flex justify-between items-center border-b border-archive-line pb-2">
                   <span className="text-[9px] uppercase opacity-40">Astro Notifications</span>
                   <button onClick={clearNotifications} className="text-[9px] uppercase opacity-40 hover:text-red-500 flex items-center gap-1">
-                    <Trash2 size={10} /> Clear
+                    <X className="w-3 h-3" /> Clear
                   </button>
                 </div>
                 <div className="space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
@@ -143,7 +159,9 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
             ) : isEditingProfile ? (
               <div className="space-y-6 animate-in fade-in duration-300 relative z-10">
                 <div className="space-y-2">
-                  <label className="text-[9px] uppercase opacity-40 flex items-center gap-2"><User size={10} /> Name</label>
+                  <label className="text-[9px] uppercase opacity-40 flex items-center gap-2">
+                    <User className="w-3 h-3" /> Name
+                  </label>
                   <input 
                     className="w-full bg-archive-bg p-3 border border-archive-line text-lg italic outline-none focus:border-archive-accent" 
                     value={userIdentity || ""} 
@@ -153,11 +171,15 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[9px] uppercase opacity-40 flex items-center gap-2"><Calendar size={10} /> Birth Date</label>
+                    <label className="text-[9px] uppercase opacity-40 flex items-center gap-2">
+                      <Calendar className="w-3 h-3" /> Birth Date
+                    </label>
                     <input type="date" className="w-full bg-archive-bg p-3 border border-archive-line text-lg italic outline-none focus:border-archive-accent" value={userBirthday || ""} onChange={(e) => setUserBirthday(e.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[9px] uppercase opacity-40 flex items-center gap-2"><Clock size={10} /> Time</label>
+                    <label className="text-[9px] uppercase opacity-40 flex items-center gap-2">
+                      <Clock className="w-3 h-3" /> Time
+                    </label>
                     <input type="time" className="w-full bg-archive-bg p-3 border border-archive-line text-lg italic outline-none focus:border-archive-accent" value={userBirthTime || "12:00"} onChange={(e) => setUserBirthTime(e.target.value)} />
                   </div>
                 </div>
@@ -180,7 +202,9 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[9px] uppercase opacity-40 flex items-center gap-2"><MapPin size={10} /> Birth Location</label>
+                  <label className="text-[9px] uppercase opacity-40 flex items-center gap-2">
+                    <MapPin className="w-3 h-3" /> Birth Location
+                  </label>
                   <div className="flex gap-2">
                     <input 
                       type="text" 
@@ -216,10 +240,10 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                   {userIdentity ? `Hi, ${userIdentity.split(' ')[0]}.` : "Set up your profile."}
                 </p>
                 <div className="flex flex-col gap-2">
-                  {userBirthday && <span className="flex items-center gap-2 text-sm italic opacity-60"><Calendar size={14} className="opacity-40" /> Born: {userBirthday} {userBirthTime && `@ ${userBirthTime}`} ({userBirthTimezone})</span>}
-                  {userLocation && <span className="flex items-center gap-2 text-sm italic opacity-60"><MapPin size={14} className="opacity-40" /> Location: {userLocation.name || "Synced"}</span>}
+                  {userBirthday && <span className="flex items-center gap-2 text-sm italic opacity-60"><Calendar className="w-3 h-3" /> Born: {userBirthday} {userBirthTime && `@ ${userBirthTime}`} ({userBirthTimezone})</span>}
+                  {userLocation && <span className="flex items-center gap-2 text-sm italic opacity-60"><MapPin className="w-3 h-3" /> Location: {userLocation.name || "Synced"}</span>}
                 </div>
-                {isCalibrated && <div className="flex items-center gap-2 text-[9px] text-emerald-600 uppercase tracking-widest pt-2 border-t border-archive-line"><Check size={12} /> Profile Set ♁</div>}
+                {isCalibrated && <div className="flex items-center gap-2 text-[9px] text-emerald-600 uppercase tracking-widest pt-2 border-t border-archive-line"><Check className="w-3 h-3" /> Profile Set <Globe className="w-3 h-3" /></div>}
               </div>
             )}
           </section>
@@ -248,7 +272,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
           <div className="space-y-16">
             <div className="space-y-4">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30 w-4 h-4" />
                 <input 
                   type="text" 
                   placeholder="Quick find a record..." 
@@ -266,7 +290,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                       className="w-full text-left handwritten text-lg text-archive-ink hover:text-archive-accent py-1.5 px-4 rounded-md hover:bg-archive-ink/5 transition-colors flex justify-between items-center"
                     >
                       <span>{item.name}</span>
-                      <span className="text-[8px] uppercase opacity-40">Jump →</span>
+                      <span className="text-[8px] uppercase opacity-40 flex items-center gap-1">Jump <ArrowRight className="w-2 h-2" /></span>
                     </button>
                   ))}
                   {ALL_TOOLS.filter(t => t.name.toLowerCase().includes(quickSearch.toLowerCase())).length === 0 && (
@@ -279,7 +303,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
             {pinnedItems.length > 0 && !quickSearch && (
               <div className="space-y-4">
                 <div className="flex items-center gap-3 border-b border-archive-accent/30 pb-2">
-                  <span className="text-2xl font-sans text-archive-accent">★</span>
+                  <Star className="w-6 h-6 text-archive-accent" />
                   <span className="heading-marker text-2xl text-archive-ink uppercase tracking-wide">Pinned Records</span>
                 </div>
                 <ul className="space-y-1 pl-6">
@@ -293,10 +317,10 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                       </button>
                       <button 
                         onClick={(e) => { e.stopPropagation(); togglePinnedTool(item.page); }}
-                        className="p-2 opacity-20 group-hover:opacity-100 hover:text-archive-accent transition-all"
+                        className="p-2 opacity-20 group-hover:opacity-100 hover:text-archive-accent transition-all text-[10px] font-mono"
                         title="Unpin"
                       >
-                        <PinOff size={14} />
+                        UNPIN
                       </button>
                       <Tooltip title={item.name} content={item.desc} />
                     </li>
@@ -307,7 +331,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
 
             <div className="space-y-4">
               <div className="flex items-center gap-3 border-b border-archive-line pb-2">
-                <span className="text-2xl font-sans text-archive-ink opacity-40">☖</span>
+                <Home className="w-6 h-6 text-archive-ink opacity-40" />
                 <span className="heading-marker text-2xl text-archive-ink uppercase tracking-wide">Core Systems</span>
               </div>
               <ul className="space-y-1 pl-6">
@@ -316,7 +340,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                     onClick={() => onNavigate("MASTER_ARCHIVE")} 
                     className="w-full text-left handwritten text-lg text-archive-ink hover:text-archive-accent py-1.5 px-4 rounded-md hover:bg-archive-ink/5 transition-colors flex items-center gap-3"
                   >
-                    <Clock size={16} className="opacity-40" /> Master Archive
+                    <Clock3 className="w-4 h-4" /> Master Archive
                   </button>
                 </li>
                 <li>
@@ -324,7 +348,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                     onClick={() => onNavigate("LEXICON")} 
                     className="w-full text-left handwritten text-lg text-archive-ink hover:text-archive-accent py-1.5 px-4 rounded-md hover:bg-archive-ink/5 transition-colors flex items-center gap-3"
                   >
-                    <Book size={16} className="opacity-40" /> Lexicon of Discovery
+                    <BookOpen className="w-4 h-4" /> Lexicon of Discovery
                   </button>
                 </li>
                 <li>
@@ -332,7 +356,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                     onClick={() => onNavigate("ORACLE_VIEW")} 
                     className="w-full text-left handwritten text-lg text-archive-ink hover:text-archive-accent py-1.5 px-4 rounded-md hover:bg-archive-ink/5 transition-colors flex items-center gap-3"
                   >
-                    <Brain size={16} className="opacity-40" /> Consult Librarian
+                    <Brain className="w-4 h-4" /> Consult Librarian
                   </button>
                 </li>
               </ul>
@@ -341,7 +365,9 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
             {categories.map((cat, idx) => (
               <div key={idx} className="space-y-4">
                 <div className="flex items-center gap-3 border-b border-archive-line pb-2">
-                  <span className="text-2xl font-sans" style={{ color: cat.color }}>{cat.symbol}</span>
+                  <div style={{ color: cat.color }}>
+                    {getCategoryIcon(cat.icon)}
+                  </div>
                   <span className="heading-marker text-2xl text-archive-ink uppercase tracking-wide">{cat.label}</span>
                 </div>
                 <ul className="space-y-1 pl-6">
@@ -355,10 +381,10 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                       </button>
                       <button 
                         onClick={(e) => { e.stopPropagation(); togglePinnedTool(item.page); }}
-                        className={`p-2 transition-all hover:text-archive-accent ${pinnedTools.includes(item.page) ? 'opacity-100 text-archive-accent' : 'opacity-0 group-hover:opacity-40'}`}
+                        className={`p-2 transition-all hover:text-archive-accent text-[10px] font-mono ${pinnedTools.includes(item.page) ? 'opacity-100 text-archive-accent' : 'opacity-0 group-hover:opacity-40'}`}
                         title={pinnedTools.includes(item.page) ? "Unpin" : "Pin to top"}
                       >
-                        {pinnedTools.includes(item.page) ? <PinOff size={14} /> : <Pin size={14} />}
+                        {pinnedTools.includes(item.page) ? "UNPIN" : "PIN"}
                       </button>
                       <Tooltip title={item.name} content={item.desc} />
                     </li>
@@ -370,7 +396,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
             <div className="pt-8 mt-8 border-t border-archive-line space-y-4">
               <button onClick={toggleEclipseMode} className="w-full flex items-center justify-between group p-3 hover:bg-archive-ink/5 rounded-xl transition-all">
                 <div className="flex items-center gap-3">
-                  {isEclipseMode ? <Moon size={20} className="text-archive-accent" /> : <Sun size={20} className="text-archive-accent" />}
+                  {isEclipseMode ? <Moon className="w-5 h-5 text-archive-accent" /> : <Sun className="w-5 h-5 text-archive-accent" />}
                   <span className="handwritten text-lg italic">{isEclipseMode ? "Night Watch" : "Day Watch"}</span>
                 </div>
                 <div className={`w-12 h-6 rounded-full border border-archive-ink relative transition-all ${isEclipseMode ? "bg-archive-ink" : "bg-transparent"}`}>
@@ -382,7 +408,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                 onClick={() => setShowResetConfirm(true)}
                 className="w-full flex items-center gap-3 p-3 text-red-500/40 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all group"
               >
-                <AlertTriangle size={20} />
+                <AlertTriangle className="w-5 h-5" />
                 <span className="handwritten text-lg italic">Reset Archive</span>
               </button>
             </div>
@@ -408,7 +434,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
               className="modal-container"
             >
               <div className="flex items-center gap-4 text-red-500">
-                <AlertTriangle size={32} />
+                <AlertTriangle className="w-8 h-8" />
                 <h3 className="font-serif italic text-2xl">Are you sure?</h3>
               </div>
               <p className="handwritten text-lg italic opacity-60 leading-relaxed">

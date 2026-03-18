@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { User, Calendar, Clock, MapPin, Check, ArrowRight, Loader2, Sparkles, UserCheck, Volume2 } from 'lucide-react';
+import { Compass, ArrowRight, Check, Target, RefreshCw } from 'lucide-react';
 import { useSyllabusStore } from '../store';
 import { UserLocation } from '../types';
 import { analyzeBirthChart, BirthData } from '../services/astrologyService';
@@ -35,6 +35,8 @@ export const Onboarding: React.FC = () => {
   const [manualLocation, setManualLocation] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   
   const [synopsis, setSynopsis] = useState<any>(null);
   const [loadingSynopsis, setLoadingSynopsis] = useState(false);
@@ -62,10 +64,18 @@ export const Onboarding: React.FC = () => {
     setDetecting(true);
     setSearchError(null);
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude, name: "Detected Location" };
-        setLocation(loc);
-        setDetecting(false);
+      async (pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        try {
+          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10`);
+          const data = await response.json();
+          const name = data.display_name.split(',')[0] || "Detected Location";
+          setLocation({ lat, lng, name });
+        } catch (e) {
+          setLocation({ lat, lng, name: "Detected Location" });
+        } finally {
+          setDetecting(false);
+        }
       },
       (err) => {
         setDetecting(false);
@@ -76,22 +86,24 @@ export const Onboarding: React.FC = () => {
     );
   };
 
-  const handleManualSearch = async () => {
-    if (!manualLocation.trim()) return;
+  const handleManualSearch = async (query?: string) => {
+    const searchTerm = query || manualLocation;
+    if (!searchTerm.trim()) return;
+    
     setSearching(true);
     setSearchError(null);
     try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(manualLocation)}&limit=1`);
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchTerm)}&limit=5`);
       const data = await response.json();
       if (data && data.length > 0) {
-        const first = data[0];
-        setLocation({
-          lat: parseFloat(first.lat),
-          lng: parseFloat(first.lon),
-          name: first.display_name.split(',')[0]
-        });
+        setSuggestions(data);
+        setShowSuggestions(true);
+        if (data.length === 1 && !query) {
+          selectLocation(data[0]);
+        }
       } else {
         setSearchError("Location not found. Please be more specific.");
+        setSuggestions([]);
       }
     } catch (error) {
       console.error("Search error:", error);
@@ -99,6 +111,17 @@ export const Onboarding: React.FC = () => {
     } finally {
       setSearching(false);
     }
+  };
+
+  const selectLocation = (item: any) => {
+    setLocation({
+      lat: parseFloat(item.lat),
+      lng: parseFloat(item.lon),
+      name: item.display_name.split(',')[0]
+    });
+    setManualLocation(item.display_name.split(',')[0]);
+    setShowSuggestions(false);
+    triggerTick();
   };
 
   const handleFinishStep3 = async () => {
@@ -165,17 +188,19 @@ export const Onboarding: React.FC = () => {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-xl bg-white border border-archive-line shadow-2xl rounded-2xl p-8 sm:p-12 relative overflow-hidden"
+        className="w-full max-w-xl bg-white border border-archive-line shadow-2xl rounded-2xl p-6 sm:p-12 relative overflow-hidden"
       >
-        <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none text-9xl font-sans">☊</div>
+        <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
+          <Compass className="w-32 h-32" />
+        </div>
         
-        <div className="relative z-10 space-y-10">
-          <header className="space-y-2">
-            <div className="flex items-center">
+        <div className="relative z-10 space-y-6 sm:space-y-10">
+          <header className="space-y-2 sm:space-y-4 text-center">
+            <div className="flex items-center justify-center">
               <span className="label-gidole text-archive-accent">Setting Up</span>
             </div>
-            <h2 className="subtitle-main leading-tight">WELCOME TO THE SYLLABUS</h2>
-            <p className="body-gidole opacity-60">Let's get your profile ready.</p>
+            <h2 className="title-rock leading-tight sm:text-[36pt] tracking-[0.05em] sm:tracking-[0.3em] py-4 sm:py-6">WELCOME TO THE SYLLABUS</h2>
+            <p className="body-gidole opacity-60 text-sm sm:text-base">Let's get your profile ready.</p>
           </header>
 
           <div className="min-h-[240px]">
@@ -190,7 +215,7 @@ export const Onboarding: React.FC = () => {
                 >
                   <div className="space-y-4">
                     <label className="label-gidole opacity-40 flex items-center gap-2">
-                      <User size={12} /> What is your full name?
+                      NAME:
                     </label>
                     <input 
                       autoFocus
@@ -206,7 +231,7 @@ export const Onboarding: React.FC = () => {
                     disabled={!identity}
                     className="brutalist-button w-full py-5 text-xl flex items-center justify-center gap-3 disabled:opacity-30"
                   >
-                    Continue <ArrowRight size={20} />
+                    Continue <ArrowRight className="w-5 h-5" />
                   </button>
                 </motion.div>
               )}
@@ -222,7 +247,7 @@ export const Onboarding: React.FC = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-3">
                       <label className="label-gidole opacity-40 flex items-center gap-2">
-                        <Calendar size={12} /> Birth Date
+                        DATE:
                       </label>
                       <input 
                         type="date" 
@@ -233,7 +258,7 @@ export const Onboarding: React.FC = () => {
                     </div>
                     <div className="space-y-3">
                       <label className="label-gidole opacity-40 flex items-center gap-2">
-                        <Clock size={12} /> Birth Time
+                        TIME:
                       </label>
                       <input 
                         type="time" 
@@ -271,7 +296,7 @@ export const Onboarding: React.FC = () => {
                     disabled={!birthday}
                     className="brutalist-button w-full py-5 text-xl flex items-center justify-center gap-3 disabled:opacity-30"
                   >
-                    Continue <ArrowRight size={20} />
+                    Continue <ArrowRight className="w-5 h-5" />
                   </button>
                 </motion.div>
               )}
@@ -286,7 +311,7 @@ export const Onboarding: React.FC = () => {
                 >
                   <div className="space-y-4">
                     <label className="label-gidole opacity-40 flex items-center gap-2">
-                      <MapPin size={12} /> Birth Location
+                      LOCATION:
                     </label>
                     <p className="body-gidole italic opacity-60">We use this to calculate your astrological chart.</p>
                     
@@ -296,15 +321,15 @@ export const Onboarding: React.FC = () => {
                       className={`w-full p-8 border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all rounded-xl ${location && !manualLocation ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-archive-bg border-archive-line hover:border-archive-accent group"}`}
                     >
                       {detecting ? (
-                        <Loader2 className="w-8 h-8 animate-spin text-archive-accent" />
+                        <span className="text-archive-accent animate-pulse font-mono text-xs uppercase tracking-widest">Scanning...</span>
                       ) : location && !manualLocation ? (
                         <>
-                          <Check className="w-10 h-10" />
+                          <Check className="text-emerald-500 w-8 h-8" />
                           <span className="font-sans text-xs uppercase tracking-widest">Coordinates Locked</span>
                         </>
                       ) : (
                         <>
-                          <MapPin className="w-10 h-10 opacity-20 group-hover:opacity-100 group-hover:text-archive-accent transition-all" />
+                          <Target className="text-archive-ink opacity-20 w-8 h-8" />
                           <span className="font-sans text-xs uppercase tracking-widest">Pinpoint Location</span>
                         </>
                       )}
@@ -321,24 +346,52 @@ export const Onboarding: React.FC = () => {
                           type="text"
                           placeholder="Enter city, region, or landmark..."
                           value={manualLocation}
-                          onChange={(e) => setManualLocation(e.target.value)}
+                          onChange={(e) => {
+                            setManualLocation(e.target.value);
+                            if (e.target.value.length < 2) {
+                              setShowSuggestions(false);
+                            }
+                          }}
                           onKeyDown={(e) => e.key === 'Enter' && handleManualSearch()}
                           className="flex-1 bg-archive-bg p-4 border border-archive-line text-sm italic outline-none focus:border-archive-accent"
                         />
                         <button 
-                          onClick={handleManualSearch}
+                          onClick={() => handleManualSearch()}
                           disabled={searching || !manualLocation.trim()}
                           className="px-6 border border-archive-line text-[10px] font-mono uppercase hover:bg-archive-ink hover:text-white transition-colors disabled:opacity-30"
                         >
-                          {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : "Search"}
+                          {searching ? <RefreshCw className="w-4 h-4 animate-spin" /> : "Search"}
                         </button>
                       </div>
+
+                      <AnimatePresence>
+                        {showSuggestions && suggestions.length > 0 && (
+                          <motion.div 
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="absolute z-50 left-0 right-0 mt-1 bg-white border border-archive-line shadow-xl max-h-[200px] overflow-y-auto custom-scrollbar"
+                          >
+                            {suggestions.map((item, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => selectLocation(item)}
+                                className="w-full text-left p-3 hover:bg-archive-bg border-b border-archive-line last:border-none transition-colors"
+                              >
+                                <p className="text-xs font-medium">{item.display_name.split(',')[0]}</p>
+                                <p className="text-[10px] opacity-40 truncate">{item.display_name}</p>
+                              </button>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
                       {searchError && (
                         <p className="text-[10px] text-red-500 italic mt-2 text-center">{searchError}</p>
                       )}
-                      {location && manualLocation && !searching && (
+                      {location && manualLocation && !searching && !showSuggestions && (
                         <p className="text-[10px] text-emerald-600 italic mt-2 text-center flex items-center justify-center gap-1">
-                          <Check size={10} /> Found: {location.name}
+                          <Check className="w-3 h-3" /> Found: {location.name}
                         </p>
                       )}
                     </div>
@@ -351,7 +404,7 @@ export const Onboarding: React.FC = () => {
                       onClick={handleFinishStep3}
                       className="brutalist-button w-full py-5 text-xl flex items-center justify-center gap-3"
                     >
-                      Review Details <ArrowRight size={20} />
+                      Review Details <ArrowRight className="w-5 h-5" />
                     </motion.button>
                   )}
                 </motion.div>
@@ -367,12 +420,12 @@ export const Onboarding: React.FC = () => {
                 >
                   <div className="space-y-4">
                     <label className="label-gidole opacity-40 flex items-center gap-2">
-                      <UserCheck size={12} /> Confirm Your Details
+                      CONFIRMATION:
                     </label>
                     
                     {loadingSynopsis ? (
                       <div className="flex flex-col items-center justify-center py-12 space-y-4 bg-archive-bg border border-archive-line rounded-xl">
-                        <Loader2 className="w-10 h-10 animate-spin text-archive-accent" />
+                        <span className="text-archive-accent animate-pulse font-mono text-xs uppercase tracking-widest">Calculating...</span>
                         <p className="label-gidole text-sm opacity-60">Calculating your profile...</p>
                       </div>
                     ) : synopsis ? (
@@ -480,7 +533,7 @@ export const Onboarding: React.FC = () => {
                       disabled={!synopsis || loadingSynopsis}
                       className="flex-[2] brutalist-button py-4 text-lg flex items-center justify-center gap-3 disabled:opacity-30"
                     >
-                      Start Exploring <Check size={20} />
+                      Start Exploring <Check className="w-5 h-5" />
                     </button>
                   </div>
                 </motion.div>

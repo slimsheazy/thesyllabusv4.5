@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { PenTool, Download, Sparkles } from 'lucide-react';
+import { Pencil, Sun, ArrowDown, RotateCcw } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { geminiService } from '../../services/geminiService';
@@ -8,12 +8,14 @@ import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 
+import Markdown from 'react-markdown';
+
 interface SigilGeneratorProps {
   onBack: () => void;
 }
 
 export const SigilGenerator: React.FC<SigilGeneratorProps> = ({ onBack }) => {
-  const { userIdentity, recordCalculation } = useSyllabusStore();
+  const { userIdentity, recordCalculation, addSigil } = useSyllabusStore();
   const { triggerClick, triggerSuccess } = useHaptics();
   const [intent, setIntent] = useState('');
   const [loading, setLoading] = useState(false);
@@ -42,7 +44,7 @@ export const SigilGenerator: React.FC<SigilGeneratorProps> = ({ onBack }) => {
     setLoading(true);
     setInterpretation(null);
     
-    // Simple algorithm to generate a path from text
+    // Complex algorithm to generate a multi-layered sigil
     const processed = intent.toLowerCase().replace(/[^a-z]/g, '');
     const unique = Array.from(new Set(processed)).join('');
     
@@ -50,31 +52,48 @@ export const SigilGenerator: React.FC<SigilGeneratorProps> = ({ onBack }) => {
       {x: 20, y: 20}, {x: 50, y: 20}, {x: 80, y: 20},
       {x: 20, y: 50}, {x: 50, y: 50}, {x: 80, y: 50},
       {x: 20, y: 80}, {x: 50, y: 80}, {x: 80, y: 80},
-      {x: 35, y: 35}, {x: 65, y: 35}, {x: 35, y: 65}, {x: 65, y: 65}
+      {x: 35, y: 35}, {x: 65, y: 35}, {x: 35, y: 65}, {x: 65, y: 65},
+      {x: 50, y: 10}, {x: 50, y: 90}, {x: 10, y: 50}, {x: 90, y: 50},
+      {x: 25, y: 25}, {x: 75, y: 25}, {x: 25, y: 75}, {x: 75, y: 75}
     ];
 
     const points: {x: number, y: number}[] = [];
     for (let i = 0; i < unique.length; i++) {
       const charCode = unique.charCodeAt(i);
-      const pointIndex = charCode % gridPoints.length;
+      const pointIndex = (charCode * (i + 1)) % gridPoints.length;
       points.push(gridPoints[pointIndex]);
     }
 
-    if (points.length < 3) {
-      points.push({x: 50, y: 10}, {x: 90, y: 90}, {x: 10, y: 90});
+    if (points.length < 5) {
+      // Add some geometric anchors if intent is short
+      points.push({x: 50, y: 50}, {x: 20, y: 80}, {x: 80, y: 80}, {x: 50, y: 20});
     }
 
+    // Main Path: Using Bezier curves for complexity
     let path = `M ${points[0].x} ${points[0].y} `;
     for (let i = 1; i < points.length; i++) {
-      path += `L ${points[i].x} ${points[i].y} `;
+      const prev = points[i-1];
+      const curr = points[i];
+      const cx = (prev.x + curr.x) / 2;
+      const cy = (prev.y + curr.y) / 2;
+      path += `Q ${prev.x} ${prev.y}, ${cx} ${cy} `;
+      path += `T ${curr.x} ${curr.y} `;
     }
-    path += 'Z';
     
-    setSigil(path);
+    // Add a secondary "resonance" path
+    let secondaryPath = `M ${100 - points[0].x} ${100 - points[0].y} `;
+    for (let i = 1; i < Math.min(points.length, 6); i++) {
+      const curr = points[i];
+      secondaryPath += `L ${100 - curr.x} ${100 - curr.y} `;
+    }
+
+    setSigil(`${path} ${secondaryPath}`);
 
     try {
       const text = await geminiService.decodeSigil(intent, userIdentity || undefined);
       setInterpretation(text || "The symbol is charged with silent power.");
+      // Save to record but don't display as redundant text block
+      addSigil(intent, text || "The symbol is charged with silent power.", `${path} ${secondaryPath}`);
       recordCalculation();
       triggerSuccess();
     } catch (error) {
@@ -87,22 +106,22 @@ export const SigilGenerator: React.FC<SigilGeneratorProps> = ({ onBack }) => {
 
   return (
     <ToolLayout
-      title="Sigil Generator"
-      subtitle="Transforming intent into symbolic resonance"
+      title="Sigil Engine"
+      subtitle="Geometric Intent Transduction"
       onBack={onBack}
-      tooltipTitle="What is a Sigil?"
-      tooltipContent="A symbolic representation of a specific intent or desire, used to focus the subconscious mind on manifestation."
+      tooltipTitle="Sigil Construction"
+      tooltipContent="Geometric representation of intent vectors, processed through a non-linear symbolic engine."
     >
       <div className="w-full flex flex-col lg:flex-row gap-10 lg:gap-16 items-start">
         <aside className="w-full lg:w-[400px] space-y-8 lg:sticky lg:top-20">
           <div className="archive-card p-6 animate-in fade-in slide-in-from-left-4 duration-300">
             <div className="archive-form-group">
-              <label className="archive-label">Your Intent</label>
+              <label className="archive-label">Intent Vector</label>
               <div className="relative">
-                <PenTool className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
+                <Pencil className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40 w-3 h-3" />
                 <input 
                   type="text" 
-                  placeholder="State your desire..." 
+                  placeholder="State your intent..." 
                   value={intent}
                   onChange={(e) => setIntent(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && generateSigil()}
@@ -116,7 +135,7 @@ export const SigilGenerator: React.FC<SigilGeneratorProps> = ({ onBack }) => {
               disabled={loading || !intent.trim()}
               className={`brutalist-button w-full py-5 text-xl mt-8 transition-all ${loading || !intent.trim() ? "opacity-30" : ""}`}
             >
-              {loading ? "FORGING..." : "CREATE SIGIL"}
+              {loading ? "TRANSDUCING..." : "GENERATE SIGIL"}
             </button>
           </div>
         </aside>
@@ -133,9 +152,11 @@ export const SigilGenerator: React.FC<SigilGeneratorProps> = ({ onBack }) => {
               >
                 <div className="relative">
                   <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
-                  <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">☉</div>
+                  <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                    <Sun className="w-6 h-6" />
+                  </div>
                 </div>
-                <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Forging the symbolic resonance...</span>
+                <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Processing intent vectors...</span>
               </motion.div>
             ) : sigil ? (
               <motion.div 
@@ -159,44 +180,48 @@ export const SigilGenerator: React.FC<SigilGeneratorProps> = ({ onBack }) => {
                         d={sigil} 
                         fill="none" 
                         stroke="currentColor" 
-                        strokeWidth="1.5" 
+                        strokeWidth="1.2" 
                         strokeLinecap="round" 
                         strokeLinejoin="round"
-                        initial={{ pathLength: 0 }}
-                        animate={{ pathLength: 1 }}
-                        transition={{ duration: 2, ease: "easeInOut" }}
+                        initial={{ pathLength: 0, opacity: 0 }}
+                        animate={{ pathLength: 1, opacity: 1 }}
+                        transition={{ duration: 3, ease: "easeInOut" }}
                       />
+                      {/* Add some geometric accents */}
+                      <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="0.2" strokeDasharray="1 2" opacity="0.2" />
+                      <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="0.1" opacity="0.1" />
                     </svg>
                   </div>
 
-                  <div className="w-full space-y-8">
-                    <div className="flex justify-between items-center border-b border-archive-line pb-4">
-                      <h3 className="col-header">Decoding & Activation</h3>
-                      <div className="flex gap-4">
-                        <button 
-                          onClick={handleDownload}
-                          className="text-[10px] font-mono uppercase opacity-40 hover:opacity-100 transition-opacity flex items-center gap-1"
-                          title="Download SVG"
-                        >
-                          <Download size={12} /> SVG
-                        </button>
-                        <ReadAloudButton text={interpretation} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
-                      </div>
+                  <div className="w-full space-y-8 text-center">
+                    <div className="flex justify-center items-center border-b border-archive-line pb-4">
+                      <h3 className="col-header uppercase tracking-[0.3em]">Sigil Activated & Recorded</h3>
                     </div>
                     
-                    <div className="handwritten text-xl md:text-2xl text-archive-ink leading-relaxed italic font-medium">
-                      {interpretation}
+                    <p className="font-mono text-[10px] uppercase tracking-widest opacity-40">
+                      The symbolic resonance has been committed to the Master Record.
+                    </p>
+
+                    <div className="flex justify-center gap-4">
+                      <button 
+                        onClick={handleDownload}
+                        className="text-[10px] font-mono uppercase opacity-40 hover:opacity-100 transition-opacity flex items-center gap-1 border border-archive-line px-3 py-1 rounded-archive"
+                        title="Download SVG"
+                      >
+                        <ArrowDown className="w-3 h-3" /> Download SVG
+                      </button>
                     </div>
                   </div>
-                </div>
 
-                <ResultSection
-                  id="sigil-generator-content"
-                  title="Archive Record"
-                  content={`Sigil for intent: "${intent}".\n\n${interpretation}`}
-                  exportName={`sigil-${intent.replace(/\s+/g, '-')}`}
-                  onClose={() => { setSigil(null); setInterpretation(null); }}
-                />
+                  <div className="mt-8 pt-10 border-t border-archive-line w-full flex justify-center">
+                    <button 
+                      onClick={() => { setSigil(null); setInterpretation(null); }}
+                      className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40 hover:opacity-100 flex items-center gap-2"
+                    >
+                      <RotateCcw className="w-3 h-3" /> Generate New Vector
+                    </button>
+                  </div>
+                </div>
               </motion.div>
             ) : (
               <motion.div 
@@ -205,7 +230,7 @@ export const SigilGenerator: React.FC<SigilGeneratorProps> = ({ onBack }) => {
                 animate={{ opacity: 1 }}
                 className="h-full flex flex-col items-center justify-center py-40 opacity-[0.03] select-none pointer-events-none"
               >
-                <PenTool size={160} />
+                <Pencil className="w-32 h-32" />
                 <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">Awaiting Intent</p>
               </motion.div>
             )}

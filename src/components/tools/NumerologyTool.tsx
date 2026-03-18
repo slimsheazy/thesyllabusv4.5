@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Zap, Sparkles } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useProfile } from '../../hooks/useProfile';
 import { geminiService } from '../../services/geminiService';
+import Markdown from 'react-markdown';
 import { Type } from "@google/genai";
 import { WritingEffect } from '../shared/WritingEffect';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
-import { Loader2, Sparkles, Zap, Hash } from 'lucide-react';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 import { ProfileSelector } from '../shared/ProfileSelector';
@@ -44,7 +45,12 @@ export const NumerologyTool: React.FC<NumerologyToolProps> = ({ onBack }) => {
     
     try {
       const analysis = await geminiService.generateJson<NumerologyAnalysis>(
-        `Calculate personal numerological paths for: Name: ${profile.name}, Birthday: ${profile.birthday}, System: ${system}. IMPORTANT: Return the lifePath, destinyNumber, and soulUrge as digits (e.g., "11", "7", "22") and NOT as words.`,
+        `Calculate personal numerological paths for: Name: ${profile.name}, Birthday: ${profile.birthday}, System: ${system}. 
+        
+        REQUIREMENTS:
+        1. Return lifePath, destinyNumber, and soulUrge as digits (e.g., "11", "7", "22").
+        2. The "esotericInsight" MUST be a single, punchy, actionable sentence (max 15 words) that is easily digestible at a glance. It should feel like a direct command or a core truth for their path.
+        3. The "meaning" should provide the deeper context.`,
         {
           type: Type.OBJECT,
           properties: {
@@ -145,7 +151,7 @@ export const NumerologyTool: React.FC<NumerologyToolProps> = ({ onBack }) => {
         <main className="flex-1 w-full min-h-[600px] pb-32">
           {loading ? (
             <div className="flex flex-col items-center justify-center h-full gap-8 py-40">
-              <Loader2 className="w-20 h-20 border-4 border-archive-accent border-t-transparent animate-spin rounded-full text-archive-accent" />
+              <div className="w-20 h-20 border-4 border-archive-accent border-t-transparent animate-spin rounded-full" />
               <span className="handwritten text-xl text-archive-accent animate-pulse uppercase tracking-[0.4em]">Doing the math...</span>
             </div>
           ) : result ? (
@@ -158,7 +164,7 @@ export const NumerologyTool: React.FC<NumerologyToolProps> = ({ onBack }) => {
                 ].map((t, m) => (
                   <div key={t.label} className="archive-card p-6 text-center group transition-transform hover:scale-105">
                     <div className="flex items-center justify-center gap-2 mb-2">
-                      <Hash className="w-3 h-3 text-archive-accent opacity-40" />
+                      <span className="text-archive-accent opacity-40 text-xs">#</span>
                       <span className="handwritten text-[10px] text-archive-ink/30 block uppercase tracking-widest">{t.label}</span>
                     </div>
                     <span className={`heading-marker text-6xl ${m === 1 ? "text-archive-accent" : "text-archive-ink"}`}>{t.val}</span>
@@ -168,13 +174,15 @@ export const NumerologyTool: React.FC<NumerologyToolProps> = ({ onBack }) => {
 
               <ResultSection
                 id="numerology-result-content"
+                type="Numerology Analysis"
                 title="Archive Resonance"
                 content={result.meaning}
                 exportName={`numerology-${profile.name}`}
+                metadata={{ name: profile.name, lifePath: result.lifePath, destiny: result.destinyNumber, soulUrge: result.soulUrge }}
               >
                 <div className="space-y-6">
                   <div className="flex items-center gap-3 border-b border-archive-line pb-4">
-                    <Zap className="text-archive-accent w-4 h-4" />
+                    <Zap className="text-archive-accent w-5 h-5" />
                     <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">Interpretation</span>
                   </div>
                   <div className="font-serif text-lg md:text-xl italic text-archive-ink/80 leading-relaxed relative z-10 columns-1 md:columns-2 gap-12 text-left">
@@ -190,12 +198,14 @@ export const NumerologyTool: React.FC<NumerologyToolProps> = ({ onBack }) => {
                   <ReadAloudButton text={result.esotericInsight} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                 </div>
                 <div className="handwritten text-[10px] text-archive-accent uppercase italic tracking-widest mb-4">Final Insight</div>
-                <p className="heading-marker text-3xl sm:text-4xl text-archive-ink lowercase leading-tight">{result.esotericInsight}</p>
+                <div className="heading-marker text-3xl sm:text-4xl text-archive-ink lowercase leading-tight markdown-body">
+                  <Markdown>{result.esotericInsight}</Markdown>
+                </div>
               </div>
             </div>
           ) : (
             <div className="text-center opacity-[0.03] flex flex-col items-center justify-center h-full py-40 select-none pointer-events-none">
-              <Sparkles size={200} className="mb-8" />
+              <Sparkles className="w-32 h-32 mb-8" />
               <p className="handwritten text-4xl uppercase tracking-[0.4em]">Waiting for your data</p>
             </div>
           )}

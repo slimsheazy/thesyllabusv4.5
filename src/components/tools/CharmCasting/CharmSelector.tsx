@@ -1,0 +1,199 @@
+"use client"
+
+import React, { useState } from "react"
+import { motion } from "motion/react"
+import { Charm } from "../../../types"
+import { getCharmIcon } from "../../../lib/charm-icons"
+import { CharmTooltip } from "./charm-tooltip"
+import { SearchIcon, CheckIcon } from "./cosmic-icons"
+import { triggerFlintStrike } from "./sound-effects"
+
+interface CharmSelectorProps {
+  allCharms: Charm[]
+  selectedCharms: Charm[]
+  onSelectCharm: (charm: Charm) => void
+  onRemoveCharm: (charm: Charm) => void
+  onRandomize: () => void
+  onConfirm: () => void
+}
+
+// Function to get a cosmic color based on charm name
+const getCosmicColor = (charmName: string): string => {
+  // Use the first character code to determine color
+  const charCode = charmName.charCodeAt(0)
+
+  // Assign colors based on character code modulo 4
+  if (charCode % 4 === 0) {
+    return "var(--color-deep-purple)"
+  } else if (charCode % 4 === 1) {
+    return "var(--color-neon-pink)"
+  } else if (charCode % 4 === 2) {
+    return "var(--color-acid-green)"
+  } else {
+    return "var(--color-cosmic-blue)"
+  }
+}
+
+// Function to get category based on charm name
+const getCategory = (charmName: string): string => {
+  const charCode = charmName.charCodeAt(0)
+
+  if (charCode % 5 === 0) return "Growth"
+  if (charCode % 5 === 1) return "Challenges"
+  if (charCode % 5 === 2) return "Opportunities"
+  if (charCode % 5 === 3) return "Transitions"
+  return "Insights"
+}
+
+export default function CharmSelector({
+  allCharms,
+  selectedCharms,
+  onSelectCharm,
+  onRemoveCharm,
+  onRandomize,
+  onConfirm,
+}: CharmSelectorProps) {
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedCharm, setSelectedCharm] = useState<Charm | null>(null)
+  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
+
+  const filteredCharms = allCharms.filter(
+    (charm) =>
+      charm.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      charm.description.toLowerCase().includes(searchTerm.toLowerCase()),
+  )
+
+  const handleCharmClick = (charm: Charm, event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const viewportX = rect.left + window.scrollX
+    const viewportY = rect.top + window.scrollY
+
+    setSelectedCharm(charm)
+    setTooltipPosition({ x: viewportX, y: viewportY })
+    triggerFlintStrike()
+  }
+
+  const toggleCharmSelection = (charm: Charm) => {
+    const isSelected = selectedCharms.some((c) => c.name === charm.name)
+    if (isSelected) {
+      onRemoveCharm(charm)
+    } else if (selectedCharms.length < 12) {
+      onSelectCharm(charm)
+    }
+  }
+
+  const closeTooltip = () => {
+    setSelectedCharm(null)
+  }
+
+  // Group charms by category
+  const charmsByCategory: Record<string, Charm[]> = {}
+
+  filteredCharms.forEach((charm) => {
+    const category = getCategory(charm.name)
+
+    if (!charmsByCategory[category]) {
+      charmsByCategory[category] = []
+    }
+    charmsByCategory[category].push(charm)
+  })
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className="w-full max-w-md mx-auto bg-white border-2 border-archive-line rounded-lg shadow-lg p-4 z-20 relative"
+    >
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-medium text-archive-ink">Select Your Charms</h2>
+        <span className="text-sm text-archive-ink/70 bg-archive-ink/5 border border-archive-line px-2 py-1 rounded-full">
+          {selectedCharms.length}/12
+        </span>
+      </div>
+
+      <div className="mb-4 relative">
+        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+          <SearchIcon className="h-4 w-4 text-archive-ink/50" />
+        </div>
+        <input
+          type="text"
+          placeholder="Search charms..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full bg-archive-ink/5 border-2 border-archive-line rounded-lg pl-10 pr-3 py-2 text-archive-ink text-sm focus:outline-none focus:border-archive-accent/40"
+        />
+      </div>
+
+      <div className="space-y-3 max-h-[350px] overflow-y-auto pr-2 charm-list">
+        {Object.entries(charmsByCategory).map(([category, charms]) => (
+          <div key={category} className="border-2 border-archive-line rounded-lg p-3 bg-archive-ink/5">
+            <h3 className="text-sm font-medium text-archive-ink/80 mb-2">{category}</h3>
+            <div className="grid grid-cols-4 gap-2">
+              {charms.map((charm, index) => {
+                const CharmIcon = getCharmIcon(charm.name)
+                const isSelected = selectedCharms.some((c) => c.name === charm.name)
+                const isRare = charm.rarity === "rare"
+                const cosmicColor = getCosmicColor(charm.name)
+
+                return (
+                  <motion.div
+                    key={`${charm.name}-${index}`}
+                    whileHover={{ scale: 1.1 }}
+                    className="cursor-pointer relative"
+                    onClick={(e) => {
+                      toggleCharmSelection(charm)
+                      handleCharmClick(charm, e)
+                    }}
+                  >
+                    <div
+                      className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${isRare ? "charm-rare-2d" : "charm-2d"} ${isSelected ? "ring-2 ring-archive-accent" : ""}`}
+                      style={{
+                        backgroundColor: cosmicColor,
+                        boxShadow: isRare
+                          ? `0 0 15px var(--color-star-yellow), 0 0 5px var(--color-star-yellow)`
+                          : `0 0 8px ${cosmicColor}`,
+                      }}
+                    >
+                      <CharmIcon className="w-6 h-6 text-white" />
+                      {isRare && (
+                        <div className="absolute inset-0 overflow-hidden rounded-full">
+                          <div className="absolute w-full h-full animate-pulse opacity-50"></div>
+                          <div className="absolute top-0 right-0 w-2 h-2 bg-white rounded-full animate-ping"></div>
+                        </div>
+                      )}
+                    </div>
+
+                    {isSelected && (
+                      <div className="absolute -top-1 -right-1 bg-white rounded-full w-5 h-5 flex items-center justify-center border-2 border-black z-10">
+                        <CheckIcon className="w-3 h-3 text-black" />
+                      </div>
+                    )}
+                  </motion.div>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex gap-2 mt-6">
+        <button
+          onClick={onRandomize}
+          className="flex-1 py-2 rounded-lg transition-colors bg-archive-ink/5 border-2 border-archive-line hover:bg-archive-ink/10 text-archive-ink text-sm sound-trigger"
+        >
+          Randomize
+        </button>
+        <button
+          onClick={onConfirm}
+          disabled={selectedCharms.length === 0}
+          className="flex-1 py-2 rounded-lg transition-colors cosmic-glow bg-archive-accent/20 border-2 border-archive-accent text-archive-ink text-sm disabled:opacity-50 disabled:cursor-not-allowed sound-trigger"
+        >
+          Cast Charms
+        </button>
+      </div>
+
+      {selectedCharm && <CharmTooltip charm={selectedCharm} position={tooltipPosition} onClose={closeTooltip} />}
+    </motion.div>
+  )
+}

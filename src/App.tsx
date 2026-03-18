@@ -1,6 +1,9 @@
 import React, { useState, useEffect, lazy, Suspense, useMemo } from 'react';
 import { useSyllabusStore } from './store';
 import { motion, AnimatePresence } from 'motion/react';
+import { Search, SearchX } from 'lucide-react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './firebase';
 
 // Core Components (Static)
 import { ArchiveHeader } from './components/ArchiveHeader';
@@ -12,7 +15,6 @@ import { Onboarding } from './components/Onboarding';
 import { LoadingView } from './components/shared/LoadingView';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ALL_TOOLS } from './constants/tools';
-import { Search } from 'lucide-react';
 
 // Lazy Loaded Tools Registry
 const ToolRegistry: Record<string, React.LazyExoticComponent<React.FC<any>>> = {
@@ -31,6 +33,7 @@ const ToolRegistry: Record<string, React.LazyExoticComponent<React.FC<any>>> = {
   SHARED_INSIGHTS: lazy(() => import('./components/tools/SharedInsights').then(m => ({ default: m.SharedInsights }))),
   DREAM_JOURNAL: lazy(() => import('./components/tools/DreamJournal').then(m => ({ default: m.DreamJournal }))),
   MOOD: lazy(() => import('./components/tools/MoodTracker').then(m => ({ default: m.MoodTracker }))),
+  HUMAN_DESIGN: lazy(() => import('./components/tools/HumanDesignTool').then(m => ({ default: m.HumanDesignTool }))),
   DEATH_CLOCK: lazy(() => import('./components/tools/DeathClock').then(m => ({ default: m.DeathClock }))),
   CRASH_SIMULATOR: lazy(() => import('./components/tools/CrashSimulator').then(m => ({ default: m.CrashSimulator }))),
   RITUAL: lazy(() => import('./components/tools/DailyRitual').then(m => ({ default: m.DailyRitual }))),
@@ -39,19 +42,29 @@ const ToolRegistry: Record<string, React.LazyExoticComponent<React.FC<any>>> = {
   CRYSTAL: lazy(() => import('./components/tools/ScryingTool').then(m => ({ default: m.ScryingTool }))),
   PENDULUM: lazy(() => import('./components/tools/PendulumTool').then(m => ({ default: m.PendulumTool }))),
   SYNCHRONICITY: lazy(() => import('./components/tools/SynchronicityDecoder').then(m => ({ default: m.SynchronicityDecoder }))),
-  ORACLE: lazy(() => import('./components/tools/GlyphicTool').then(m => ({ default: m.GlyphicTool }))),
+  GLYPHIC: lazy(() => import('./components/tools/GlyphicTool').then(m => ({ default: m.GlyphicTool }))),
   LENORMAND: lazy(() => import('./components/tools/LenormandSpinner').then(m => ({ default: m.LenormandSpinner }))),
   BOOK_OF_LIFE: lazy(() => import('./components/tools/BookOfLife').then(m => ({ default: m.BookOfLife }))),
+  WEBSITE_ARCHIVE: lazy(() => import('./components/tools/WebsiteArchiveTool').then(m => ({ default: m.WebsiteArchiveTool }))),
   MASTER_ARCHIVE: lazy(() => import('./components/tools/MasterArchive').then(m => ({ default: m.MasterArchive }))),
   LEXICON: lazy(() => import('./components/tools/LexiconView').then(m => ({ default: m.LexiconView }))),
   ORACLE_VIEW: lazy(() => import('./components/tools/OracleView').then(m => ({ default: m.OracleView }))),
+  SONG_ORACLE: lazy(() => import('./components/tools/SongOracleTool').then(m => ({ default: m.SongOracleTool }))),
+  STARBOARD: lazy(() => import('./components/tools/StarboardTool').then(m => ({ default: m.StarboardTool }))),
 };
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("HOME");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { updateLastAccess, isEclipseMode, isCalibrated } = useSyllabusStore();
+  const { updateLastAccess, isEclipseMode, isCalibrated, setUser } = useSyllabusStore();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, [setUser]);
 
   useEffect(() => {
     updateLastAccess();
@@ -84,7 +97,7 @@ export default function App() {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
-          <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-8 custom-scrollbar">
             <AnimatePresence mode="wait">
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
@@ -92,7 +105,7 @@ export default function App() {
                 className="mb-12"
               >
                 <div className="flex items-center gap-2 mb-6 border-b border-archive-line pb-2">
-                  <Search className="w-4 h-4 opacity-40" />
+                  <Search className="opacity-40 w-3 h-3" />
                   <h2 className="label-gidole">{searchQuery ? 'Matching Tools' : 'Available Tools'}</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -119,7 +132,7 @@ export default function App() {
                   animate={{ opacity: 1 }}
                   className="flex flex-col items-center justify-center py-20 text-center"
                 >
-                  <div className="text-4xl mb-4 opacity-20">∅</div>
+                  <SearchX className="w-12 h-12 mb-4 opacity-20" />
                   <p className="handwritten text-xl italic opacity-40">No tools found for "{searchQuery}"</p>
                   <button 
                     onClick={() => setSearchQuery("")}
@@ -156,7 +169,10 @@ export default function App() {
       <main className="min-h-screen w-full">
         <AnimatePresence mode="wait">
           <Suspense fallback={<LoadingView />}>
-            <ErrorBoundary key={currentPage}>
+            <ErrorBoundary 
+              key={currentPage} 
+              onGoHome={() => handleNavigate("HOME")}
+            >
               {renderContent()}
             </ErrorBoundary>
           </Suspense>

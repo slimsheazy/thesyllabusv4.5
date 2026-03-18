@@ -5,6 +5,7 @@ import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
 import path from "path";
 import { fileURLToPath } from "url";
+import { kv } from "@vercel/kv";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,7 +19,11 @@ db.exec(`
     text TEXT NOT NULL,
     author TEXT NOT NULL,
     date TEXT NOT NULL
-  )
+  );
+  CREATE TABLE IF NOT EXISTS kv_fallback (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
 `);
 
 async function startServer() {
@@ -64,6 +69,34 @@ async function startServer() {
     });
 
     res.status(201).json(insight);
+  });
+
+  // Energetic Frequency (KV)
+  app.get("/api/frequency", async (req, res) => {
+    try {
+      let freq = await kv.get("energetic_frequency");
+      if (!freq) {
+        const row = db.prepare("SELECT value FROM kv_fallback WHERE key = ?").get("energetic_frequency") as { value: string } | undefined;
+        freq = row?.value || "Equilibrium";
+      }
+      res.json({ frequency: freq });
+    } catch (error) {
+      const row = db.prepare("SELECT value FROM kv_fallback WHERE key = ?").get("energetic_frequency") as { value: string } | undefined;
+      res.json({ frequency: row?.value || "Equilibrium" });
+    }
+  });
+
+  app.post("/api/frequency", async (req, res) => {
+    const { frequency } = req.body;
+    if (!frequency) return res.status(400).json({ error: "Missing frequency" });
+
+    try {
+      await kv.set("energetic_frequency", frequency);
+    } catch (error) {
+      // Fallback to SQLite
+    }
+    db.prepare("INSERT OR REPLACE INTO kv_fallback (key, value) VALUES (?, ?)").run("energetic_frequency", frequency);
+    res.json({ success: true });
   });
 
   // WebSocket handling

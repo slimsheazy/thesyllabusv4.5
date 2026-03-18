@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Hash } from 'lucide-react';
+import { Sun, Hash } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useProfile } from '../../hooks/useProfile';
@@ -33,8 +33,6 @@ export const GematriaTool: React.FC<GematriaToolProps> = ({ onBack }) => {
     if (!profile.name) return null;
     
     const cleanName = profile.name.toUpperCase().replace(/[^A-Z]/g, '');
-    let sum = 0;
-    const freq: Record<number, number> = {};
 
     const getVal = (char: string, type: Cipher): number => {
       const code = char.charCodeAt(0) - 65;
@@ -62,9 +60,20 @@ export const GematriaTool: React.FC<GematriaToolProps> = ({ onBack }) => {
       }
     };
     
+    const allCiphers = CIPHERS.reduce((acc, c) => {
+      let cSum = 0;
+      for (let i = 0; i < cleanName.length; i++) {
+        cSum += getVal(cleanName[i], c);
+      }
+      acc[c] = cSum;
+      return acc;
+    }, {} as Record<Cipher, number>);
+
+    const sum = allCiphers[cipher];
+    const freq: Record<number, number> = {};
+
     for (let i = 0; i < cleanName.length; i++) {
       const val = getVal(cleanName[i], cipher);
-      sum += val;
       const reducedVal = (val > 9 && cipher !== 'AGRIPPA') ? (val % 9 || 9) : val;
       freq[reducedVal] = (freq[reducedVal] || 0) + 1;
     }
@@ -85,7 +94,8 @@ export const GematriaTool: React.FC<GematriaToolProps> = ({ onBack }) => {
       absolute: sum,
       reduced,
       charCount: cleanName.length,
-      freqData
+      freqData,
+      allCiphers
     };
   }, [profile.name, cipher]);
 
@@ -173,11 +183,13 @@ export const GematriaTool: React.FC<GematriaToolProps> = ({ onBack }) => {
                 exit={{ opacity: 0 }}
                 className="flex flex-col items-center justify-center py-40 gap-8"
               >
-                <div className="relative">
-                  <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
-                  <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">☉</div>
-                </div>
-                <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Calculating numerical resonance...</span>
+                  <div className="relative">
+                    <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Sun className="w-6 h-6 opacity-20" />
+                    </div>
+                  </div>
+                  <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Calculating numerical resonance...</span>
               </motion.div>
             ) : calculation && interpretation ? (
               <motion.div 
@@ -203,7 +215,26 @@ export const GematriaTool: React.FC<GematriaToolProps> = ({ onBack }) => {
 
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
-                    <Hash size={14} className="opacity-40" />
+                    <Hash className="w-3 h-3 opacity-40" />
+                    <h3 className="col-header">Cipher Comparison</h3>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {CIPHERS.map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => { setCipher(c); setInterpretation(null); }}
+                        className={`archive-card p-4 text-center transition-all hover:border-archive-accent ${cipher === c ? 'border-archive-accent bg-archive-accent/5' : ''}`}
+                      >
+                        <div className="text-[8px] font-mono opacity-40 mb-1">{c}</div>
+                        <div className="text-2xl font-mono">{calculation.allCiphers[c]}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Hash className="w-3 h-3 opacity-40" />
                     <h3 className="col-header">Frequency Distribution</h3>
                   </div>
                   <div className="h-[240px] w-full archive-card p-6">
@@ -240,7 +271,7 @@ export const GematriaTool: React.FC<GematriaToolProps> = ({ onBack }) => {
                             {calculation.freqData.map((entry, index) => (
                               <Cell 
                                 key={`cell-${index}`} 
-                                fill={parseInt(entry.number) === calculation.reduced ? '#F27D26' : '#141414'} 
+                                fill={parseInt(entry.number) === calculation.reduced ? 'var(--color-archive-accent)' : 'var(--color-archive-ink)'} 
                                 opacity={parseInt(entry.number) === calculation.reduced ? 1 : 0.1} 
                               />
                             ))}
@@ -256,7 +287,7 @@ export const GematriaTool: React.FC<GematriaToolProps> = ({ onBack }) => {
                   <div className="flex justify-end mb-4">
                     <ReadAloudButton text={interpretation} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                   </div>
-                  <div className="handwritten text-2xl md:text-3xl text-archive-ink leading-relaxed italic font-medium">
+                  <div className="handwritten text-2xl md:text-3xl text-archive-ink leading-relaxed italic font-medium markdown-body">
                     <Markdown>{interpretation}</Markdown>
                   </div>
                 </div>
@@ -264,9 +295,11 @@ export const GematriaTool: React.FC<GematriaToolProps> = ({ onBack }) => {
                 <ResultSection
                   id="gematria-resonance-content"
                   title="Archive Record"
-                  content={`The name ${profile.name} vibrates at the frequency of ${calculation.reduced} using the ${cipher} system.\n\nInterpretation: ${interpretation}`}
+                  content={`The name ${profile.name} vibrates at the frequency of ${calculation.reduced} using the ${cipher} system.\n\nCipher Comparison:\n${CIPHERS.map(c => `- ${c}: ${calculation.allCiphers[c]}`).join('\n')}\n\nInterpretation: ${interpretation}`}
                   exportName={`gematria-${profile.name}-${cipher}`}
                   onClose={() => { setInterpretation(null); }}
+                  type="GEMATRIA"
+                  metadata={{ profile, cipher, calculation, interpretation }}
                 />
               </motion.div>
             ) : (
@@ -276,7 +309,7 @@ export const GematriaTool: React.FC<GematriaToolProps> = ({ onBack }) => {
                 animate={{ opacity: 1 }}
                 className="h-full flex flex-col items-center justify-center py-40 opacity-[0.03] select-none pointer-events-none"
               >
-                <Hash size={160} />
+                <Hash className="w-32 h-32" />
                 <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">Awaiting Input</p>
               </motion.div>
             )}

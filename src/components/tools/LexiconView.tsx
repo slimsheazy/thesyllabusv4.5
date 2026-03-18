@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Book, Search, X, Clock, Trash2, Info } from 'lucide-react';
+import { ArrowLeft, Search, Book, X, Calendar, Info } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
 
@@ -24,11 +24,13 @@ export const LexiconView: React.FC<LexiconViewProps> = ({ onBack }) => {
     <div className="flex-1 flex flex-col h-screen overflow-hidden bg-archive-bg">
       <header className="border-b border-archive-line p-6 flex items-center justify-between bg-archive-bg">
         <div className="flex items-center gap-8">
-          <button onClick={onBack} className="text-xs font-mono opacity-40 hover:opacity-100 transition-opacity">← BACK</button>
+          <button onClick={onBack} className="text-xs font-mono opacity-40 hover:opacity-100 transition-opacity flex items-center gap-1">
+            <ArrowLeft className="w-3 h-3" /> BACK
+          </button>
           <h1 className="font-serif italic text-2xl tracking-tight">Lexicon of Discovery</h1>
         </div>
         <div className="flex items-center gap-4 text-[10px] uppercase tracking-syllabus opacity-40">
-          <Book size={14} /> {terms.length} Terms Unlocked
+          <Book className="w-3 h-3" /> {terms.length} Terms Unlocked
         </div>
       </header>
 
@@ -40,7 +42,7 @@ export const LexiconView: React.FC<LexiconViewProps> = ({ onBack }) => {
           </div>
 
           <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30 w-5 h-5" />
             <input 
               type="text" 
               placeholder="Search the lexicon..." 
@@ -59,7 +61,7 @@ export const LexiconView: React.FC<LexiconViewProps> = ({ onBack }) => {
                 className="p-6 bg-white border border-archive-line text-left hover:shadow-lg transition-all group relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-20 transition-opacity">
-                  <Book size={40} />
+                  <Book className="w-10 h-10" />
                 </div>
                 <h3 className="text-2xl font-serif italic mb-2 text-archive-ink group-hover:text-archive-accent transition-colors">{word}</h3>
                 <p className="text-[10px] font-mono uppercase opacity-40 mb-4">Discovered: {new Date(data.discoveredAt).toLocaleDateString()}</p>
@@ -93,9 +95,9 @@ export const LexiconView: React.FC<LexiconViewProps> = ({ onBack }) => {
             >
               <button 
                 onClick={() => setSelectedTerm(null)}
-                className="absolute top-6 right-6 text-archive-ink opacity-40 hover:opacity-100 transition-opacity"
+                className="absolute top-6 right-6 text-archive-ink opacity-40 hover:opacity-100 transition-opacity font-mono text-xs flex items-center gap-1"
               >
-                <X size={20} />
+                CLOSE <X className="w-3 h-3" />
               </button>
 
               <div className="space-y-8">
@@ -105,8 +107,8 @@ export const LexiconView: React.FC<LexiconViewProps> = ({ onBack }) => {
                     <ReadAloudButton text={`${selectedTerm}: ${unlockedTerms[selectedTerm].definition}. ${unlockedTerms[selectedTerm].etymology || ''}`} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                   </div>
                   <div className="flex items-center gap-4 text-[10px] font-mono uppercase opacity-40">
-                    <span className="flex items-center gap-1"><Clock size={12} /> {new Date(unlockedTerms[selectedTerm].discoveredAt).toLocaleDateString()}</span>
-                    <span className="flex items-center gap-1"><Info size={12} /> Lexicon Entry</span>
+                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(unlockedTerms[selectedTerm].discoveredAt).toLocaleDateString()}</span>
+                    <span className="flex items-center gap-1"><Info className="w-3 h-3" /> Lexicon Entry</span>
                   </div>
                 </div>
 

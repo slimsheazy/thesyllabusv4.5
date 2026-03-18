@@ -60,31 +60,49 @@ const CHALDEAN_ORDER = ['Saturn', 'Jupiter', 'Mars', 'Sun', 'Venus', 'Mercury', 
 const DAY_RULERS = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn']; // Sun=0 (Sunday)
 
 export const getPlanetaryHour = (date: Date, lat: number, lng: number) => {
+  if (lat === 0 && lng === 0) return null;
+  
   const observer = new Observer(lat, lng, 0);
-  const sunrise = SearchRiseSet(Body.Sun, observer, 1, date, 1);
-  const sunset = SearchRiseSet(Body.Sun, observer, -1, date, 1);
+  const startOfToday = new Date(date);
+  startOfToday.setHours(0, 0, 0, 0);
   
-  if (!sunrise || !sunset) return null;
+  let todaySunrise = SearchRiseSet(Body.Sun, observer, 1, startOfToday, 1);
+  
+  let currentPlanetaryDaySunrise: Date;
+  let nextPlanetaryDaySunrise: Date;
+  let currentSunset: Date;
 
-  const dayLength = sunset.date.getTime() - sunrise.date.getTime();
-  const hourLength = dayLength / 12;
-  const isDay = date >= sunrise.date && date <= sunset.date;
-  
-  const dayOfWeek = date.getDay(); // 0-6
+  if (!todaySunrise || date < todaySunrise.date) {
+    const yesterday = new Date(startOfToday.getTime() - 24 * 60 * 60 * 1000);
+    const yesterdaySunrise = SearchRiseSet(Body.Sun, observer, 1, yesterday, 1);
+    if (!yesterdaySunrise) return null;
+    
+    currentPlanetaryDaySunrise = yesterdaySunrise.date;
+    currentSunset = SearchRiseSet(Body.Sun, observer, -1, yesterdaySunrise.date, 1)?.date || new Date();
+    nextPlanetaryDaySunrise = todaySunrise?.date || new Date();
+  } else {
+    currentPlanetaryDaySunrise = todaySunrise.date;
+    currentSunset = SearchRiseSet(Body.Sun, observer, -1, todaySunrise.date, 1)?.date || new Date();
+    nextPlanetaryDaySunrise = SearchRiseSet(Body.Sun, observer, 1, todaySunrise.date, 1)?.date || new Date();
+  }
+
+  const isDay = date >= currentPlanetaryDaySunrise && date < currentSunset;
+  const dayOfWeek = currentPlanetaryDaySunrise.getDay();
   const dayRuler = DAY_RULERS[dayOfWeek];
   const startIndex = CHALDEAN_ORDER.indexOf(dayRuler);
   
   let currentHour = 0;
   if (isDay) {
-    currentHour = Math.floor((date.getTime() - sunrise.date.getTime()) / hourLength);
+    const dayLength = currentSunset.getTime() - currentPlanetaryDaySunrise.getTime();
+    const hourLength = dayLength / 12;
+    currentHour = Math.floor((date.getTime() - currentPlanetaryDaySunrise.getTime()) / hourLength);
   } else {
-    // Simplified night hour calculation
-    const nightLength = 24 * 60 * 60 * 1000 - dayLength;
-    const nightHourLength = nightLength / 12;
-    const timeSinceSunset = date.getTime() - sunset.date.getTime();
-    currentHour = Math.floor(timeSinceSunset / nightHourLength) + 12;
+    const nightLength = nextPlanetaryDaySunrise.getTime() - currentSunset.getTime();
+    const hourLength = nightLength / 12;
+    currentHour = Math.floor((date.getTime() - currentSunset.getTime()) / hourLength) + 12;
   }
 
+  currentHour = Math.max(0, Math.min(23, currentHour));
   const ruler = CHALDEAN_ORDER[(startIndex + currentHour) % 7];
   return { ruler, hour: (currentHour % 12) + 1, isDay };
 };
@@ -113,7 +131,8 @@ export const findAspects = (planets1: PlanetPosition[], planets2: PlanetPosition
             planet2: p2.name,
             type: aspect.name as any, // Cast to Aspect['type']
             angle: aspect.angle,
-            orb
+            orb,
+            interpretation: ""
           });
         }
       }

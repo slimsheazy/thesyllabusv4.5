@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, RefreshCw, Loader2, Zap } from 'lucide-react';
+import { Sparkles, Zap, RotateCcw } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useProfile } from '../../hooks/useProfile';
@@ -119,7 +119,7 @@ export const ScryingTool: React.FC<ScryingToolProps> = ({ onBack }) => {
                     className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent"
                   />
                 </div>
-                <Loader2 className="w-12 h-12 animate-spin mx-auto opacity-20 absolute inset-0 m-auto text-white" />
+                <div className="w-12 h-12 animate-spin mx-auto opacity-20 absolute inset-0 m-auto border-2 border-white border-t-transparent rounded-full" />
               </div>
               <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">The shadows are shifting...</span>
             </motion.div>
@@ -160,7 +160,7 @@ export const ScryingTool: React.FC<ScryingToolProps> = ({ onBack }) => {
                 <div className="space-y-8">
                   <div className="flex flex-col items-center gap-2">
                     <div className="flex items-center gap-3">
-                      <Zap className="text-archive-accent w-4 h-4" />
+                      <Zap className="text-archive-accent w-5 h-5" />
                       <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">The Vision</span>
                     </div>
                   </div>
@@ -174,8 +174,7 @@ export const ScryingTool: React.FC<ScryingToolProps> = ({ onBack }) => {
                     onClick={() => setVision(null)}
                     className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40 hover:opacity-100 flex items-center gap-2"
                   >
-                    <RefreshCw className="w-3 h-3" />
-                    Gaze Again
+                    <RotateCcw className="w-3 h-3" /> Gaze Again
                   </button>
                 </div>
               </div>
@@ -186,6 +185,8 @@ export const ScryingTool: React.FC<ScryingToolProps> = ({ onBack }) => {
                 content={vision!}
                 exportName="scrying-vision"
                 onClose={() => setVision(null)}
+                type="SCRYING"
+                metadata={{ vision }}
               />
             </motion.div>
           )}

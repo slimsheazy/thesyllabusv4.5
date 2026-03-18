@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Home, Compass, Sparkles, RefreshCw, Loader2, Zap } from 'lucide-react';
+import { Compass, Home, Sparkles, Zap, RotateCcw, Loader2 } from 'lucide-react';
 import { geminiService } from '../../services/geminiService';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
@@ -78,8 +78,10 @@ export const FlyingStarTool: React.FC<FlyingStarToolProps> = ({ onBack }) => {
                 <div className="relative w-64 h-64 mx-auto flex items-center justify-center">
                   <div className="absolute inset-0 border border-archive-line rotate-45 opacity-20" />
                   <div className="absolute inset-4 border border-archive-line rotate-45 opacity-10" />
-                  <Compass size={80} className="text-archive-ink opacity-10" />
-                  <Home size={40} className="absolute inset-0 m-auto text-archive-accent opacity-40" />
+                  <Compass className="w-16 h-16 opacity-10 italic" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Home className="w-12 h-12 opacity-40 italic" />
+                  </div>
                 </div>
                 <h2 className="title-main text-6xl">Home Resonance</h2>
                 <p className="font-serif italic text-xl opacity-60">
@@ -90,21 +92,21 @@ export const FlyingStarTool: React.FC<FlyingStarToolProps> = ({ onBack }) => {
               <div className="max-w-md mx-auto space-y-8">
                 <div className="space-y-4">
                   <label className="text-[10px] font-mono uppercase opacity-40 flex items-center gap-2 justify-center tracking-widest">
-                    <Compass size={12} /> Facing Direction
+                    <Compass className="w-3 h-3" /> Facing Direction
                   </label>
                   <select 
                     value={facingDirection}
                     onChange={(e) => setFacingDirection(e.target.value)}
                     className="w-full bg-white border border-archive-line p-6 font-serif italic text-2xl outline-none focus:border-archive-accent appearance-none text-center shadow-sm"
                   >
-                    <option value="N">North (0°)</option>
-                    <option value="NE">North-East (45°)</option>
-                    <option value="E">East (90°)</option>
-                    <option value="SE">South-East (135°)</option>
-                    <option value="S">South (180°)</option>
-                    <option value="SW">South-West (225°)</option>
-                    <option value="W">West (270°)</option>
-                    <option value="NW">North-West (315°)</option>
+                    <option value="N">North (0 deg)</option>
+                    <option value="NE">North-East (45 deg)</option>
+                    <option value="E">East (90 deg)</option>
+                    <option value="SE">South-East (135 deg)</option>
+                    <option value="S">South (180 deg)</option>
+                    <option value="SW">South-West (225 deg)</option>
+                    <option value="W">West (270 deg)</option>
+                    <option value="NW">North-West (315 deg)</option>
                   </select>
                 </div>
 
@@ -128,7 +130,7 @@ export const FlyingStarTool: React.FC<FlyingStarToolProps> = ({ onBack }) => {
               <div className="relative w-32 h-32">
                 <div className="absolute inset-0 border-2 border-archive-line animate-pulse" />
                 <div className="absolute inset-4 border border-archive-line animate-pulse delay-75" />
-                <Loader2 className="w-12 h-12 animate-spin mx-auto opacity-20 absolute inset-0 m-auto" />
+                <Loader2 className="w-12 h-12 animate-spin mx-auto opacity-20 absolute inset-0 m-auto text-archive-ink" />
               </div>
               <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Analyzing the Qi flow...</span>
             </motion.div>
@@ -164,7 +166,7 @@ export const FlyingStarTool: React.FC<FlyingStarToolProps> = ({ onBack }) => {
                     <div className="space-y-8">
                     <div className="flex justify-between items-center border-b border-archive-line pb-4">
                       <div className="flex items-center gap-3">
-                        <Zap className="text-archive-accent w-4 h-4" />
+                        <Zap className="text-archive-accent w-5 h-5" />
                         <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">Interpretation</span>
                       </div>
                       <ReadAloudButton text={interpretation} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
@@ -179,8 +181,7 @@ export const FlyingStarTool: React.FC<FlyingStarToolProps> = ({ onBack }) => {
                         onClick={() => setGrid(null)}
                         className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40 hover:opacity-100 flex items-center gap-2"
                       >
-                        <RefreshCw className="w-3 h-3" />
-                        Reset Analysis
+                        <RotateCcw className="w-3 h-3" /> Reset Analysis
                       </button>
                     </div>
                   </div>
@@ -191,6 +192,8 @@ export const FlyingStarTool: React.FC<FlyingStarToolProps> = ({ onBack }) => {
                     content={`Facing: ${facingDirection}\n\nGrid: ${grid!.flat().join(', ')}\n\nInterpretation: ${interpretation}`}
                     exportName={`feng-shui-${facingDirection}`}
                     onClose={() => setGrid(null)}
+                    type="FENG_SHUI"
+                    metadata={{ facingDirection, grid, interpretation }}
                   />
                 </div>
               </div>

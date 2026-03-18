@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sun, Moon, Coffee, Sparkles, RefreshCw, Loader2, Volume2, Wind, Timer, Play, Pause } from 'lucide-react';
+import { Sun, Coffee, Moon, Sparkles, RotateCcw } from 'lucide-react';
 import { geminiService } from '../../services/geminiService';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
@@ -8,6 +8,7 @@ import { useProfile } from '../../hooks/useProfile';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
+import Markdown from 'react-markdown';
 
 interface DailyRitualProps {
   onBack: () => void;
@@ -106,10 +107,10 @@ export const DailyRitual: React.FC<DailyRitualProps> = ({ onBack }) => {
               className="max-w-2xl w-full space-y-12 text-center py-20"
             >
               <div className="space-y-6">
-                <div className="flex justify-center gap-8 opacity-20">
-                  <Sun size={48} />
-                  <Coffee size={48} />
-                  <Moon size={48} />
+                <div className="flex justify-center gap-8 opacity-20 text-3xl">
+                  <Sun className="w-8 h-8" />
+                  <Coffee className="w-8 h-8" />
+                  <Moon className="w-8 h-8" />
                 </div>
                 <h2 className="title-main text-6xl">Sacred Moments</h2>
                 <p className="font-serif italic text-xl opacity-60">
@@ -135,7 +136,9 @@ export const DailyRitual: React.FC<DailyRitualProps> = ({ onBack }) => {
             >
               <div className="relative">
                 <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
-                <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">☉</div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Sun className="w-6 h-6 opacity-20" />
+                </div>
               </div>
               <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Consulting the ancient ways...</span>
             </motion.div>
@@ -151,10 +154,10 @@ export const DailyRitual: React.FC<DailyRitualProps> = ({ onBack }) => {
                 <div className="absolute top-6 right-6 flex gap-4">
                   <button 
                     onClick={() => setShowBreathing(!showBreathing)}
-                    className={`p-2 rounded-full transition-colors ${showBreathing ? 'bg-archive-accent text-white' : 'hover:bg-black/5 opacity-40'}`}
+                    className={`p-2 rounded-full transition-colors text-xs ${showBreathing ? 'bg-archive-accent text-white' : 'hover:bg-black/5 opacity-40'}`}
                     title="Breathing Guide"
                   >
-                    <Wind size={18} />
+                    BREATH
                   </button>
                   <ReadAloudButton text={`${ritual}. Expected outcome: ${outcome}`} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                 </div>
@@ -211,12 +214,12 @@ export const DailyRitual: React.FC<DailyRitualProps> = ({ onBack }) => {
                       >
                         <div className="space-y-4">
                           <div className="flex items-center gap-3">
-                            <Sparkles className="text-archive-accent w-4 h-4" />
+                            <Sparkles className="text-archive-accent w-5 h-5" />
                             <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">The Ritual</span>
                           </div>
-                          <p className="font-serif italic text-3xl md:text-4xl leading-relaxed text-archive-ink">
-                            "{ritual}"
-                          </p>
+                          <div className="font-serif italic text-3xl md:text-4xl leading-relaxed text-archive-ink markdown-body">
+                            <Markdown>{ritual}</Markdown>
+                          </div>
                         </div>
                         
                         {outcome && (
@@ -224,9 +227,9 @@ export const DailyRitual: React.FC<DailyRitualProps> = ({ onBack }) => {
                             <div className="flex items-center gap-3 mb-4">
                               <span className="text-[10px] font-mono uppercase tracking-[0.3em] opacity-40">Expected Outcome</span>
                             </div>
-                            <p className="font-serif text-xl text-archive-ink/70 italic">
-                              {outcome}
-                            </p>
+                            <div className="font-serif text-xl text-archive-ink/70 italic markdown-body">
+                              <Markdown>{outcome}</Markdown>
+                            </div>
                           </div>
                         )}
                       </motion.div>
@@ -238,19 +241,19 @@ export const DailyRitual: React.FC<DailyRitualProps> = ({ onBack }) => {
                       <div className="text-2xl font-mono opacity-60">{formatTime(timer)}</div>
                       <button 
                         onClick={() => setIsTimerActive(!isTimerActive)}
-                        className="p-3 bg-archive-ink text-archive-bg rounded-full hover:scale-110 transition-transform"
+                        className="px-6 py-3 bg-archive-ink text-archive-bg rounded-full hover:scale-110 transition-transform text-xs font-mono uppercase tracking-widest"
                       >
-                        {isTimerActive ? <Pause size={20} /> : <Play size={20} />}
+                        {isTimerActive ? 'PAUSE' : 'PLAY'}
                       </button>
                       <button 
                         onClick={() => { setTimer(0); setIsTimerActive(false); }}
-                        className="p-3 border border-archive-line rounded-full hover:bg-black/5 transition-colors"
+                        className="p-3 border border-archive-line rounded-full hover:bg-black/5 transition-colors text-xs font-mono"
                       >
-                        <RefreshCw size={20} className={isTimerActive ? 'animate-spin' : ''} />
+                        RESET
                       </button>
                     </div>
                     <p className="text-[9px] font-mono uppercase tracking-widest opacity-30 flex items-center gap-2">
-                      <Timer size={12} /> Ritual Duration
+                      Ritual Duration
                     </p>
                   </div>
                 </div>
@@ -260,8 +263,7 @@ export const DailyRitual: React.FC<DailyRitualProps> = ({ onBack }) => {
                     onClick={() => setRitual(null)}
                     className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40 hover:opacity-100 flex items-center gap-2"
                   >
-                    <RefreshCw className="w-3 h-3" />
-                    Another Ritual
+                    <RotateCcw className="w-3 h-3" /> Another Ritual
                   </button>
                 </div>
               </div>
@@ -272,6 +274,8 @@ export const DailyRitual: React.FC<DailyRitualProps> = ({ onBack }) => {
                 content={`${ritual}\n\nOutcome: ${outcome}`}
                 exportName="daily-ritual"
                 onClose={() => setRitual(null)}
+                type="DAILY_RITUAL"
+                metadata={{ ritual, outcome }}
               />
             </motion.div>
           )}

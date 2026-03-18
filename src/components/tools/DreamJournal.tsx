@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Moon, Save, Trash2, RefreshCw, Search, Calendar, Filter, X, Sparkles, Loader2, FileText, Image as ImageIcon, Volume2, Archive } from 'lucide-react';
+import { Sparkles, Sun, Folder, Search, Calendar, Moon, Trash2, ArrowRight } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { geminiService } from '../../services/geminiService';
 import { useHaptics } from '../../hooks/useHaptics';
@@ -116,7 +116,7 @@ export const DreamJournal: React.FC<DreamJournalProps> = ({ onBack }) => {
                 disabled={!currentDream || interpreting}
                 className={`brutalist-button w-full py-4 text-lg flex items-center justify-center gap-3 transition-all ${!currentDream || interpreting ? "opacity-30" : ""}`}
               >
-                {interpreting ? <Loader2 className="animate-spin" /> : <Sparkles size={18} />}
+                {interpreting ? <span className="animate-spin border border-archive-bg border-t-transparent rounded-full w-4 h-4" /> : <Sparkles className="w-5 h-5" />}
                 {interpreting ? 'DECODING...' : 'INTERPRET DREAM'}
               </button>
               <button 
@@ -124,7 +124,7 @@ export const DreamJournal: React.FC<DreamJournalProps> = ({ onBack }) => {
                 disabled={!currentDream}
                 className={`w-full py-4 border border-archive-line text-[10px] font-mono uppercase tracking-widest hover:bg-archive-ink hover:text-archive-bg transition-all rounded-archive ${!currentDream ? "opacity-30" : ""}`}
               >
-                <Save size={14} className="inline mr-2" /> Record Without Interpretation
+                SAVE Record Without Interpretation
               </button>
             </div>
           </div>
@@ -142,7 +142,9 @@ export const DreamJournal: React.FC<DreamJournalProps> = ({ onBack }) => {
               >
                 <div className="relative">
                   <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
-                  <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">☉</div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Sun className="w-6 h-6 opacity-20" />
+                  </div>
                 </div>
                 <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Decoding the nocturnal resonance...</span>
               </motion.div>
@@ -159,38 +161,40 @@ export const DreamJournal: React.FC<DreamJournalProps> = ({ onBack }) => {
                     <h3 className="col-header border-none pb-0">Interpretation</h3>
                     <ReadAloudButton text={interpretation} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                   </div>
-                  <div className="handwritten text-xl md:text-2xl text-archive-ink leading-relaxed italic font-medium">
+                  <div className="handwritten text-xl md:text-2xl text-archive-ink leading-relaxed italic font-medium markdown-body">
                     <Markdown>{interpretation}</Markdown>
                   </div>
                   <div className="mt-10 flex justify-end">
                     <button 
                       onClick={saveDream}
-                      className="text-[10px] font-mono uppercase tracking-widest text-archive-accent hover:underline"
+                      className="text-[10px] font-mono uppercase tracking-widest text-archive-accent hover:underline flex items-center gap-1"
                     >
-                      Save to Journal →
+                      Save to Journal <ArrowRight className="w-3 h-3" />
                     </button>
                   </div>
                 </div>
 
                 <ResultSection
                   id="dream-interpretation-content"
+                  type="Dream Analysis"
                   title="Archive Record"
                   content={`Dream: ${currentDream}\n\nInterpretation: ${interpretation}`}
                   exportName="dream-analysis"
                   onClose={() => setInterpretation(null)}
+                  metadata={{ dream: currentDream }}
                 />
               </motion.div>
             ) : (
               <div className="space-y-12">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-archive-line pb-4">
                   <div className="flex items-center gap-3">
-                    <Archive size={16} className="opacity-40" />
+                    <Folder className="w-5 h-5 opacity-40" />
                     <h3 className="col-header pb-0 border-none">Past Visions</h3>
                   </div>
                   
                   <div className="flex flex-wrap items-center gap-4">
                     <div className="relative">
-                      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30" />
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
                       <input 
                         type="text"
                         placeholder="Search keywords..."
@@ -200,7 +204,7 @@ export const DreamJournal: React.FC<DreamJournalProps> = ({ onBack }) => {
                       />
                     </div>
                     <div className="relative">
-                      <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30" />
+                      <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
                       <input 
                         type="date"
                         value={dateFilter}
@@ -213,7 +217,7 @@ export const DreamJournal: React.FC<DreamJournalProps> = ({ onBack }) => {
                         onClick={clearFilters}
                         className="text-[10px] font-mono uppercase opacity-40 hover:opacity-100 flex items-center gap-1"
                       >
-                        <X size={12} /> Clear
+                        CLR Clear
                       </button>
                     )}
                   </div>
@@ -236,7 +240,7 @@ export const DreamJournal: React.FC<DreamJournalProps> = ({ onBack }) => {
                             onClick={() => { triggerClick(); removeDream(dream.id); }}
                             className="opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity text-archive-accent"
                           >
-                            <Trash2 size={14} />
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                         <div className="font-serif italic text-xl leading-relaxed text-archive-ink whitespace-pre-wrap">
@@ -259,8 +263,8 @@ export const DreamJournal: React.FC<DreamJournalProps> = ({ onBack }) => {
                   )}
 
                   {filteredDreams.length === 0 && (
-                    <div className="col-span-full text-center py-40 opacity-[0.03] select-none pointer-events-none">
-                      <Moon size={160} className="mx-auto" />
+                    <div className="col-span-full text-center py-40 opacity-[0.03] select-none pointer-events-none flex flex-col items-center">
+                      <Moon className="w-32 h-32" />
                       <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">
                         {dreams.length === 0 ? "The journal is waiting" : "No visions found"}
                       </p>

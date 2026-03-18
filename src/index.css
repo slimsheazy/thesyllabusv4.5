@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Six+Caps&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rock+3D&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,400..700;1,400..700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
@@ -40,12 +41,23 @@
   --font-serif: "Archivo Narrow", sans-serif;
   --font-kollektif: "Kollektif", sans-serif;
   --font-gidole: "Gidole", sans-serif;
+  --font-rock: "Rock 3D", cursive;
 
   /* Colors */
   --color-archive-bg: #E4E3E0;
   --color-archive-ink: #141414;
   --color-archive-line: rgba(20, 20, 20, 0.1);
-  --color-archive-accent: #F27D26;
+  --color-archive-accent: #10b981;
+  --color-archive-accent-secondary: #6366f1;
+  --color-archive-accent-tertiary: #e11d48;
+  --color-archive-accent-quaternary: #0ea5e9;
+
+  /* Cosmic Colors */
+  --color-deep-purple: #4c1d95;
+  --color-neon-pink: #db2777;
+  --color-acid-green: #bef264;
+  --color-cosmic-blue: #1e40af;
+  --color-star-yellow: #facc15;
 
   /* Spacing & Tracking */
   --tracking-wide-custom: 0.11em;
@@ -137,11 +149,16 @@
   }
 
   .title-main {
-    @apply font-display font-bold uppercase text-[60pt] sm:text-[100pt] md:text-[130pt] leading-[0.85] tracking-tight-custom;
+    @apply font-display font-bold uppercase text-[15vw] sm:text-[100pt] md:text-[130pt] leading-[0.85] tracking-tight-custom;
+  }
+
+  .title-rock {
+    @apply font-rock font-bold text-[12vw] sm:text-[80pt] md:text-[100pt] leading-tight text-center;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.1), 4px 4px 0px rgba(0,0,0,0.05);
   }
 
   .subtitle-main {
-    @apply font-kollektif font-bold uppercase text-[22pt] tracking-wide-custom;
+    @apply font-kollektif font-bold uppercase text-[6vw] sm:text-[22pt] tracking-wide-custom;
   }
 
   .label-gidole {
@@ -152,12 +169,82 @@
     @apply font-gidole text-[18px] leading-[1.4];
   }
 
+  /* --- Charm Styles --- */
+  .charm-2d {
+    @apply shadow-lg transition-transform duration-300;
+  }
+
+  .charm-rare-2d {
+    @apply shadow-[0_0_15px_rgba(250,204,21,0.5)] animate-pulse;
+  }
+
+  /* --- Animations --- */
+  @keyframes shimmer {
+    0% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+    100% { opacity: 0.8; transform: scale(1); }
+  }
+
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite ease-in-out;
+  }
+
+  .animate-flicker {
+    animation: flicker 3s infinite ease-in-out;
+  }
+
+  /* --- Markdown Styling --- */
+  .markdown-body {
+    @apply space-y-4;
+  }
+  .markdown-body p {
+    @apply mb-4 leading-relaxed;
+  }
+  .markdown-body ul {
+    @apply ml-6 mb-4 list-disc space-y-1;
+  }
+  .markdown-body ol {
+    @apply ml-6 mb-4 list-decimal space-y-1;
+  }
+  .markdown-body li {
+    @apply mb-1;
+  }
+  .markdown-body strong {
+    @apply font-bold text-archive-accent;
+  }
+  .markdown-body em {
+    @apply italic opacity-90;
+  }
+  .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+    @apply font-serif italic font-bold mt-6 mb-2 text-archive-ink;
+  }
+  .markdown-body h1 { @apply text-3xl; }
+  .markdown-body h2 { @apply text-2xl; }
+  .markdown-body h3 { @apply text-xl; }
+  .markdown-body blockquote {
+    @apply border-l-4 border-archive-accent/30 pl-4 italic opacity-80 my-4;
+  }
+
   /* --- Utilities --- */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-archive-ink) transparent;
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+  }
   .custom-scrollbar::-webkit-scrollbar {
-    @apply w-1;
+    @apply w-1.5;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-archive-ink/20 rounded-full;
+    @apply bg-archive-ink/20 rounded-full hover:bg-archive-ink/40 transition-colors;
   }
 }
 
@@ -170,7 +257,10 @@
   --color-archive-bg: #0A0A0A;
   --color-archive-ink: #F5F2ED;
   --color-archive-line: rgba(245, 242, 237, 0.1);
-  --color-archive-accent: #6366f1;
+  --color-archive-accent: #34d399;
+  --color-archive-accent-secondary: #818cf8;
+  --color-archive-accent-tertiary: #fb7185;
+  --color-archive-accent-quaternary: #38bdf8;
 }
 
 .eclipse-mode body {

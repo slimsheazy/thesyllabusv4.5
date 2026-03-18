@@ -2,11 +2,24 @@ export interface ArchivedSite {
   id: string;
   url: string;
   title: string;
+  description: string;
+  userId: string;
+  userName: string;
   captureDate: string;
   size: string;
   status: 'complete' | 'pending' | 'failed';
   tags: string[];
   thumbnail?: string;
+}
+
+export interface Comment {
+  id: string;
+  archiveId: string;
+  userId: string;
+  userName: string;
+  userPhoto?: string;
+  text: string;
+  createdAt: string;
 }
 
 export interface ArchiveStats {
@@ -37,6 +50,7 @@ export interface QuoteEntry {
   text: string;
   author: string;
   id: string;
+  date?: string;
 }
 
 export interface MoodLog {
@@ -75,6 +89,7 @@ export interface Aspect {
   type: 'Conjunction' | 'Sextile' | 'Square' | 'Trine' | 'Opposition';
   angle: number;
   orb: number;
+  interpretation: string;
 }
 
 export interface BirthChartPlanet {
@@ -96,12 +111,16 @@ export interface BirthChartAnalysis {
   lifePath: number;
   summary: string;
   traits: string[];
+  aspects: Aspect[];
   chartData: BirthChartData;
   metadata: {
     verifiedUtcOffset: number;
     isDstActive: boolean;
     calculationNotes: string;
   };
+  lunarPhase?: string;
+  retrogrades?: string[];
+  voidOfCourse?: boolean;
 }
 
 export interface HoraryAnalysis {
@@ -125,4 +144,46 @@ export interface HoraryAnswer {
 export interface TransitNotification {
   message: string;
   type: 'info' | 'warning' | 'success';
+}
+
+export interface HumanDesignCenter {
+  name: string;
+  status: 'Defined' | 'Undefined';
+  description: string;
+}
+
+export interface HumanDesignAnalysis {
+  type: string;
+  strategy: string;
+  authority: string;
+  profile: string;
+  definition: string;
+  incarnationCross: string;
+  summary: string;
+  centers: HumanDesignCenter[];
+  gates: number[];
+}
+
+export interface StarboardEntry {
+  id: string;
+  type: string;
+  title: string;
+  content: string;
+  date: string;
+  starredAt: string;
+  metadata?: any;
+}
+
+export interface Charm {
+  name: string;
+  description: string;
+  rarity: 'common' | 'rare';
+  icon?: string;
+}
+
+export interface House {
+  number: number;
+  name: string;
+  keyword: string;
+  contextKeyword?: string;
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Activity, RefreshCw, FileText, Image as ImageIcon, TrendingUp, Calendar, Sparkles } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
+import { Calendar, Activity, TrendingUp, Sun, Sparkles } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useProfile } from '../../hooks/useProfile';
@@ -94,18 +94,18 @@ export const BiorhythmTool: React.FC<BiorhythmToolProps> = ({ onBack }) => {
               onSomeoneElse={setSomeoneElse}
             />
 
-            <div className="archive-form-group mt-6">
-              <label className="archive-label">Birth Date</label>
-              <div className="relative">
-                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
-                <input 
-                  type="date" 
-                  value={profile.birthday}
-                  onChange={(e) => updateProfile({ birthday: e.target.value })}
-                  className="archive-input pl-12"
-                />
+              <div className="archive-form-group mt-6">
+                <label className="archive-label">Birth Date</label>
+                <div className="relative">
+                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
+                  <input 
+                    type="date" 
+                    value={profile.birthday}
+                    onChange={(e) => updateProfile({ birthday: e.target.value })}
+                    className="archive-input pl-12"
+                  />
+                </div>
               </div>
-            </div>
 
             <button 
               onClick={calculateBiorhythms}
@@ -126,7 +126,7 @@ export const BiorhythmTool: React.FC<BiorhythmToolProps> = ({ onBack }) => {
                 animate={{ opacity: 1 }}
                 className="h-full flex flex-col items-center justify-center py-40 opacity-[0.03] select-none pointer-events-none"
               >
-                <Activity size={160} />
+                <Activity className="w-32 h-32" />
                 <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">Awaiting Configuration</p>
               </motion.div>
             ) : (
@@ -138,12 +138,14 @@ export const BiorhythmTool: React.FC<BiorhythmToolProps> = ({ onBack }) => {
               >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {[
-                    { label: 'Physical', value: data?.physical, color: 'text-rose-500', desc: 'Energy, strength, coordination' },
+                    { label: 'Physical', value: data?.physical, color: 'text-archive-accent-tertiary', desc: 'Energy, strength, coordination' },
                     { label: 'Emotional', value: data?.emotional, color: 'text-archive-accent', desc: 'Sensitivity, mood, creativity' },
-                    { label: 'Intellectual', value: data?.intellectual, color: 'text-blue-500', desc: 'Logic, memory, alertness' },
+                    { label: 'Intellectual', value: data?.intellectual, color: 'text-archive-accent-quaternary', desc: 'Logic, memory, alertness' },
                   ].map((cycle) => (
                     <div key={cycle.label} className="archive-card p-8 flex flex-col items-center text-center gap-4 relative overflow-hidden group">
-                      <div className={`absolute -right-4 -bottom-4 text-7xl opacity-[0.03] group-hover:opacity-[0.05] transition-opacity ${cycle.color}`}>☉</div>
+                      <div className={`absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity ${cycle.color}`}>
+                        <Sun className="w-24 h-24" />
+                      </div>
                       <p className="col-header">{cycle.label}</p>
                       <div className="relative w-32 h-32 flex items-center justify-center">
                         <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
@@ -174,7 +176,7 @@ export const BiorhythmTool: React.FC<BiorhythmToolProps> = ({ onBack }) => {
                   <div className="absolute top-0 right-0 p-8 opacity-[0.02] select-none pointer-events-none text-8xl italic">CYCLE</div>
                   <div className="flex justify-between items-center mb-6">
                     <div className="flex items-center gap-3">
-                      <Sparkles className="text-archive-accent w-4 h-4" />
+                      <Sparkles className="text-archive-accent w-5 h-5" />
                       <h3 className="col-header border-none pb-0">Synthesis</h3>
                     </div>
                     <ReadAloudButton text={synthesisText} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
@@ -186,7 +188,7 @@ export const BiorhythmTool: React.FC<BiorhythmToolProps> = ({ onBack }) => {
 
                 <div className="space-y-8">
                   <div className="flex items-center gap-3 border-b border-archive-line pb-2">
-                    <TrendingUp size={16} className="opacity-40" />
+                    <TrendingUp className="opacity-40 w-5 h-5" />
                     <h3 className="col-header pb-0 border-none">30-Day Projection</h3>
                   </div>
                   <div className="h-[400px] w-full bg-white p-6 border border-archive-line shadow-sm rounded-archive">
@@ -220,11 +222,11 @@ export const BiorhythmTool: React.FC<BiorhythmToolProps> = ({ onBack }) => {
                             wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontFamily: 'monospace', textTransform: 'uppercase' }}
                           />
                           <ReferenceLine y={0} stroke="#141414" strokeWidth={1} opacity={0.1} />
-                          <ReferenceLine x={chartData.find(d => d.isToday)?.date} stroke="#F27D26" strokeDasharray="3 3" label={{ value: 'TODAY', position: 'top', fontSize: 8, fill: '#F27D26' }} />
+                          <ReferenceLine x={chartData.find(d => d.isToday)?.date} stroke="var(--color-archive-accent)" strokeDasharray="3 3" label={{ value: 'TODAY', position: 'top', fontSize: 8, fill: 'var(--color-archive-accent)' }} />
                           <Line 
                             type="monotone" 
                             dataKey="physical" 
-                            stroke="#f43f5e" 
+                            stroke="var(--color-archive-accent-tertiary)" 
                             strokeWidth={2} 
                             dot={false}
                             activeDot={{ r: 4 }}
@@ -233,7 +235,7 @@ export const BiorhythmTool: React.FC<BiorhythmToolProps> = ({ onBack }) => {
                           <Line 
                             type="monotone" 
                             dataKey="emotional" 
-                            stroke="#F27D26" 
+                            stroke="var(--color-archive-accent)" 
                             strokeWidth={2} 
                             dot={false}
                             activeDot={{ r: 4 }}
@@ -242,7 +244,7 @@ export const BiorhythmTool: React.FC<BiorhythmToolProps> = ({ onBack }) => {
                           <Line 
                             type="monotone" 
                             dataKey="intellectual" 
-                            stroke="#3b82f6" 
+                            stroke="var(--color-archive-accent-quaternary)" 
                             strokeWidth={2} 
                             dot={false}
                             activeDot={{ r: 4 }}
@@ -260,6 +262,13 @@ export const BiorhythmTool: React.FC<BiorhythmToolProps> = ({ onBack }) => {
                   content={`Biorhythm analysis for birth date: ${profile.birthday}.\n\nPhysical: ${Math.round(data?.physical * 100)}%\nEmotional: ${Math.round(data?.emotional * 100)}%\nIntellectual: ${Math.round(data?.intellectual * 100)}%`}
                   exportName={`biorhythm-${profile.birthday}`}
                   onClose={() => setData(null)}
+                  type="BIORHYTHM"
+                  metadata={{
+                    birthday: profile.birthday,
+                    physical: data?.physical,
+                    emotional: data?.emotional,
+                    intellectual: data?.intellectual
+                  }}
                 />
               </motion.div>
             )}

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Smile, RefreshCw, ChevronLeft, FileText, Image as ImageIcon, Volume2, TrendingUp, Sparkles } from 'lucide-react';
+import { ArrowLeft, Sun, Smile, TrendingUp } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
@@ -9,7 +9,7 @@ import { geminiService } from '../../services/geminiService';
 import { exportAsImage, exportAsPDF } from '../../utils/exportUtils';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
-import { ResultSection } from '../shared/ResultSection';
+import Markdown from 'react-markdown';
 
 interface MoodTrackerProps {
   onBack: () => void;
@@ -150,7 +150,7 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
                       onClick={() => setPath(path.slice(0, -1))}
                       className="p-3 border border-archive-line hover:bg-archive-ink hover:text-archive-bg transition-all rounded-archive"
                     >
-                      <ChevronLeft size={20} />
+                      <ArrowLeft className="w-4 h-4" />
                     </button>
                   )}
                   <div className="flex items-center gap-3">
@@ -159,7 +159,7 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
                     ) : (
                       path.map((node, i) => (
                         <React.Fragment key={i}>
-                          <span className="text-[10px] font-mono uppercase tracking-widest text-archive-accent font-bold">{node.name}</span>
+                          <span className="text-[10px] font-mono uppercase tracking-widest text-archive-accent-tertiary font-bold">{node.name}</span>
                           {i < path.length - 1 && <span className="opacity-20">/</span>}
                         </React.Fragment>
                       ))
@@ -190,10 +190,12 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
                 className="flex flex-col items-center justify-center py-40 gap-8"
               >
                 <div className="relative">
-                  <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
-                  <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">☉</div>
+                  <div className="w-16 h-16 border-2 border-archive-accent-tertiary border-t-transparent animate-spin rounded-full" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                    <Sun className="w-6 h-6" />
+                  </div>
                 </div>
-                <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Distilling the emotional essence...</span>
+                <span className="handwritten text-lg text-archive-accent-tertiary animate-pulse uppercase tracking-[0.3em]">Distilling the emotional essence...</span>
               </motion.div>
             ) : (
               <motion.div 
@@ -202,25 +204,25 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
                 animate={{ opacity: 1, scale: 1 }}
                 className="space-y-12"
               >
-                <div className="archive-card p-10 md:p-16 relative text-center overflow-hidden border-2 border-archive-accent">
+                <div className="archive-card p-10 md:p-16 relative text-center overflow-hidden border-2 border-archive-accent-tertiary">
                   <div className="absolute top-0 right-0 p-8 opacity-[0.02] select-none pointer-events-none text-9xl italic">LOGGED</div>
                   
                   <div className="space-y-8">
                     <div className="flex flex-col items-center gap-4">
-                      <div className="w-20 h-20 rounded-full bg-archive-accent/10 flex items-center justify-center text-archive-accent">
-                        <Smile size={40} />
+                      <div className="w-20 h-20 rounded-full bg-archive-accent-tertiary/10 flex items-center justify-center text-archive-accent-tertiary">
+                        <Smile className="w-10 h-10" />
                       </div>
                       <div className="space-y-1">
-                        <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.4em] font-bold">Entry Recorded</span>
+                        <span className="text-[10px] font-mono text-archive-accent-tertiary uppercase tracking-[0.4em] font-bold">Entry Recorded</span>
                         <h3 className="text-4xl font-serif italic">{path[path.length - 1]?.name || 'Emotion'}</h3>
                       </div>
                     </div>
 
                     <div className="max-w-xl mx-auto space-y-6">
                       <div className="w-12 h-0.5 bg-archive-line mx-auto" />
-                      <p className="font-serif italic text-2xl leading-relaxed text-archive-ink">
-                        "{insight}"
-                      </p>
+                      <div className="font-serif italic text-2xl leading-relaxed text-archive-ink markdown-body">
+                        <Markdown>{insight}</Markdown>
+                      </div>
                       <div className="w-12 h-0.5 bg-archive-line mx-auto" />
                     </div>
 
@@ -238,14 +240,6 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
                     </button>
                   </div>
                 </div>
-
-                <ResultSection
-                  id="mood-insight-content"
-                  title="Archive Record"
-                  content={`Mood: ${path.map(n => n.name).join(' > ')}\n\nInsight: ${insight!}`}
-                  exportName="mood-log"
-                  onClose={() => { setInsight(null); setPath([]); }}
-                />
               </motion.div>
             )}
           </AnimatePresence>
@@ -253,7 +247,7 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
           {moodTrendData.length > 1 && (
             <div className="space-y-8 pt-16 border-t border-archive-line">
               <div className="flex items-center gap-3">
-                <TrendingUp size={16} className="opacity-40" />
+                <TrendingUp className="w-5 h-5 opacity-40" />
                 <h3 className="col-header">Emotional Trajectory</h3>
               </div>
               <div className="h-[400px] w-full bg-white p-8 border border-archive-line shadow-sm rounded-archive">
@@ -266,8 +260,8 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
                     <AreaChart data={moodTrendData}>
                       <defs>
                         <linearGradient id="colorMood" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#F27D26" stopOpacity={0.1}/>
-                          <stop offset="95%" stopColor="#F27D26" stopOpacity={0}/>
+                          <stop offset="5%" stopColor="#e11d48" stopOpacity={0.1}/>
+                          <stop offset="95%" stopColor="#e11d48" stopOpacity={0}/>
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
@@ -292,7 +286,7 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
                       <Area 
                         type="monotone" 
                         dataKey="value" 
-                        stroke="#F27D26" 
+                        stroke="#e11d48" 
                         fillOpacity={1} 
                         fill="url(#colorMood)" 
                         strokeWidth={2}

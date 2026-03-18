@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Send, Brain, Loader2, User, Sparkles, Trash2, MessageSquare, History } from 'lucide-react';
+import { ArrowLeft, Trash2, Brain, User, ArrowRight, Loader2 } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { geminiService } from '../../services/geminiService';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
+import Markdown from 'react-markdown';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -18,7 +19,7 @@ interface OracleViewProps {
 export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
   const { 
     dreams, quotes, moodLogs, horaryHistory, synchronicityHistory, akashicHistory,
-    oracleMessages, addOracleMessage, clearOracleMessages 
+    librarianMessages, addLibrarianMessage, clearLibrarianMessages 
   } = useSyllabusStore();
   
   const [input, setInput] = useState('');
@@ -29,7 +30,7 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [oracleMessages]);
+  }, [librarianMessages]);
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
@@ -39,7 +40,7 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
       content: input
     };
 
-    addOracleMessage(userMessage);
+    addLibrarianMessage(userMessage);
     setInput('');
     setLoading(true);
 
@@ -67,13 +68,13 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
 
       const text = await geminiService.generateText(prompt);
 
-      addOracleMessage({
+      addLibrarianMessage({
         role: 'assistant',
         content: text
       });
     } catch (error) {
-      console.error("Oracle error:", error);
-      addOracleMessage({
+      console.error("Librarian error:", error);
+      addLibrarianMessage({
         role: 'assistant',
         content: "The records are currently veiled. Perhaps the question is not yet ripe for an answer."
       });
@@ -86,15 +87,17 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
     <div className="flex-1 flex flex-col h-screen overflow-hidden bg-archive-bg">
       <header className="border-b border-archive-line p-6 flex items-center justify-between bg-archive-bg">
         <div className="flex items-center gap-8">
-          <button onClick={onBack} className="text-xs font-mono opacity-40 hover:opacity-100 transition-opacity">← BACK</button>
+          <button onClick={onBack} className="text-xs font-mono opacity-40 hover:opacity-100 transition-opacity flex items-center gap-1">
+            <ArrowLeft className="w-3 h-3" /> BACK
+          </button>
           <h1 className="font-serif italic text-2xl tracking-tight">Consult the Librarian</h1>
         </div>
         <div className="flex items-center gap-4">
           <button 
-            onClick={clearOracleMessages}
+            onClick={clearLibrarianMessages}
             className="text-[10px] font-mono uppercase tracking-widest opacity-40 hover:opacity-100 flex items-center gap-2"
           >
-            <Trash2 size={14} /> Clear Dialogue
+            <Trash2 className="w-3 h-3" /> Clear Dialogue
           </button>
         </div>
       </header>
@@ -104,9 +107,9 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
           ref={scrollRef}
           className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar"
         >
-          {oracleMessages.length === 0 && (
+          {librarianMessages.length === 0 && (
             <div className="h-full flex flex-col items-center justify-center text-center space-y-6 opacity-40">
-              <Brain size={64} strokeWidth={1} />
+              <Brain className="w-16 h-16" />
               <div className="space-y-2">
                 <h2 className="text-3xl font-serif italic">The Librarian Awaits</h2>
                 <p className="handwritten text-lg italic max-w-md mx-auto">
@@ -128,7 +131,7 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
           )}
 
           <AnimatePresence mode="popLayout">
-            {oracleMessages.map((msg, idx) => (
+            {librarianMessages.map((msg, idx) => (
               <motion.div 
                 key={msg.timestamp}
                 initial={{ opacity: 0, y: 10 }}
@@ -142,7 +145,7 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
                 }`}>
                   <div className="flex items-center justify-between gap-2 mb-3 opacity-40">
                     <div className="flex items-center gap-2">
-                      {msg.role === 'user' ? <User size={12} /> : <Brain size={12} />}
+                      {msg.role === 'user' ? <User className="w-3 h-3" /> : <Brain className="w-3 h-3" />}
                       <span className="text-[9px] font-mono uppercase tracking-widest">
                         {msg.role === 'user' ? 'Seeker' : 'Librarian'}
                       </span>
@@ -151,9 +154,9 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
                       <ReadAloudButton text={msg.content} className="!p-0 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-40 hover:opacity-100" />
                     )}
                   </div>
-                  <p className={`font-serif italic text-lg leading-relaxed ${msg.role === 'user' ? '' : 'text-archive-ink'}`}>
-                    {msg.content}
-                  </p>
+                  <div className={`font-serif italic text-lg leading-relaxed markdown-body ${msg.role === 'user' ? '' : 'text-archive-ink'}`}>
+                    <Markdown>{msg.content}</Markdown>
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -166,7 +169,7 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
               className="flex justify-start"
             >
               <div className="bg-white border border-archive-line p-6 rounded-2xl shadow-sm flex items-center gap-4">
-                <Loader2 size={16} className="animate-spin text-archive-accent" />
+                <Loader2 className="w-4 h-4 animate-spin text-archive-accent" />
                 <span className="handwritten text-lg italic opacity-40">The Librarian is consulting the scrolls...</span>
               </div>
             </motion.div>
@@ -186,9 +189,10 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
             <button 
               onClick={handleSend}
               disabled={!input.trim() || loading}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-archive-ink text-archive-bg rounded-xl hover:scale-110 transition-transform disabled:opacity-20"
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-archive-ink text-archive-bg rounded-xl hover:scale-110 transition-transform disabled:opacity-20 flex items-center gap-2"
             >
-              <Send size={20} />
+              <span className="text-[10px] font-mono uppercase tracking-widest">Send</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
           <p className="text-center text-[9px] font-mono uppercase opacity-30 mt-4 tracking-[0.2em]">

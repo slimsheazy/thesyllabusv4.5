@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Book, Bookmark, Check } from 'lucide-react';
+import { Book, Search, Check, Bookmark } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useProfile } from '../../hooks/useProfile';
@@ -54,24 +54,24 @@ export const AkashicRecordsTool: React.FC<AkashicRecordsToolProps> = ({ onBack, 
 
   return (
     <ToolLayout
-      title="Akashic Records"
+      title="Hall of Records"
       onBack={onBack}
-      tooltipTitle="What are the Akashic Records?"
-      tooltipContent="A cosmic library of every thought, word, and action that has ever occurred in the universe, accessible through focused meditation."
+      tooltipTitle="Data Repository Access"
+      tooltipContent="Central database containing all biographical and thematic data points for the current temporal cycle."
       headerRight={
         <button 
           onClick={() => onNavigate ? onNavigate("BOOK_OF_LIFE") : onBack()}
           className="text-[10px] font-mono uppercase tracking-widest border border-archive-ink/10 px-4 py-2 hover:bg-archive-ink hover:text-archive-bg transition-all flex items-center gap-2 rounded-archive"
         >
-          <Book size={12} /> View Book of Life
+          <Book className="w-3 h-3" /> Access Master Record
         </button>
       }
     >
       <div className="max-w-4xl mx-auto">
         <div className="space-y-12 text-center py-12">
           <div className="space-y-4">
-            <h2 className="title-main text-6xl">The Big Archive</h2>
-            <p className="opacity-60">Check the records on any theme, person, or vibe.</p>
+            <h2 className="title-main text-6xl tracking-tighter">Hall of Records</h2>
+            <p className="opacity-60 font-mono text-xs uppercase tracking-[0.2em]">Query Central Data Repository</p>
           </div>
 
           <div className="max-w-2xl mx-auto space-y-8">
@@ -84,7 +84,7 @@ export const AkashicRecordsTool: React.FC<AkashicRecordsToolProps> = ({ onBack, 
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="archive-form-group">
-                  <label className="archive-label">Name</label>
+                  <label className="archive-label">Subject Identifier</label>
                   <input 
                     type="text" 
                     value={profile.name}
@@ -93,7 +93,7 @@ export const AkashicRecordsTool: React.FC<AkashicRecordsToolProps> = ({ onBack, 
                   />
                 </div>
                 <div className="archive-form-group">
-                  <label className="archive-label">Birth Date</label>
+                  <label className="archive-label">Temporal Origin</label>
                   <input 
                     type="date" 
                     value={profile.birthday}
@@ -105,12 +105,12 @@ export const AkashicRecordsTool: React.FC<AkashicRecordsToolProps> = ({ onBack, 
             </div>
 
             <div className="archive-form-group text-left">
-              <label className="archive-label">Your Inquiry</label>
+              <label className="archive-label">Inquiry Vector</label>
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 opacity-40" />
                 <input 
                   type="text" 
-                  placeholder="Enter a theme, name, or question..." 
+                  placeholder="Enter thematic query or biographical data point..." 
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -124,7 +124,7 @@ export const AkashicRecordsTool: React.FC<AkashicRecordsToolProps> = ({ onBack, 
               disabled={loading || !query}
               className={`brutalist-button w-full py-5 text-xl ${loading || !query ? 'opacity-30' : ''}`}
             >
-              {loading ? 'CHECKING THE RECORDS...' : 'SEARCH THE ARCHIVE'}
+              {loading ? 'RETRIEVING DATA...' : 'EXECUTE QUERY'}
             </button>
           </div>
 
@@ -132,20 +132,22 @@ export const AkashicRecordsTool: React.FC<AkashicRecordsToolProps> = ({ onBack, 
             {result && (
               <ResultSection
                 id="akashic-record-content"
-                title="The Record"
+                title="Data Retrieval Output"
                 content={result}
-                exportName={`akashic-${profile.name}`}
+                exportName={`record-${profile.name}`}
                 onClose={() => setResult(null)}
+                type="AKASHIC_RECORD"
+                metadata={{ profile, query, result }}
               >
                 <div className="flex justify-between items-start mb-6">
-                  <div className="text-[10px] font-mono uppercase tracking-widest opacity-40">Record Entry: {initials}</div>
+                  <div className="text-[10px] font-mono uppercase tracking-widest opacity-40">Record ID: {initials}</div>
                 </div>
 
-                <div className="font-serif italic text-2xl leading-relaxed text-archive-ink">
+                <div className="font-serif text-2xl leading-relaxed text-archive-ink markdown-body">
                   <Markdown>{result}</Markdown>
                 </div>
                 <p className="text-[8px] font-mono uppercase tracking-widest opacity-20 mt-4 text-center">
-                  Source: Astronomical Ephemeris & Birth Map Analysis
+                  Source: Central Archive Technical Briefing
                 </p>
                 <div className="mt-8 pt-8 border-t border-archive-line flex justify-center">
                   <button 
@@ -154,7 +156,7 @@ export const AkashicRecordsTool: React.FC<AkashicRecordsToolProps> = ({ onBack, 
                     className={`text-[10px] font-mono uppercase tracking-[0.2em] flex items-center gap-2 transition-all ${isSaved ? 'text-emerald-500' : 'opacity-40 hover:opacity-100'}`}
                   >
                     {isSaved ? <Check className="w-3 h-3" /> : <Bookmark className="w-3 h-3" />}
-                    {isSaved ? 'Saved to Book of Life' : 'Save to Book of Life'}
+                    {isSaved ? 'Committed to Master Record' : 'Commit to Master Record'}
                   </button>
                 </div>
               </ResultSection>

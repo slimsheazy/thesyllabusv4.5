@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Coffee, RefreshCw, Loader2, Sparkles, Zap } from 'lucide-react';
+import { Coffee, Zap, Sparkles, RotateCcw, Loader2 } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useProfile } from '../../hooks/useProfile';
@@ -8,13 +8,14 @@ import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { geminiService } from '../../services/geminiService';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
+import Markdown from 'react-markdown';
 
 interface TeaLeafReaderProps {
   onBack: () => void;
 }
 
 export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
-  const { recordCalculation } = useSyllabusStore();
+  const { recordCalculation, addTeaLeafReading } = useSyllabusStore();
   const { profile } = useProfile();
   const { triggerClick, triggerSuccess } = useHaptics();
   const [reading, setReading] = useState<string | null>(null);
@@ -33,6 +34,7 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
       const result = await geminiService.getTeaLeafReading(profile);
       setVision(result.vision);
       setReading(result.interpretation);
+      addTeaLeafReading(result.vision, result.interpretation);
       
       recordCalculation();
       triggerSuccess();
@@ -68,19 +70,24 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
     </div>
   );
 
-  const Leaf = ({ i }: { i: number }) => {
+  const Leaf = ({ i, vision }: { i: number, vision: string | null }) => {
     const shapes = [
       "M 0 0 C 5 5 5 15 0 20 C -5 15 -5 5 0 0", // Basic leaf
       "M 0 0 Q 10 5 0 20 Q -10 5 0 0", // Pointy leaf
       "M 0 0 C 10 0 10 20 0 20 C -10 20 -10 0 0 0", // Round leaf
       "M 0 0 L 5 10 L 0 20 L -5 10 Z" // Diamond fragment
     ];
+    
+    // If we have a vision, try to cluster leaves towards the center or in a specific pattern
+    const isPatternLeaf = vision && i < 12;
     const shape = shapes[i % shapes.length];
-    const size = Math.random() * 10 + 5;
+    const size = isPatternLeaf ? Math.random() * 15 + 10 : Math.random() * 8 + 4;
     const rotation = Math.random() * 360;
-    const top = Math.random() * 80 + 10;
-    const left = Math.random() * 80 + 10;
-    const opacity = Math.random() * 0.4 + 0.4;
+    
+    // Cluster pattern leaves in the center
+    const top = isPatternLeaf ? Math.random() * 40 + 30 : Math.random() * 80 + 10;
+    const left = isPatternLeaf ? Math.random() * 40 + 30 : Math.random() * 80 + 10;
+    const opacity = isPatternLeaf ? Math.random() * 0.6 + 0.4 : Math.random() * 0.3 + 0.2;
 
     return (
       <motion.svg
@@ -125,7 +132,9 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
                   <div className="absolute inset-0 bg-white rounded-full border-4 border-archive-line shadow-xl overflow-hidden">
                     <div className="absolute inset-4 rounded-full border border-archive-line/20" />
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5" />
-                    <Coffee size={64} className="absolute inset-0 m-auto text-archive-ink opacity-5" />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-5">
+                      <Coffee className="w-12 h-12" />
+                    </div>
                   </div>
                 </div>
                 <h2 className="title-main text-6xl">Tasseography</h2>
@@ -171,7 +180,7 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
                     ))}
                   </motion.div>
                 </div>
-                <Loader2 className="w-12 h-12 animate-spin mx-auto opacity-20 absolute inset-0 m-auto" />
+                <Loader2 className="w-12 h-12 animate-spin mx-auto opacity-20 absolute inset-0 m-auto text-archive-ink" />
               </div>
               <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">The leaves are settling...</span>
             </motion.div>
@@ -188,50 +197,62 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
                 <div className="relative w-64 h-64 bg-white rounded-full border-8 border-archive-line shadow-inner overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-tr from-archive-bg/50 to-transparent" />
                   <div className="absolute inset-0 p-8">
-                    {[...Array(24)].map((_, i) => (
-                      <Leaf key={i} i={i} />
+                    {[...Array(32)].map((_, i) => (
+                      <Leaf key={i} i={i} vision={vision} />
                     ))}
                   </div>
                 </div>
 
                 <div className="space-y-8 w-full">
-                  <div className="space-y-2 border-b border-archive-line pb-6">
-                    <div className="flex items-center justify-center gap-3 mb-2">
-                      <Zap className="text-archive-accent w-4 h-4" />
-                      <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">The Pattern</span>
+                  <ResultSection
+                    id={`tea-leaf-${Date.now()}`}
+                    type="TEA_LEAF"
+                    title="Tea Leaf Reading"
+                    content={`Vision: ${vision}. Interpretation: ${reading}`}
+                    exportName={`tea-leaf-${vision?.replace(/\s+/g, '-')}`}
+                    metadata={{
+                      vision: vision!,
+                      interpretation: reading!
+                    }}
+                  >
+                    <div className="space-y-2 border-b border-archive-line pb-6">
+                      <div className="flex items-center justify-center gap-3 mb-2">
+                        <Zap className="text-archive-accent w-5 h-5" />
+                        <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">The Pattern</span>
+                      </div>
+                      <h3 className="text-4xl font-serif italic text-archive-ink">{vision}</h3>
                     </div>
-                    <h3 className="text-4xl font-serif italic text-archive-ink">{vision}</h3>
-                  </div>
 
-                  <AnimatePresence mode="wait">
-                    {!showInterpretation ? (
-                      <motion.button 
-                        key="reveal-btn"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => { triggerClick(); setShowInterpretation(true); }}
-                        className="text-xs font-mono uppercase tracking-widest border border-archive-line px-8 py-4 hover:bg-archive-ink hover:text-archive-bg transition-all"
-                      >
-                        Reveal Interpretation
-                      </motion.button>
-                    ) : (
-                      <motion.div 
-                        key="interpretation"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="space-y-6"
-                      >
-                        <div className="flex justify-center items-center gap-3">
-                          <Sparkles className="text-archive-accent w-4 h-4" />
-                          <ReadAloudButton text={reading!} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
-                        </div>
-                        <p className="font-serif italic text-2xl md:text-3xl leading-relaxed text-archive-ink/80">
-                          "{reading}"
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                    <AnimatePresence mode="wait">
+                      {!showInterpretation ? (
+                        <motion.button 
+                          key="reveal-btn"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          onClick={() => { triggerClick(); setShowInterpretation(true); }}
+                          className="text-xs font-mono uppercase tracking-widest border border-archive-line px-8 py-4 hover:bg-archive-ink hover:text-archive-bg transition-all"
+                        >
+                          Reveal Interpretation
+                        </motion.button>
+                      ) : (
+                        <motion.div 
+                          key="interpretation"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="space-y-6"
+                        >
+                          <div className="flex justify-center items-center gap-3">
+                            <Sparkles className="text-archive-accent w-5 h-5" />
+                            <ReadAloudButton text={reading!} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
+                          </div>
+                          <div className="font-serif italic text-2xl md:text-3xl leading-relaxed text-archive-ink/80 markdown-body">
+                            <Markdown>{reading}</Markdown>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </ResultSection>
                 </div>
 
                 <div className="mt-8 pt-10 border-t border-archive-line w-full flex justify-center">
@@ -239,19 +260,10 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
                     onClick={() => setVision(null)}
                     className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40 hover:opacity-100 flex items-center gap-2"
                   >
-                    <RefreshCw className="w-3 h-3" />
-                    Brew Another Pot
+                    <RotateCcw className="w-3 h-3" /> Brew Another Pot
                   </button>
                 </div>
               </div>
-
-              <ResultSection
-                id="tea-leaf-content"
-                title="Archive Entry"
-                content={`Vision: ${vision}\n\nInterpretation: ${reading}`}
-                exportName="tea-leaf-reading"
-                onClose={() => setVision(null)}
-              />
             </motion.div>
           )}
         </AnimatePresence>

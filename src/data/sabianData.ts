@@ -40,8 +40,8 @@ export const ARIES_SYMBOLS: SabianSymbol[] = [
 export const TAURUS_SYMBOLS: SabianSymbol[] = [
   { degree: 1, sign: "Taurus", symbol: "A clear mountain stream." },
   { degree: 2, sign: "Taurus", symbol: "An electrical storm." },
-  { degree: 3, sign: "Taurus", symbol: "The pot of gold at the end of the rainbow." },
-  { degree: 4, sign: "Taurus", symbol: "The rainbow's pot of gold." },
+  { degree: 3, sign: "Taurus", symbol: "Natural steps up to a lawn with blooming clover." },
+  { degree: 4, sign: "Taurus", symbol: "The pot of gold at the end of the rainbow." },
   { degree: 5, sign: "Taurus", symbol: "A widow at an open grave." },
   { degree: 6, sign: "Taurus", symbol: "Cantilever bridge across a deep gorge." },
   { degree: 7, sign: "Taurus", symbol: "The woman of Samaria at the ancestral well." },
@@ -66,6 +66,7 @@ export const TAURUS_SYMBOLS: SabianSymbol[] = [
   { degree: 26, sign: "Taurus", symbol: "A Spanish gallant serenades his beloved." },
   { degree: 27, sign: "Taurus", symbol: "An old Indian woman selling the artifacts of her tribe to passers-by." },
   { degree: 28, sign: "Taurus", symbol: "A mature woman reawakened to romance." },
+  { degree: 29, sign: "Taurus", symbol: "Two cobblers working at a table." },
   { degree: 30, sign: "Taurus", symbol: "A peacock parading on the terrace of an old castle." }
 ];
 
@@ -162,7 +163,7 @@ export const LEO_SYMBOLS: SabianSymbol[] = [
   { degree: 24, sign: "Leo", symbol: "Totally concentrated upon inner spiritual attainment, a man is sitting in a state of neglect of his body." },
   { degree: 25, sign: "Leo", symbol: "A large camel is seen crossing a vast and forbidding desert." },
   { degree: 26, sign: "Leo", symbol: "After the heavy storm, a rainbow." },
-  { degree: 27, sign: "Leo", symbol: "Daybreak — the luminescence of dawn in the eastern sky." },
+  { degree: 27, sign: "Leo", symbol: "Daybreak - the luminescence of dawn in the eastern sky." },
   { degree: 28, sign: "Leo", symbol: "Many little birds on a limb of a large tree." },
   { degree: 29, sign: "Leo", symbol: "A mermaid emerges from the ocean waves ready for rebirth in human form." },
   { degree: 30, sign: "Leo", symbol: "An unsealed letter." }

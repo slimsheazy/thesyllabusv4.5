@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { RefreshCw, Sparkles, Zap } from 'lucide-react';
+import { Zap, Sparkles } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { ToolLayout } from '../shared/ToolLayout';
@@ -145,10 +145,12 @@ export const PendulumTool: React.FC<PendulumToolProps> = ({ onBack }) => {
                     content={answer}
                     exportName="pendulum-answer"
                     onClose={() => setAnswer(null)}
+                    type="PENDULUM"
+                    metadata={{ answer }}
                   >
                     <div className="flex flex-col items-center gap-4">
                       <div className="flex items-center gap-3">
-                        <Zap className="text-archive-accent w-4 h-4" />
+                        <Zap className="text-archive-accent w-5 h-5" />
                         <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">The Resonance</span>
                       </div>
                       <p className="font-serif italic text-6xl md:text-7xl leading-relaxed text-archive-ink">
@@ -169,12 +171,12 @@ export const PendulumTool: React.FC<PendulumToolProps> = ({ onBack }) => {
             >
               {loading ? (
                 <>
-                  <RefreshCw className="w-6 h-6 animate-spin" />
+                  <span className="w-6 h-6 animate-spin border-2 border-archive-bg border-t-transparent rounded-full" />
                   SWINGING...
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-6 h-6" />
+                  <Sparkles className="w-5 h-5" />
                   {answer ? 'ASK AGAIN' : 'ASK THE PENDULUM'}
                 </>
               )}

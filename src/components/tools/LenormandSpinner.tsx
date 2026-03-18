@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { RotateCw, Sparkles, Zap } from 'lucide-react';
+import { RotateCcw, Sparkles } from 'lucide-react';
 import { useHaptics } from '../../hooks/useHaptics';
+import { useSyllabusStore } from '../../store';
 import { geminiService } from '../../services/geminiService';
 import { Type } from "@google/genai";
 import { ReadAloudButton } from '../shared/ReadAloudButton';
@@ -22,10 +23,11 @@ interface LenormandSpinnerProps {
 }
 
 export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) => {
+  const { addLenormandEntry } = useSyllabusStore();
   const { triggerClick, triggerSuccess } = useHaptics();
   const [isSpinning, setIsSpinning] = useState(false);
   const [results, setResults] = useState<string[]>(['rider', 'clover', 'ship']);
-  const [reading, setReading] = useState<string | null>(null);
+  const [reading, setReading] = useState<string | { practical: string; psychological: string; spiritual: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const spinReels = async () => {
@@ -48,15 +50,24 @@ export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) =>
     
     setIsLoading(true);
     try {
-      const reading = await geminiService.interpretLenormand(newResults);
-      setReading(reading);
+      const result = await geminiService.interpretLenormand(newResults);
+      setReading(result);
+      addLenormandEntry({
+        cards: newResults,
+        interpretation: result
+      });
       triggerSuccess();
     } catch (error) {
       console.error("Failed to get reading:", error);
-      setReading("The signals are crossed. Try again.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getReadingText = () => {
+    if (!reading) return "";
+    if (typeof reading === 'string') return reading;
+    return `${reading.practical}\n\n${reading.psychological}\n\n${reading.spiritual}`;
   };
 
   return (
@@ -124,11 +135,11 @@ export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) =>
                 </div>
               ))}
             </div>
-
+ 
             <div className="absolute top-0 bottom-0 left-1/3 w-[1px] bg-white/10 pointer-events-none" />
             <div className="absolute top-0 bottom-0 left-2/3 w-[1px] bg-white/10 pointer-events-none" />
           </div>
-
+ 
           <div className="flex flex-col items-center gap-12">
             <button
               onClick={spinReels}
@@ -137,10 +148,10 @@ export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) =>
             >
               <span className="relative z-10 flex items-center gap-4">
                 {isSpinning ? "SPINNING..." : "PULL THE LEVER"}
-                <RotateCw size={24} className={isSpinning ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"} />
+                <RotateCcw className={`w-6 h-6 ${isSpinning ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"}`} />
               </span>
             </button>
-
+ 
             <div className="min-h-[160px] w-full max-w-3xl text-center">
               <AnimatePresence mode="wait">
                 {isLoading ? (
@@ -165,45 +176,75 @@ export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) =>
                     animate={{ opacity: 1, y: 0 }}
                     className="space-y-8"
                   >
-                    <div className="archive-card p-10 relative overflow-hidden">
-                      <div className="absolute top-0 right-0 p-4 opacity-[0.02] select-none pointer-events-none text-6xl italic">SPIN</div>
-                      <div className="flex justify-between items-center mb-6">
-                        <div className="flex items-center gap-3">
-                          <Zap className="text-archive-accent w-4 h-4" />
-                          <h3 className="col-header border-none pb-0">Result</h3>
-                        </div>
-                        <ReadAloudButton text={reading} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
+                    <div className="archive-card p-10 relative overflow-hidden bg-white/50 backdrop-blur-sm border-2 border-archive-ink/5">
+                      <div className="absolute top-0 right-0 p-4 opacity-[0.03] select-none pointer-events-none text-6xl italic font-serif">
+                        READING
                       </div>
-                      <div className="font-serif italic text-2xl md:text-3xl leading-relaxed text-archive-ink">
-                        <Markdown>{reading}</Markdown>
+                      
+                      <div className="space-y-6 relative z-10">
+                        <div className="flex items-center justify-center gap-3 mb-6">
+                          <div className="w-8 h-px bg-archive-accent" />
+                          <span className="text-[9px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">
+                            Traditional Interpretation
+                          </span>
+                          <div className="w-8 h-px bg-archive-accent" />
+                        </div>
+ 
+                          <div className="font-serif italic text-2xl leading-relaxed text-archive-ink text-left space-y-4 markdown-body">
+                            {typeof reading === 'string' ? (
+                              <Markdown>{reading}</Markdown>
+                            ) : (
+                              <>
+                                <div>
+                                  <h4 className="text-[10px] uppercase tracking-widest opacity-40 mb-1">Practical</h4>
+                                  <Markdown>{reading.practical}</Markdown>
+                                </div>
+                                <div>
+                                  <h4 className="text-[10px] uppercase tracking-widest opacity-40 mb-1">Psychological</h4>
+                                  <Markdown>{reading.psychological}</Markdown>
+                                </div>
+                                <div>
+                                  <h4 className="text-[10px] uppercase tracking-widest opacity-40 mb-1">Spiritual</h4>
+                                  <Markdown>{reading.spiritual}</Markdown>
+                                </div>
+                              </>
+                            )}
+                          </div>
+  
+                        <div className="pt-6 mt-6 border-t border-archive-line/10 flex justify-center">
+                          <ReadAloudButton 
+                            text={getReadingText()} 
+                            className="!p-2 !h-auto !w-auto !bg-archive-bg !border-archive-line !text-archive-ink hover:!bg-archive-ink hover:!text-archive-bg transition-all shadow-sm" 
+                          />
+                        </div>
                       </div>
                     </div>
+
+                    <ResultSection
+                      id="lenormand-reading-content"
+                      type="Lenormand Reading"
+                      title="Archive Entry"
+                      content={getReadingText()}
+                      exportName="lenormand-reading"
+                      onClose={() => setReading(null)}
+                      metadata={{ cards: results }}
+                    />
                   </motion.div>
                 ) : (
                   <motion.div 
                     key="placeholder"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.3 }}
-                    className="space-y-4 py-10"
+                    className="space-y-4 py-10 flex flex-col items-center"
                   >
-                    <Sparkles className="mx-auto w-8 h-8" />
-                    <p className="handwritten text-2xl italic">Three cards. One sentence.</p>
+                    <Sparkles className="w-10 h-10" />
+                    <p className="handwritten text-2xl italic">Three cards. One cohesive message.</p>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
           </div>
         </div>
-
-        {reading && (
-          <ResultSection
-            id="lenormand-spinner-content"
-            title="Archive Entry"
-            content={`Cards: ${results.join(', ')}\n\nReading: ${reading}`}
-            exportName="lenormand-spin"
-            onClose={() => setReading(null)}
-          />
-        )}
       </div>
     </ToolLayout>
   );

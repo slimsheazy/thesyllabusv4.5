@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Quote, RefreshCw, Plus, Loader2, Send, Users, MessageSquare } from 'lucide-react';
+import { User, MessageSquare, ArrowRight, Sun } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { ToolLayout } from '../shared/ToolLayout';
@@ -97,13 +97,13 @@ export const SharedInsights: React.FC<QuoteWallProps> = ({ onBack }) => {
               <div className="flex items-center justify-between mb-2">
                 <label className="archive-label !mb-0">Contribute Observation</label>
                 <div className="flex items-center gap-1 opacity-20 text-[8px] font-mono uppercase">
-                  <Users size={8} />
+                  <User className="w-2 h-2" />
                   <span>{userIdentity || 'Anonymous'}</span>
                 </div>
               </div>
               <div className="flex gap-4">
                 <div className="relative flex-1">
-                  <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-20" />
+                  <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 opacity-20 w-3 h-3" />
                   <input 
                     type="text" 
                     value={newQuote}
@@ -118,7 +118,7 @@ export const SharedInsights: React.FC<QuoteWallProps> = ({ onBack }) => {
                   disabled={submitting || !newQuote.trim()}
                   className={`brutalist-button px-8 flex items-center justify-center transition-all ${submitting || !newQuote.trim() ? 'opacity-20' : ''}`}
                 >
-                  {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send size={18} />}
+                  {submitting ? <div className="w-5 h-5 animate-spin border-2 border-current border-t-transparent rounded-full" /> : <ArrowRight className="w-5 h-5" />}
                 </button>
               </div>
             </div>
@@ -131,13 +131,15 @@ export const SharedInsights: React.FC<QuoteWallProps> = ({ onBack }) => {
             <div className="col-span-full flex flex-col items-center py-40 opacity-20">
               <div className="relative mb-8">
                 <div className="w-16 h-16 border-2 border-archive-ink border-t-transparent animate-spin rounded-full" />
-                <div className="absolute inset-0 flex items-center justify-center text-xl">☉</div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Sun className="w-6 h-6" />
+                </div>
               </div>
               <p className="handwritten text-xl italic uppercase tracking-[0.3em]">Accessing the collective consciousness...</p>
             </div>
           ) : sharedQuotes.length === 0 ? (
             <div className="col-span-full flex flex-col items-center py-40 opacity-[0.03] select-none pointer-events-none">
-              <Quote size={160} />
+              <span className="text-9xl">"</span>
               <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">Silence in the Archive</p>
             </div>
           ) : (
@@ -151,7 +153,7 @@ export const SharedInsights: React.FC<QuoteWallProps> = ({ onBack }) => {
                   exit={{ opacity: 0, scale: 0.9, y: -20 }}
                   className="archive-card p-8 relative group hover:shadow-xl transition-all duration-500"
                 >
-                  <Quote className="absolute top-4 right-4 w-6 h-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity" />
+                  <span className="absolute top-4 right-4 text-2xl opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">"</span>
                   <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <ReadAloudButton text={quote.text} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                   </div>

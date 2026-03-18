@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { Globe } from 'lucide-react';
 
 export const LoadingView: React.FC = () => {
   return (
@@ -16,7 +17,7 @@ export const LoadingView: React.FC = () => {
           className="absolute inset-0 w-16 h-16 border-t border-archive-accent rounded-full"
         />
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-xs font-sans opacity-40">♁</span>
+          <Globe className="w-4 h-4 opacity-40" />
         </div>
       </div>
       <div className="text-center space-y-2">

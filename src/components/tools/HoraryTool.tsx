@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Target, Sparkles, Hourglass, Sun, Moon, Zap, Heart, Swords, Crown, Lock, Loader2, X } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useLocation } from '../../hooks/useLocation';
@@ -7,7 +8,6 @@ import { geminiService } from '../../services/geminiService';
 import { WritingEffect } from '../shared/WritingEffect';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ZodiacWheel } from '../shared/ZodiacWheel';
-import { MapPin, Loader2, Sparkles, History, Trash2 } from 'lucide-react';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 import { HoraryAnalysis, BirthChartPlanet } from '../../types';
@@ -18,14 +18,14 @@ interface HoraryToolProps {
 
 const SIGN_NAMES = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
 
-const PLANET_SYMBOLS: Record<string, string> = {
-  'Sun': '☉',
-  'Moon': '☽',
-  'Mercury': '☿',
-  'Venus': '♀',
-  'Mars': '♂',
-  'Jupiter': '♃',
-  'Saturn': '♄'
+const PLANET_ICONS: Record<string, React.ReactNode> = {
+  'Sun': <Sun className="w-6 h-6" />,
+  'Moon': <Moon className="w-6 h-6" />,
+  'Mercury': <Zap className="w-6 h-6" />,
+  'Venus': <Heart className="w-6 h-6" />,
+  'Mars': <Swords className="w-6 h-6" />,
+  'Jupiter': <Crown className="w-6 h-6" />,
+  'Saturn': <Lock className="w-6 h-6" />
 };
 
 export const HoraryTool: React.FC<HoraryToolProps> = ({ onBack }) => {
@@ -81,7 +81,7 @@ export const HoraryTool: React.FC<HoraryToolProps> = ({ onBack }) => {
         triggerSuccess();
       }
     } catch (error) {
-      alert("Lost the signal. Give it a second.");
+      console.error("Horary error:", error);
     } finally {
       setLoading(false);
     }
@@ -99,8 +99,7 @@ export const HoraryTool: React.FC<HoraryToolProps> = ({ onBack }) => {
           onClick={() => setShowHistory(!showHistory)} 
           className="flex items-center gap-2 text-[10px] font-mono uppercase opacity-40 hover:opacity-100 transition-opacity"
         >
-          <History size={14} />
-          {showHistory ? "Back to Tool" : "History"}
+          {showHistory ? "Back to Tool" : "[HISTORY]"}
         </button>
       }
     >
@@ -114,9 +113,9 @@ export const HoraryTool: React.FC<HoraryToolProps> = ({ onBack }) => {
                 <div key={entry.id} className="marker-border bg-white p-8 shadow-xl relative group">
                   <button 
                     onClick={() => removeHoraryEntry(entry.id)}
-                    className="absolute top-4 right-4 opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity text-archive-accent"
+                    className="absolute top-4 right-4 opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity text-archive-accent text-xs font-mono"
                   >
-                    <Trash2 size={16} />
+                    [DELETE]
                   </button>
                   <div className="flex justify-between items-start mb-6 border-b border-archive-line pb-4">
                     <div className="space-y-1">
@@ -174,7 +173,7 @@ export const HoraryTool: React.FC<HoraryToolProps> = ({ onBack }) => {
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : userLocation ? (
                     <span className="flex items-center gap-2 font-mono text-[10px] uppercase">
-                      <MapPin size={14} /> {userLocation.name || `${userLocation.lat.toFixed(2)}N, ${userLocation.lng.toFixed(2)}E`}
+                      <Target className="w-3 h-3" /> {userLocation.name || `${userLocation.lat.toFixed(2)}N, ${userLocation.lng.toFixed(2)}E`}
                     </span>
                   ) : (
                     <span className="text-[10px] font-mono uppercase">Detect Location</span>
@@ -203,8 +202,10 @@ export const HoraryTool: React.FC<HoraryToolProps> = ({ onBack }) => {
                   className="flex flex-col items-center justify-center py-40 gap-8"
                 >
                   <div className="relative">
-                    <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
-                    <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">☉</div>
+                    <Loader2 className="w-16 h-16 text-archive-accent animate-spin" />
+                    <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">
+                      <Sun className="w-6 h-6" />
+                    </div>
                   </div>
                   <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">
                     Decoding the celestial alignment...
@@ -260,20 +261,20 @@ export const HoraryTool: React.FC<HoraryToolProps> = ({ onBack }) => {
                         >
                           <button 
                             onClick={() => setSelectedPlanet(null)}
-                            className="absolute top-4 right-4 text-[10px] font-mono opacity-40 hover:opacity-100"
+                            className="absolute top-4 right-4 text-[10px] font-mono opacity-40 hover:opacity-100 flex items-center gap-1"
                           >
-                            CLOSE [X]
+                            CLOSE <X className="w-3 h-3" />
                           </button>
                           
                           <div className="space-y-6">
                             <div className="flex items-center gap-4 border-b border-archive-line pb-4">
-                              <div className="w-12 h-12 rounded-full border border-archive-accent flex items-center justify-center text-2xl text-archive-accent">
-                                {PLANET_SYMBOLS[selectedPlanet.name] || '○'}
+                              <div className="w-12 h-12 rounded-full border border-archive-accent flex items-center justify-center text-archive-accent">
+                                {PLANET_ICONS[selectedPlanet.name] || <Sparkles className="w-6 h-6" />}
                               </div>
                               <div>
                                 <h4 className="text-2xl font-serif italic">{selectedPlanet.name} Interpretation</h4>
                                 <p className="text-[10px] font-mono uppercase opacity-40">
-                                  {Math.floor(selectedPlanet.degree % 30)}° {SIGN_NAMES[Math.floor(selectedPlanet.degree / 30)]} • House {Math.floor(((selectedPlanet.degree - (result?.chartData?.ascendant || 0) + 360) % 360) / 30) + 1}
+                                  {Math.floor(selectedPlanet.degree % 30)} deg {SIGN_NAMES[Math.floor(selectedPlanet.degree / 30)]} - House {Math.floor(((selectedPlanet.degree - (result?.chartData?.ascendant || 0) + 360) % 360) / 30) + 1}
                                 </p>
                               </div>
                             </div>
@@ -302,10 +303,12 @@ export const HoraryTool: React.FC<HoraryToolProps> = ({ onBack }) => {
 
                   <ResultSection
                     id="horary-result-content"
+                    type="Horary Analysis"
                     title="Underlying Resonance"
                     content={result.technicalNotes}
                     exportName={`horary-${new Date().toISOString().split('T')[0]}`}
                     onClose={() => setResult(null)}
+                    metadata={{ question, outcome: result.outcome, judgment: result.judgment }}
                   />
                 </motion.div>
               ) : (
@@ -315,7 +318,7 @@ export const HoraryTool: React.FC<HoraryToolProps> = ({ onBack }) => {
                   animate={{ opacity: 1 }}
                   className="h-full flex flex-col items-center justify-center py-40 opacity-[0.03] select-none pointer-events-none"
                 >
-                  <History size={160} />
+                  <Hourglass className="w-32 h-32" />
                   <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">Awaiting Inquiry</p>
                 </motion.div>
               )}

@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { Volume2, VolumeX, Loader2 } from 'lucide-react';
 import { geminiService } from '../../services/geminiService';
 import { useHaptics } from '../../hooks/useHaptics';
 
@@ -82,11 +81,11 @@ export const ReadAloudButton: React.FC<ReadAloudButtonProps> = ({ text, classNam
       title={isSpeaking ? "Stop Reading" : "Read Aloud"}
     >
       {isLoading ? (
-        <Loader2 size={14} className="animate-spin opacity-40" />
+        <span className="text-[10px] animate-pulse">...</span>
       ) : isSpeaking ? (
-        <VolumeX size={14} />
+        <span className="text-[10px] font-bold">MUTE</span>
       ) : (
-        <Volume2 size={14} className="opacity-40 group-hover:opacity-100" />
+        <span className="text-[10px] font-bold opacity-40 group-hover:opacity-100">READ</span>
       )}
     </button>
   );

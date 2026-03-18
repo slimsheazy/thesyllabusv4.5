@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, PenTool } from 'lucide-react';
+import { PenTool, Sun, Sparkles } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { geminiService } from '../../services/geminiService';
@@ -60,19 +60,19 @@ export const CosmicProphecy: React.FC<CosmicProphecyProps> = ({ onBack }) => {
           <div className="archive-card p-6 animate-in fade-in slide-in-from-left-4 duration-300">
             <div className="space-y-6">
               {Object.keys(inputs).map((key) => (
-                <div key={key} className="archive-form-group">
-                  <label className="archive-label">{key.replace(/([A-Z])/g, ' $1')}</label>
-                  <div className="relative">
-                    <PenTool className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
-                    <input 
-                      type="text" 
-                      value={(inputs as any)[key]}
-                      onChange={(e) => setInputs({ ...inputs, [key]: e.target.value })}
-                      placeholder={`Enter a ${key}...`}
-                      className="archive-input pl-12"
-                    />
+                  <div className="archive-form-group">
+                    <label className="archive-label">{key.replace(/([A-Z])/g, ' $1')}</label>
+                    <div className="relative">
+                      <PenTool className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
+                      <input 
+                        type="text" 
+                        value={(inputs as any)[key]}
+                        onChange={(e) => setInputs({ ...inputs, [key]: e.target.value })}
+                        placeholder={`Enter a ${key}...`}
+                        className="archive-input pl-12"
+                      />
+                    </div>
                   </div>
-                </div>
               ))}
             </div>
 
@@ -98,7 +98,9 @@ export const CosmicProphecy: React.FC<CosmicProphecyProps> = ({ onBack }) => {
               >
                 <div className="relative">
                   <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
-                  <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">☉</div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Sun className="w-6 h-6 opacity-20" />
+                  </div>
                 </div>
                 <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Decoding the threads of fate...</span>
               </motion.div>
@@ -125,6 +127,8 @@ export const CosmicProphecy: React.FC<CosmicProphecyProps> = ({ onBack }) => {
                   content={story}
                   exportName="cosmic-prophecy"
                   onClose={() => setStory(null)}
+                  type="COSMIC_PROPHECY"
+                  metadata={{ inputs, story }}
                 />
               </motion.div>
             ) : (
@@ -134,7 +138,7 @@ export const CosmicProphecy: React.FC<CosmicProphecyProps> = ({ onBack }) => {
                 animate={{ opacity: 1 }}
                 className="h-full flex flex-col items-center justify-center py-40 opacity-[0.03] select-none pointer-events-none"
               >
-                <Sparkles size={160} />
+                <Sparkles className="w-32 h-32" />
                 <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">Awaiting Fragments</p>
               </motion.div>
             )}

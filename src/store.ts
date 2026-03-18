@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
 import { get, set, del } from 'idb-keyval';
+import { User } from 'firebase/auth';
 import { 
   BirthChartAnalysis, 
   HoraryAnalysis, 
@@ -11,7 +12,8 @@ import {
   UnlockedTerm,
   Dream,
   QuoteEntry,
-  MoodLog
+  MoodLog,
+  StarboardEntry
 } from './types';
 
 // Custom storage object that implements StateStorage interface for IndexedDB
@@ -50,11 +52,17 @@ interface SyllabusState {
   horaryHistory: (HoraryAnalysis & { id: string; date: string; question: string; location: string })[];
   synchronicityHistory: (SynchronicityEntry & { id: string; date: string })[];
   akashicHistory: AkashicEntry[];
-  oracleMessages: { role: 'user' | 'assistant'; content: string; timestamp: number }[];
+  sigils: { id: string; date: string; intent: string; interpretation: string; path: string }[];
+  teaLeafReadings: { id: string; date: string; vision: string; interpretation: string }[];
+  tarotHistory: { id: string; date: string; question: string; spread: string; synthesis: string; cards: { name: string; isReversed: boolean; position: string }[] }[];
+  lenormandHistory: { id: string; date: string; cards: string[]; interpretation: string | { practical: string; psychological: string; spiritual: string } }[];
+  librarianMessages: { role: 'user' | 'assistant'; content: string; timestamp: number }[];
+  starboard: StarboardEntry[];
   
   // Pagination / Selective Loading
   visibleDreamsCount: number;
   pinnedTools: string[]; // Array of tool pages (IDs)
+  user: User | null;
   
   setCalibrated: (calibrated: boolean) => void;
   recordCalculation: () => void;
@@ -88,12 +96,25 @@ interface SyllabusState {
   addAkashicEntry: (query: string, insight: string) => void;
   updateAkashicEntry: (id: string, updates: Partial<Omit<AkashicEntry, 'id' | 'date'>>) => void;
   removeAkashicEntry: (id: string) => void;
-  addOracleMessage: (message: { role: 'user' | 'assistant'; content: string }) => void;
-  clearOracleMessages: () => void;
+  addSigil: (intent: string, interpretation: string, path: string) => void;
+  removeSigil: (id: string) => void;
+  addTeaLeafReading: (vision: string, interpretation: string) => void;
+  removeTeaLeafReading: (id: string) => void;
+  addTarotEntry: (entry: { question: string; spread: string; synthesis: string; cards: { name: string; isReversed: boolean; position: string }[] }) => void;
+  removeTarotEntry: (id: string) => void;
+  addLenormandEntry: (entry: { cards: string[]; interpretation: string | { practical: string; psychological: string; spiritual: string } }) => void;
+  removeLenormandEntry: (id: string) => void;
+  addLibrarianMessage: (message: { role: 'user' | 'assistant'; content: string }) => void;
+  clearLibrarianMessages: () => void;
+  
+  addStar: (entry: Omit<StarboardEntry, 'starredAt'>) => void;
+  removeStar: (id: string) => void;
+  isStarred: (id: string) => boolean;
   
   // Pagination Actions
   loadMoreDreams: () => void;
   resetVisibleDreams: () => void;
+  setUser: (user: User | null) => void;
   resetAllData: () => void;
 }
 
@@ -120,10 +141,18 @@ export const useSyllabusStore = create<SyllabusState>()(
       horaryHistory: [],
       synchronicityHistory: [],
       akashicHistory: [],
-      oracleMessages: [],
+      sigils: [],
+      teaLeafReadings: [],
+      tarotHistory: [],
+      lenormandHistory: [],
+      librarianMessages: [],
+      starboard: [],
       visibleDreamsCount: 10,
       pinnedTools: [],
+      user: null,
 
+      setUser: (user) => set({ user }),
+      
       resetAllData: () => set({
         calculationsRun: 0,
         isCalibrated: false,
@@ -143,7 +172,12 @@ export const useSyllabusStore = create<SyllabusState>()(
         horaryHistory: [],
         synchronicityHistory: [],
         akashicHistory: [],
-        oracleMessages: [],
+        sigils: [],
+        teaLeafReadings: [],
+        tarotHistory: [],
+        lenormandHistory: [],
+        librarianMessages: [],
+        starboard: [],
         pinnedTools: []
       }),
 
@@ -181,34 +215,59 @@ export const useSyllabusStore = create<SyllabusState>()(
         };
       }),
 
-      addDream: (text) => set((state) => ({
-        dreams: [
-          { text, date: new Date().toLocaleDateString(), id: crypto.randomUUID() },
-          ...state.dreams
-        ]
-      })),
+      addDream: (text) => set((state) => {
+        // Prevent duplicates within 5 seconds
+        const isDuplicate = state.dreams.some(d => 
+          d.text === text && 
+          (Date.now() - new Date(d.date).getTime() < 5000)
+        );
+        if (isDuplicate) return state;
+        return {
+          dreams: [
+            { text, date: new Date().toISOString(), id: crypto.randomUUID() },
+            ...state.dreams
+          ]
+        };
+      }),
 
       removeDream: (id) => set((state) => ({
         dreams: state.dreams.filter(d => d.id !== id)
       })),
 
-      addQuote: (text, author) => set((state) => ({
-        quotes: [
-          { text, author, id: crypto.randomUUID() },
-          ...state.quotes
-        ]
-      })),
+      addQuote: (text, author) => set((state) => {
+        // Prevent duplicates within 5 seconds
+        const isDuplicate = state.quotes.some(q => 
+          q.text === text && 
+          (Date.now() - new Date(q.date || "").getTime() < 5000)
+        );
+        if (isDuplicate) return state;
+        return {
+          quotes: [
+            { text, author, id: crypto.randomUUID(), date: new Date().toISOString() },
+            ...state.quotes
+          ]
+        };
+      }),
 
       removeQuote: (id) => set((state) => ({
         quotes: state.quotes.filter(q => q.id !== id)
       })),
 
-      addMoodLog: (mood, insight) => set((state) => ({
-        moodLogs: [
-          { mood, insight, date: new Date().toISOString(), id: crypto.randomUUID() },
-          ...state.moodLogs
-        ]
-      })),
+      addMoodLog: (mood, insight) => set((state) => {
+        // Prevent duplicates within 5 seconds
+        const isDuplicate = state.moodLogs.some(m => 
+          m.mood === mood && 
+          m.insight === insight &&
+          (Date.now() - new Date(m.date).getTime() < 5000)
+        );
+        if (isDuplicate) return state;
+        return {
+          moodLogs: [
+            { mood, insight, date: new Date().toISOString(), id: crypto.randomUUID() },
+            ...state.moodLogs
+          ]
+        };
+      }),
 
       removeMoodLog: (id) => set((state) => ({
         moodLogs: state.moodLogs.filter(m => m.id !== id)
@@ -244,34 +303,58 @@ export const useSyllabusStore = create<SyllabusState>()(
         interpretationCache: { ...state.interpretationCache, [key]: interpretation }
       })),
 
-      addHoraryEntry: (entry) => set((state) => ({
-        horaryHistory: [
-          { ...entry, id: crypto.randomUUID(), date: new Date().toISOString() },
-          ...state.horaryHistory
-        ]
-      })),
+      addHoraryEntry: (entry) => set((state) => {
+        // Prevent duplicates within 5 seconds
+        const isDuplicate = state.horaryHistory.some(h => 
+          h.question === entry.question && 
+          (Date.now() - new Date(h.date).getTime() < 5000)
+        );
+        if (isDuplicate) return state;
+        return {
+          horaryHistory: [
+            { ...entry, id: crypto.randomUUID(), date: new Date().toISOString() },
+            ...state.horaryHistory
+          ]
+        };
+      }),
 
       removeHoraryEntry: (id) => set((state) => ({
         horaryHistory: state.horaryHistory.filter(h => h.id !== id)
       })),
 
-      addSynchronicityEntry: (event, interpretation) => set((state) => ({
-        synchronicityHistory: [
-          { id: crypto.randomUUID(), event, interpretation, date: new Date().toISOString() },
-          ...state.synchronicityHistory
-        ]
-      })),
+      addSynchronicityEntry: (event, interpretation) => set((state) => {
+        // Prevent duplicates within 5 seconds
+        const isDuplicate = state.synchronicityHistory.some(s => 
+          s.event === event && 
+          (Date.now() - new Date(s.date).getTime() < 5000)
+        );
+        if (isDuplicate) return state;
+        return {
+          synchronicityHistory: [
+            { id: crypto.randomUUID(), event, interpretation, date: new Date().toISOString() },
+            ...state.synchronicityHistory
+          ]
+        };
+      }),
 
       removeSynchronicityEntry: (id) => set((state) => ({
         synchronicityHistory: state.synchronicityHistory.filter(s => s.id !== id)
       })),
 
-      addAkashicEntry: (query, insight) => set((state) => ({
-        akashicHistory: [
-          { id: crypto.randomUUID(), query, insight, date: new Date().toISOString() },
-          ...state.akashicHistory
-        ]
-      })),
+      addAkashicEntry: (query, insight) => set((state) => {
+        // Prevent duplicates within 5 seconds
+        const isDuplicate = state.akashicHistory.some(a => 
+          a.query === query && 
+          (Date.now() - new Date(a.date).getTime() < 5000)
+        );
+        if (isDuplicate) return state;
+        return {
+          akashicHistory: [
+            { id: crypto.randomUUID(), query, insight, date: new Date().toISOString() },
+            ...state.akashicHistory
+          ]
+        };
+      }),
 
       updateAkashicEntry: (id, updates) => set((state) => ({
         akashicHistory: state.akashicHistory.map(a => 
@@ -282,12 +365,88 @@ export const useSyllabusStore = create<SyllabusState>()(
       removeAkashicEntry: (id) => set((state) => ({
         akashicHistory: state.akashicHistory.filter(a => a.id !== id)
       })),
-      
-      addOracleMessage: (message) => set((state) => ({
-        oracleMessages: [...state.oracleMessages, { ...message, timestamp: Date.now() }]
+
+      addSigil: (intent, interpretation, path) => set((state) => ({
+        sigils: [
+          { id: crypto.randomUUID(), date: new Date().toISOString(), intent, interpretation, path },
+          ...state.sigils
+        ]
       })),
 
-      clearOracleMessages: () => set({ oracleMessages: [] }),
+      removeSigil: (id) => set((state) => ({
+        sigils: state.sigils.filter(s => s.id !== id)
+      })),
+
+      addTeaLeafReading: (vision, interpretation) => set((state) => ({
+        teaLeafReadings: [
+          { id: crypto.randomUUID(), date: new Date().toISOString(), vision, interpretation },
+          ...state.teaLeafReadings
+        ]
+      })),
+
+      removeTeaLeafReading: (id) => set((state) => ({
+        teaLeafReadings: state.teaLeafReadings.filter(t => t.id !== id)
+      })),
+
+      addTarotEntry: (entry) => set((state) => {
+        // Prevent duplicates within 5 seconds
+        const isDuplicate = state.tarotHistory.some(t => 
+          t.question === entry.question && 
+          (Date.now() - new Date(t.date).getTime() < 5000)
+        );
+        if (isDuplicate) return state;
+        return {
+          tarotHistory: [
+            { ...entry, id: crypto.randomUUID(), date: new Date().toISOString() },
+            ...state.tarotHistory
+          ]
+        };
+      }),
+
+      removeTarotEntry: (id) => set((state) => ({
+        tarotHistory: state.tarotHistory.filter(t => t.id !== id)
+      })),
+
+      addLenormandEntry: (entry) => set((state) => {
+        // Prevent duplicates within 5 seconds
+        const isDuplicate = state.lenormandHistory.some(l => 
+          l.cards.join(',') === entry.cards.join(',') && 
+          (Date.now() - new Date(l.date).getTime() < 5000)
+        );
+        if (isDuplicate) return state;
+        return {
+          lenormandHistory: [
+            { ...entry, id: crypto.randomUUID(), date: new Date().toISOString() },
+            ...state.lenormandHistory
+          ]
+        };
+      }),
+
+      removeLenormandEntry: (id) => set((state) => ({
+        lenormandHistory: state.lenormandHistory.filter(l => l.id !== id)
+      })),
+      
+      addLibrarianMessage: (message) => set((state) => ({
+        librarianMessages: [...state.librarianMessages, { ...message, timestamp: Date.now() }]
+      })),
+
+      clearLibrarianMessages: () => set({ librarianMessages: [] }),
+
+      addStar: (entry) => set((state) => {
+        if (state.starboard.some(s => s.id === entry.id)) return state;
+        return {
+          starboard: [
+            { ...entry, starredAt: new Date().toISOString() },
+            ...state.starboard
+          ]
+        };
+      }),
+
+      removeStar: (id) => set((state) => ({
+        starboard: state.starboard.filter(s => s.id !== id)
+      })),
+
+      isStarred: (id) => get().starboard.some(s => s.id === id),
 
       loadMoreDreams: () => set((state) => ({ visibleDreamsCount: state.visibleDreamsCount + 10 })),
       resetVisibleDreams: () => set({ visibleDreamsCount: 10 }),
@@ -295,6 +454,10 @@ export const useSyllabusStore = create<SyllabusState>()(
     {
       name: 'the-syllabus-state',
       storage: createJSONStorage(() => idbStorage),
+      partialize: (state) => {
+        const { user, ...rest } = state;
+        return rest;
+      },
     }
   )
 );

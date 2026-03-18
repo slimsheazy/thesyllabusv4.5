@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, RefreshCw, Loader2, Hash, Zap, Clock, Eye, Info } from 'lucide-react';
+import { Hash, Eye, Hourglass, Zap, Sparkles, Sun, RotateCcw } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useProfile } from '../../hooks/useProfile';
@@ -8,6 +8,7 @@ import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { geminiService } from '../../services/geminiService';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
+import Markdown from 'react-markdown';
 
 interface SynchronicityDecoderProps {
   onBack: () => void;
@@ -15,29 +16,29 @@ interface SynchronicityDecoderProps {
 
 type Mechanism = 'NUMERICAL' | 'SYMBOLIC' | 'TEMPORAL' | 'ENVIRONMENTAL';
 
-const MECHANISMS: { id: Mechanism; label: string; icon: any; desc: string }[] = [
+const MECHANISMS: { id: Mechanism; label: string; icon: React.ReactNode; desc: string }[] = [
   { 
     id: 'NUMERICAL', 
     label: 'Numerical Resonance', 
-    icon: Hash, 
+    icon: <Hash className="w-5 h-5" />, 
     desc: 'Focus on repeating numbers, sequences, or specific dates.' 
   },
   { 
     id: 'SYMBOLIC', 
     label: 'Symbolic Archetype', 
-    icon: Eye, 
+    icon: <Eye className="w-5 h-5" />, 
     desc: 'Focus on recurring animals, objects, or specific motifs.' 
   },
   { 
     id: 'TEMPORAL', 
     label: 'Temporal Alignment', 
-    icon: Clock, 
+    icon: <Hourglass className="w-5 h-5" />, 
     desc: 'Focus on the timing, current transits, and planetary hours.' 
   },
   { 
     id: 'ENVIRONMENTAL', 
     label: 'Environmental Glitch', 
-    icon: Zap, 
+    icon: <Zap className="w-5 h-5" />, 
     desc: 'Focus on physical anomalies or "glitches" in your surroundings.' 
   },
 ];
@@ -104,7 +105,7 @@ export const SynchronicityDecoder: React.FC<SynchronicityDecoderProps> = ({ onBa
                         : 'bg-white border-archive-line hover:border-archive-ink'
                     }`}
                   >
-                    <m.icon className={`w-5 h-5 ${mechanism === m.id ? 'text-archive-bg' : 'text-archive-accent'}`} />
+                    <span className={`text-lg ${mechanism === m.id ? 'text-archive-bg' : 'text-archive-accent'}`}>{m.icon}</span>
                     <div className="flex-1">
                       <div className="text-[10px] font-mono uppercase tracking-widest font-bold">{m.label}</div>
                       <div className={`text-[9px] italic opacity-60 group-hover:opacity-100 ${mechanism === m.id ? 'text-archive-bg/60' : ''}`}>
@@ -131,7 +132,7 @@ export const SynchronicityDecoder: React.FC<SynchronicityDecoderProps> = ({ onBa
               disabled={loading || !event}
               className={`brutalist-button w-full py-5 text-xl flex items-center justify-center gap-3 transition-all ${loading || !event ? "opacity-30" : ""}`}
             >
-              {loading ? <Loader2 className="animate-spin" /> : <Sparkles size={20} />}
+              {loading ? <span className="animate-spin border border-archive-bg border-t-transparent rounded-full w-4 h-4" /> : <Sparkles className="w-5 h-5" />}
               {loading ? 'DECODING...' : 'DECODE PATTERN'}
             </button>
           </div>
@@ -149,7 +150,9 @@ export const SynchronicityDecoder: React.FC<SynchronicityDecoderProps> = ({ onBa
               >
                 <div className="relative">
                   <div className="w-16 h-16 border-2 border-archive-accent border-t-transparent animate-spin rounded-full" />
-                  <div className="absolute inset-0 flex items-center justify-center text-xl opacity-20 italic">☉</div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Sun className="w-6 h-6 opacity-20" />
+                  </div>
                 </div>
                 <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">Decoding the cosmic signal...</span>
               </motion.div>
@@ -168,11 +171,11 @@ export const SynchronicityDecoder: React.FC<SynchronicityDecoderProps> = ({ onBa
                   
                   <div className="space-y-10">
                     <div className="flex items-center gap-3 border-b border-archive-line pb-4">
-                      <Sparkles className="text-archive-accent w-4 h-4" />
+                      <Sparkles className="text-archive-accent w-5 h-5" />
                       <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">The Resonance</span>
                     </div>
-                    <div className="font-serif italic text-2xl md:text-3xl leading-relaxed text-archive-ink">
-                      "{result}"
+                    <div className="font-serif italic text-2xl md:text-3xl leading-relaxed text-archive-ink markdown-body">
+                      <Markdown>{result}</Markdown>
                     </div>
                   </div>
 
@@ -181,8 +184,7 @@ export const SynchronicityDecoder: React.FC<SynchronicityDecoderProps> = ({ onBa
                       onClick={() => setResult(null)}
                       className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40 hover:opacity-100 flex items-center gap-2"
                     >
-                      <RefreshCw className="w-3 h-3" />
-                      New Query
+                      <RotateCcw className="w-3 h-3" /> New Query
                     </button>
                   </div>
                 </div>
@@ -193,6 +195,8 @@ export const SynchronicityDecoder: React.FC<SynchronicityDecoderProps> = ({ onBa
                   content={`Mechanism: ${mechanism}\nEvent: ${event}\n\nInterpretation: ${result}`}
                   exportName="synchronicity-decoding"
                   onClose={() => setResult(null)}
+                  type="SYNCHRONICITY"
+                  metadata={{ mechanism, event, interpretation: result }}
                 />
               </motion.div>
             ) : (
@@ -202,7 +206,7 @@ export const SynchronicityDecoder: React.FC<SynchronicityDecoderProps> = ({ onBa
                 animate={{ opacity: 1 }}
                 className="h-full flex flex-col items-center justify-center py-40 opacity-[0.03] select-none pointer-events-none"
               >
-                <Sparkles size={160} />
+                <Sparkles className="w-32 h-32" />
                 <p className="handwritten text-4xl uppercase tracking-[0.4em] mt-8">Awaiting Pattern</p>
               </motion.div>
             )}
