@@ -41,7 +41,7 @@ export const LiveResonance: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Moon Phase */}
-            <div className="p-8 border border-archive-line bg-white shadow-sm relative overflow-hidden group">
+            <div className="p-8 border border-archive-line bg-archive-bg shadow-sm relative overflow-hidden group">
               <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
                 <Moon className="w-32 h-32" />
               </div>
@@ -59,7 +59,7 @@ export const LiveResonance: React.FC = () => {
             </div>
 
             {/* Planetary Hour */}
-            <div className="p-8 border border-archive-line bg-white shadow-sm relative overflow-hidden group">
+            <div className="p-8 border border-archive-line bg-archive-bg shadow-sm relative overflow-hidden group">
               <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
                 <Clock className="w-32 h-32" />
               </div>

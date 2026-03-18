@@ -83,7 +83,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </p>
             </div>
 
-            <div className="p-6 border border-archive-line bg-white/50 text-left relative group">
+            <div className="p-6 border border-archive-line bg-archive-bg/50 text-left relative group">
               <p className="text-[10px] font-mono uppercase tracking-widest opacity-40 mb-2">Error Log</p>
               <p className="text-xs font-mono text-red-600/70 break-words pr-8">
                 {this.state.error?.message || 'Unknown esoteric anomaly'}

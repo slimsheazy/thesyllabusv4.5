@@ -110,7 +110,7 @@ export const HoraryTool: React.FC<HoraryToolProps> = ({ onBack }) => {
               <div className="text-center py-20 opacity-20 italic font-serif text-2xl">No past inquiries found.</div>
             ) : (
               horaryHistory.map((entry) => (
-                <div key={entry.id} className="marker-border bg-white p-8 shadow-xl relative group">
+                <div key={entry.id} className="marker-border bg-archive-bg p-8 shadow-xl relative group">
                   <button 
                     onClick={() => removeHoraryEntry(entry.id)}
                     className="absolute top-4 right-4 opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity text-archive-accent text-xs font-mono"
@@ -257,7 +257,7 @@ export const HoraryTool: React.FC<HoraryToolProps> = ({ onBack }) => {
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.95 }}
-                          className="w-full max-w-2xl mx-auto p-8 border border-archive-accent bg-white shadow-xl relative rounded-archive-lg"
+                          className="w-full max-w-2xl mx-auto p-8 border border-archive-accent bg-archive-bg shadow-xl relative rounded-archive-lg"
                         >
                           <button 
                             onClick={() => setSelectedPlanet(null)}

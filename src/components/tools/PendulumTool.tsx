@@ -116,8 +116,8 @@ export const PendulumTool: React.FC<PendulumToolProps> = ({ onBack }) => {
                 
                 <svg width="40" height="60" viewBox="0 0 40 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-2xl">
                   <path d="M20 0L40 20L20 60L0 20L20 0Z" fill="url(#pendulumGradient)" />
-                  <path d="M20 0L20 60" stroke="white" strokeOpacity="0.1" />
-                  <path d="M0 20L40 20" stroke="white" strokeOpacity="0.1" />
+                  <path d="M20 0L20 60" className="stroke-archive-bg/10" />
+                  <path d="M0 20L40 20" className="stroke-archive-bg/10" />
                   <defs>
                     <linearGradient id="pendulumGradient" x1="0" y1="0" x2="40" y2="60" gradientUnits="userSpaceOnUse">
                       <stop stopColor="#1A1A1A" />
@@ -127,7 +127,7 @@ export const PendulumTool: React.FC<PendulumToolProps> = ({ onBack }) => {
                   </defs>
                 </svg>
                 
-                <div className="absolute top-2 left-4 w-1 h-8 bg-white/10 blur-[1px] rounded-full rotate-12" />
+                <div className="absolute top-2 left-4 w-1 h-8 bg-archive-bg/10 blur-[1px] rounded-full rotate-12" />
               </div>
             </motion.div>
 

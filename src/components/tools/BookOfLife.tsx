@@ -5,7 +5,7 @@ import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
-import Markdown from 'react-markdown';
+import { LexiconText } from '../shared/LexiconText';
 
 interface BookOfLifeProps {
   onBack: () => void;
@@ -145,7 +145,7 @@ export const BookOfLife: React.FC<BookOfLifeProps> = ({ onBack }) => {
                       <ReadAloudButton text={currentEntry.insight} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                     </div>
                     <div className="font-serif italic text-3xl leading-relaxed text-archive-ink markdown-body">
-                      <Markdown>{currentEntry.insight}</Markdown>
+                      <LexiconText>{currentEntry.insight}</LexiconText>
                     </div>
                   </div>
 

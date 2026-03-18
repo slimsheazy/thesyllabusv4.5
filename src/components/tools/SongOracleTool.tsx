@@ -5,7 +5,6 @@ import { geminiService } from '../../services/geminiService';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 import { useHaptics } from '../../hooks/useHaptics';
-import { ReadAloudButton } from '../shared/ReadAloudButton';
 
 interface SongOracleData {
   song_title: string;
@@ -24,11 +23,22 @@ export const SongOracleTool: React.FC<SongOracleToolProps> = ({ onBack }) => {
   const [song, setSong] = useState<SongOracleData | null>(null);
   const [frequency, setFrequency] = useState<string>("Equilibrium");
   const [history, setHistory] = useState<string[]>([]);
+  const [isNeedleDropped, setIsNeedleDropped] = useState(false);
   const { triggerClick, triggerSuccess } = useHaptics();
 
   useEffect(() => {
     fetchFrequency();
   }, []);
+
+  useEffect(() => {
+    if (loading) {
+      // Sequence: Drop needle, then start spinning
+      const timer = setTimeout(() => setIsNeedleDropped(true), 500);
+      return () => clearTimeout(timer);
+    } else {
+      setIsNeedleDropped(false);
+    }
+  }, [loading]);
 
   const fetchFrequency = async () => {
     try {
@@ -92,12 +102,12 @@ export const SongOracleTool: React.FC<SongOracleToolProps> = ({ onBack }) => {
                 
                 {/* Spinning Record/Disc */}
                 <motion.div
-                  animate={loading ? { rotate: 360 } : { rotate: 0 }}
-                  transition={loading ? { repeat: Infinity, duration: 2, ease: "linear" } : { duration: 0.5 }}
+                  animate={(loading && isNeedleDropped) ? { rotate: 360 } : { rotate: 0 }}
+                  transition={(loading && isNeedleDropped) ? { repeat: Infinity, duration: 1.5, ease: "linear" } : { duration: 0.8 }}
                   className="relative w-32 h-32 rounded-full border-2 border-archive-ink flex items-center justify-center bg-archive-ink shadow-2xl group-hover:shadow-archive-accent-quaternary/20 transition-all"
                 >
-                  <div className="absolute inset-2 border border-white/10 rounded-full" />
-                  <div className="absolute inset-4 border border-white/5 rounded-full" />
+                  <div className="absolute inset-2 border border-archive-bg/10 rounded-full" />
+                  <div className="absolute inset-4 border border-archive-bg/5 rounded-full" />
                   <div className="w-8 h-8 rounded-full bg-archive-bg flex items-center justify-center">
                     <div className="w-2 h-2 rounded-full bg-archive-ink" />
                   </div>
@@ -109,12 +119,17 @@ export const SongOracleTool: React.FC<SongOracleToolProps> = ({ onBack }) => {
                   )}
                 </motion.div>
 
-                {/* Stylus/Needle */}
+                {/* Stylus/Needle - More realistic animation */}
                 <motion.div 
-                  className="absolute -top-4 -right-4 w-16 h-16 pointer-events-none"
-                  animate={loading ? { rotate: 15 } : { rotate: 0 }}
+                  className="absolute -top-6 -right-6 w-24 h-24 pointer-events-none origin-top-right"
+                  initial={{ rotate: -45 }}
+                  animate={loading ? { rotate: 0 } : { rotate: -45 }}
+                  transition={{ type: "spring", stiffness: 100, damping: 15 }}
                 >
-                  <div className="w-1 h-12 bg-archive-accent-quaternary origin-top transform rotate-45 rounded-full shadow-sm" />
+                  <div className="absolute top-0 right-0 w-2 h-2 bg-archive-line rounded-full" />
+                  <div className="w-1 h-20 bg-archive-accent-quaternary origin-top transform rotate-[25deg] rounded-full shadow-lg relative">
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3 h-4 bg-archive-ink rounded-sm border border-archive-line/20" />
+                  </div>
                 </motion.div>
               </div>
 
@@ -138,11 +153,12 @@ export const SongOracleTool: React.FC<SongOracleToolProps> = ({ onBack }) => {
                 className="w-full space-y-10"
               >
                 <ResultSection
-                  id={`song-oracle-${song.spotify_id}`}
+                  id="song-oracle-result"
                   type="SONG_ORACLE"
                   title="Song Oracle Pull"
                   content={`Song: ${song.song_title} by ${song.artist}. Focus Lyric: "${song.focus_lyric}"`}
                   exportName={`song-oracle-${song.song_title.replace(/\s+/g, '-')}`}
+                  hideReadButton={true}
                   metadata={{
                     song_title: song.song_title,
                     artist: song.artist,
@@ -155,7 +171,7 @@ export const SongOracleTool: React.FC<SongOracleToolProps> = ({ onBack }) => {
                   <div 
                     className="archive-card p-12 relative overflow-hidden min-h-[450px] flex flex-col justify-center items-center text-center border-2"
                     style={{ 
-                      background: `radial-gradient(circle at 50% 50%, ${song.vibe_color}10 0%, transparent 70%), white`,
+                      background: `radial-gradient(circle at 50% 50%, ${song.vibe_color}10 0%, transparent 70%), var(--color-archive-bg)`,
                       borderColor: `${song.vibe_color}30`
                     }}
                   >
@@ -163,6 +179,7 @@ export const SongOracleTool: React.FC<SongOracleToolProps> = ({ onBack }) => {
                     <div 
                       className="absolute inset-0 opacity-[0.03] pointer-events-none blur-[120px]"
                       style={{ backgroundColor: song.vibe_color }}
+                      data-html2canvas-ignore
                     />
 
                     <div className="relative z-10 space-y-8 max-w-2xl">
@@ -186,9 +203,6 @@ export const SongOracleTool: React.FC<SongOracleToolProps> = ({ onBack }) => {
                         <p className="text-2xl md:text-4xl font-serif italic text-archive-ink leading-relaxed opacity-90 px-4">
                           "{song.focus_lyric}"
                         </p>
-                        <div className="mt-6 flex justify-center">
-                          <ReadAloudButton text={song.focus_lyric} className="!p-2 !h-auto !w-auto !bg-archive-bg !border-archive-line !text-archive-ink hover:!bg-archive-ink hover:!text-archive-bg transition-all shadow-sm" />
-                        </div>
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-px bg-archive-line opacity-20" />
                       </div>
 

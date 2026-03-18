@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import Markdown from 'react-markdown';
+import { LexiconText } from '../shared/LexiconText';
 import { motion, AnimatePresence } from 'motion/react';
 import { MapPin, AlertTriangle, Sun, Compass, Sparkles, RotateCcw, Loader2, Moon, Heart, Sword, Crown, Clock, Zap, Circle } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
@@ -310,7 +310,7 @@ export const BirthChartTool: React.FC<BirthChartToolProps> = ({ onBack }) => {
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.95 }}
-                          className="w-full max-w-2xl mx-auto p-8 border border-archive-accent bg-white shadow-xl relative rounded-archive"
+                          className="w-full max-w-2xl mx-auto p-8 border border-archive-accent bg-archive-bg shadow-xl relative rounded-archive"
                         >
                           <button 
                             onClick={() => setSelectedPlanet(null)}
@@ -366,7 +366,7 @@ export const BirthChartTool: React.FC<BirthChartToolProps> = ({ onBack }) => {
                     <h3 className="col-header border-b border-archive-line pb-2">Core Traits</h3>
                     <div className="flex flex-wrap gap-2">
                       {analysis.traits?.map((trait: string) => (
-                        <span key={trait} className="px-3 py-1 border border-archive-line text-[10px] font-mono uppercase tracking-widest bg-white rounded-archive">
+                        <span key={trait} className="px-3 py-1 border border-archive-line text-[10px] font-mono uppercase tracking-widest bg-archive-bg rounded-archive">
                           {trait}
                         </span>
                       ))}
@@ -378,7 +378,7 @@ export const BirthChartTool: React.FC<BirthChartToolProps> = ({ onBack }) => {
                       <ReadAloudButton text={analysis.summary} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                     </div>
                     <div className="font-serif italic text-lg leading-relaxed opacity-80 markdown-body">
-                      <Markdown>{analysis.summary}</Markdown>
+                      <LexiconText>{analysis.summary}</LexiconText>
                     </div>
                   </div>
                 </div>

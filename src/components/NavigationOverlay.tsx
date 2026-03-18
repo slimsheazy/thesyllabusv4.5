@@ -103,7 +103,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
       <div className="absolute inset-0 bg-archive-bg/95 backdrop-blur-md" onClick={onClose} />
       <div className={`absolute top-0 left-0 h-full w-full md:w-[480px] bg-archive-bg border-r border-archive-line transition-transform duration-500 shadow-2xl flex flex-col ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="p-6 sm:p-10 pt-24 flex-grow overflow-y-auto custom-scrollbar">
-          <section className="mb-12 p-8 border border-archive-line bg-white shadow-xl rounded-xl space-y-6 relative overflow-hidden">
+          <section className="mb-12 p-8 border border-archive-line bg-archive-bg shadow-xl rounded-xl space-y-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
               <Compass className="w-24 h-24" />
             </div>
@@ -278,7 +278,7 @@ export const NavigationOverlay: React.FC<NavigationOverlayProps> = ({ isOpen, on
                   placeholder="Quick find a record..." 
                   value={quickSearch}
                   onChange={(e) => setQuickSearch(e.target.value)}
-                  className="w-full bg-white border border-archive-line p-4 pl-12 text-sm font-serif italic outline-none focus:border-archive-accent shadow-sm rounded-xl"
+                  className="w-full bg-archive-bg border border-archive-line p-4 pl-12 text-sm font-serif italic outline-none focus:border-archive-accent shadow-sm rounded-xl"
                 />
               </div>
               {quickSearch && (

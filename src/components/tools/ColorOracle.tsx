@@ -130,7 +130,7 @@ export const ColorOracle: React.FC<ColorOracleProps> = ({ onBack }) => {
                 <motion.div 
                   initial={{ scale: 0, rotate: -45 }}
                   animate={{ scale: 1, rotate: 0 }}
-                  className="w-48 h-48 rounded-full shadow-2xl border-4 border-white ring-1 ring-archive-line"
+                  className="w-48 h-48 rounded-full shadow-2xl border-4 border-archive-bg ring-1 ring-archive-line"
                   style={{ backgroundColor: color!.hex }}
                 />
 

@@ -188,7 +188,7 @@ export const Onboarding: React.FC = () => {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-xl bg-white border border-archive-line shadow-2xl rounded-2xl p-6 sm:p-12 relative overflow-hidden"
+        className="w-full max-w-xl bg-archive-bg border border-archive-line shadow-2xl rounded-2xl p-6 sm:p-12 relative overflow-hidden"
       >
         <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
           <Compass className="w-32 h-32" />
@@ -370,7 +370,7 @@ export const Onboarding: React.FC = () => {
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
-                            className="absolute z-50 left-0 right-0 mt-1 bg-white border border-archive-line shadow-xl max-h-[200px] overflow-y-auto custom-scrollbar"
+                            className="absolute z-50 left-0 right-0 mt-1 bg-archive-bg border border-archive-line shadow-xl max-h-[200px] overflow-y-auto custom-scrollbar"
                           >
                             {suggestions.map((item, idx) => (
                               <button

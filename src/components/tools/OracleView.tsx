@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Trash2, Brain, User, ArrowRight, Loader2 } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { geminiService } from '../../services/geminiService';
+import { LexiconText } from '../shared/LexiconText';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
-import Markdown from 'react-markdown';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -141,7 +141,7 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
                 <div className={`max-w-[80%] p-6 rounded-2xl ${
                   msg.role === 'user' 
                     ? 'bg-archive-ink text-archive-bg' 
-                    : 'bg-white border border-archive-line shadow-sm'
+                    : 'bg-archive-bg border border-archive-line shadow-sm'
                 }`}>
                   <div className="flex items-center justify-between gap-2 mb-3 opacity-40">
                     <div className="flex items-center gap-2">
@@ -155,7 +155,7 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
                     )}
                   </div>
                   <div className={`font-serif italic text-lg leading-relaxed markdown-body ${msg.role === 'user' ? '' : 'text-archive-ink'}`}>
-                    <Markdown>{msg.content}</Markdown>
+                    <LexiconText>{msg.content}</LexiconText>
                   </div>
                 </div>
               </motion.div>
@@ -168,7 +168,7 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
               animate={{ opacity: 1 }}
               className="flex justify-start"
             >
-              <div className="bg-white border border-archive-line p-6 rounded-2xl shadow-sm flex items-center gap-4">
+              <div className="bg-archive-bg border border-archive-line p-6 rounded-2xl shadow-sm flex items-center gap-4">
                 <Loader2 className="w-4 h-4 animate-spin text-archive-accent" />
                 <span className="handwritten text-lg italic opacity-40">The Librarian is consulting the scrolls...</span>
               </div>
@@ -184,7 +184,7 @@ export const OracleView: React.FC<OracleViewProps> = ({ onBack }) => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Speak to the Librarian..."
-              className="w-full bg-white border border-archive-line p-5 pr-16 text-lg font-serif italic outline-none focus:border-archive-accent shadow-lg rounded-2xl"
+              className="w-full bg-archive-bg border border-archive-line p-5 pr-16 text-lg font-serif italic outline-none focus:border-archive-accent shadow-lg rounded-2xl"
             />
             <button 
               onClick={handleSend}

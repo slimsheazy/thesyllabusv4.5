@@ -103,7 +103,7 @@ export default function CharmSelector({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="w-full max-w-md mx-auto bg-white border-2 border-archive-line rounded-lg shadow-lg p-4 z-20 relative"
+      className="w-full max-w-md mx-auto bg-archive-bg border-2 border-archive-line rounded-lg shadow-lg p-4 z-20 relative"
     >
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-medium text-archive-ink">Select Your Charms</h2>
@@ -127,7 +127,7 @@ export default function CharmSelector({
 
       <div className="space-y-3 max-h-[350px] overflow-y-auto pr-2 charm-list">
         {Object.entries(charmsByCategory).map(([category, charms]) => (
-          <div key={category} className="border-2 border-archive-line rounded-lg p-3 bg-archive-ink/5">
+          <div key={category} className="border-2 border-archive-line rounded-lg p-3 bg-archive-bg">
             <h3 className="text-sm font-medium text-archive-ink/80 mb-2">{category}</h3>
             <div className="grid grid-cols-4 gap-2">
               {charms.map((charm, index) => {
@@ -159,14 +159,14 @@ export default function CharmSelector({
                       {isRare && (
                         <div className="absolute inset-0 overflow-hidden rounded-full">
                           <div className="absolute w-full h-full animate-pulse opacity-50"></div>
-                          <div className="absolute top-0 right-0 w-2 h-2 bg-white rounded-full animate-ping"></div>
+                          <div className="absolute top-0 right-0 w-2 h-2 bg-archive-bg rounded-full animate-ping"></div>
                         </div>
                       )}
                     </div>
 
                     {isSelected && (
-                      <div className="absolute -top-1 -right-1 bg-white rounded-full w-5 h-5 flex items-center justify-center border-2 border-black z-10">
-                        <CheckIcon className="w-3 h-3 text-black" />
+                      <div className="absolute -top-1 -right-1 bg-archive-bg rounded-full w-5 h-5 flex items-center justify-center border-2 border-archive-ink z-10">
+                        <CheckIcon className="w-3 h-3 text-archive-ink" />
                       </div>
                     )}
                   </motion.div>

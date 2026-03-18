@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { geminiService } from '../../services/geminiService';
 import { useHaptics } from '../../hooks/useHaptics';
+import { playBase64Audio } from '../../utils/audioUtils';
 
 interface ReadAloudButtonProps {
   text: string;
@@ -10,18 +11,16 @@ interface ReadAloudButtonProps {
 export const ReadAloudButton: React.FC<ReadAloudButtonProps> = ({ text, className }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { triggerClick, triggerTick } = useHaptics();
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { triggerClick } = useHaptics();
+  const stopSpeechRef = useRef<(() => void) | null>(null);
 
   const toggleSpeech = async () => {
     triggerClick();
     if (isSpeaking) {
-      if (audioRef.current) {
-        // For AudioContext, we don't use audioRef.current as HTMLAudioElement
-        // but we can store the source node if we want to stop it.
-        // However, for simplicity, I'll just use a flag.
+      if (stopSpeechRef.current) {
+        stopSpeechRef.current();
+        stopSpeechRef.current = null;
       }
-      window.dispatchEvent(new CustomEvent('stop-archive-speech'));
       setIsSpeaking(false);
       return;
     }
@@ -30,44 +29,16 @@ export const ReadAloudButton: React.FC<ReadAloudButtonProps> = ({ text, classNam
     try {
       const base64Audio = await geminiService.generateSpeech(text);
       if (base64Audio) {
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
-        const binaryString = window.atob(base64Audio);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-
-        // PCM 16-bit is 2 bytes per sample
-        const pcmData = new Int16Array(bytes.buffer);
-        const audioBuffer = audioContext.createBuffer(1, pcmData.length, 24000);
-        const channelData = audioBuffer.getChannelData(0);
-
-        for (let i = 0; i < pcmData.length; i++) {
-          channelData[i] = pcmData[i] / 32768.0;
-        }
-
-        const source = audioContext.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(audioContext.destination);
-        
-        const stopHandler = () => {
-          source.stop();
+        const stop = await playBase64Audio(base64Audio, () => {
           setIsSpeaking(false);
-        };
-        
-        window.addEventListener('stop-archive-speech', stopHandler, { once: true });
-        
-        source.onended = () => {
-          setIsSpeaking(false);
-          window.removeEventListener('stop-archive-speech', stopHandler);
-        };
-
-        source.start();
+          stopSpeechRef.current = null;
+        });
+        stopSpeechRef.current = stop;
         setIsSpeaking(true);
       }
     } catch (error) {
       console.error("Speech generation failed:", error);
+      setIsSpeaking(false);
     } finally {
       setIsLoading(false);
     }

@@ -15,7 +15,7 @@ export const CharmTooltip: React.FC<CharmTooltipProps> = ({ charm, position, hou
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      className="fixed z-[100] bg-white border border-archive-line p-4 rounded-lg shadow-2xl max-w-xs"
+      className="fixed z-[100] bg-archive-bg border border-archive-line p-4 rounded-lg shadow-2xl max-w-xs"
       style={{ left: position.x, top: position.y }}
       onClick={(e) => e.stopPropagation()}
     >

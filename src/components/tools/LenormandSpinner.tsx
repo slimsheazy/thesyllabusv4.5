@@ -8,7 +8,7 @@ import { Type } from "@google/genai";
 import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
-import Markdown from 'react-markdown';
+import { LexiconText } from '../shared/LexiconText';
 
 const LENORMAND_CARDS = [
   'rider', 'clover', 'ship', 'house', 'tree', 'clouds', 'snake', 'coffin', 
@@ -81,7 +81,7 @@ export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) =>
       <div className="w-full flex flex-col items-center gap-16">
         <div className="max-w-4xl w-full space-y-12">
           <div className="archive-card p-1 bg-archive-ink border-archive-line shadow-2xl overflow-hidden rounded-archive">
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/5 to-transparent opacity-50" />
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-archive-bg/5 to-transparent opacity-50" />
             
             <div className="grid grid-cols-3 gap-1 relative z-10">
               {[0, 1, 2].map((index) => (
@@ -126,8 +126,8 @@ export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) =>
                             (e.target as HTMLImageElement).src = `https://picsum.photos/seed/${results[index]}/400/600?grayscale`;
                           }}
                         />
-                        <div className="absolute bottom-0 left-0 right-0 p-3 bg-black/80 backdrop-blur-sm border-t border-white/10">
-                          <span className="text-[10px] uppercase tracking-widest font-mono text-white/60">{results[index]}</span>
+                        <div className="absolute bottom-0 left-0 right-0 p-3 bg-black/80 backdrop-blur-sm border-t border-archive-line/20">
+                          <span className="text-[10px] uppercase tracking-widest font-mono text-archive-bg/60">{results[index]}</span>
                         </div>
                       </motion.div>
                     )}
@@ -136,8 +136,8 @@ export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) =>
               ))}
             </div>
  
-            <div className="absolute top-0 bottom-0 left-1/3 w-[1px] bg-white/10 pointer-events-none" />
-            <div className="absolute top-0 bottom-0 left-2/3 w-[1px] bg-white/10 pointer-events-none" />
+            <div className="absolute top-0 bottom-0 left-1/3 w-[1px] bg-archive-line/20 pointer-events-none" />
+            <div className="absolute top-0 bottom-0 left-2/3 w-[1px] bg-archive-line/20 pointer-events-none" />
           </div>
  
           <div className="flex flex-col items-center gap-12">
@@ -176,50 +176,6 @@ export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) =>
                     animate={{ opacity: 1, y: 0 }}
                     className="space-y-8"
                   >
-                    <div className="archive-card p-10 relative overflow-hidden bg-white/50 backdrop-blur-sm border-2 border-archive-ink/5">
-                      <div className="absolute top-0 right-0 p-4 opacity-[0.03] select-none pointer-events-none text-6xl italic font-serif">
-                        READING
-                      </div>
-                      
-                      <div className="space-y-6 relative z-10">
-                        <div className="flex items-center justify-center gap-3 mb-6">
-                          <div className="w-8 h-px bg-archive-accent" />
-                          <span className="text-[9px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">
-                            Traditional Interpretation
-                          </span>
-                          <div className="w-8 h-px bg-archive-accent" />
-                        </div>
- 
-                          <div className="font-serif italic text-2xl leading-relaxed text-archive-ink text-left space-y-4 markdown-body">
-                            {typeof reading === 'string' ? (
-                              <Markdown>{reading}</Markdown>
-                            ) : (
-                              <>
-                                <div>
-                                  <h4 className="text-[10px] uppercase tracking-widest opacity-40 mb-1">Practical</h4>
-                                  <Markdown>{reading.practical}</Markdown>
-                                </div>
-                                <div>
-                                  <h4 className="text-[10px] uppercase tracking-widest opacity-40 mb-1">Psychological</h4>
-                                  <Markdown>{reading.psychological}</Markdown>
-                                </div>
-                                <div>
-                                  <h4 className="text-[10px] uppercase tracking-widest opacity-40 mb-1">Spiritual</h4>
-                                  <Markdown>{reading.spiritual}</Markdown>
-                                </div>
-                              </>
-                            )}
-                          </div>
-  
-                        <div className="pt-6 mt-6 border-t border-archive-line/10 flex justify-center">
-                          <ReadAloudButton 
-                            text={getReadingText()} 
-                            className="!p-2 !h-auto !w-auto !bg-archive-bg !border-archive-line !text-archive-ink hover:!bg-archive-ink hover:!text-archive-bg transition-all shadow-sm" 
-                          />
-                        </div>
-                      </div>
-                    </div>
-
                     <ResultSection
                       id="lenormand-reading-content"
                       type="Lenormand Reading"
@@ -228,7 +184,51 @@ export const LenormandSpinner: React.FC<LenormandSpinnerProps> = ({ onBack }) =>
                       exportName="lenormand-reading"
                       onClose={() => setReading(null)}
                       metadata={{ cards: results }}
-                    />
+                    >
+                      <div className="archive-card p-10 relative overflow-hidden bg-transparent border-none shadow-none">
+                        <div className="absolute top-0 right-0 p-4 opacity-[0.03] select-none pointer-events-none text-6xl italic font-serif">
+                          READING
+                        </div>
+                        
+                        <div className="space-y-6 relative z-10">
+                          <div className="flex items-center justify-center gap-3 mb-6">
+                            <div className="w-8 h-px bg-archive-accent" />
+                            <span className="text-[9px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">
+                              Traditional Interpretation
+                            </span>
+                            <div className="w-8 h-px bg-archive-accent" />
+                          </div>
+   
+                            <div className="font-serif italic text-2xl leading-relaxed text-archive-ink text-left space-y-4 markdown-body">
+                              {typeof reading === 'string' ? (
+                                <LexiconText>{reading}</LexiconText>
+                              ) : (
+                                <>
+                                  <div>
+                                    <h4 className="text-[10px] uppercase tracking-widest opacity-40 mb-1">Practical</h4>
+                                    <LexiconText>{reading.practical}</LexiconText>
+                                  </div>
+                                  <div>
+                                    <h4 className="text-[10px] uppercase tracking-widest opacity-40 mb-1">Psychological</h4>
+                                    <LexiconText>{reading.psychological}</LexiconText>
+                                  </div>
+                                  <div>
+                                    <h4 className="text-[10px] uppercase tracking-widest opacity-40 mb-1">Spiritual</h4>
+                                    <LexiconText>{reading.spiritual}</LexiconText>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+     
+                          <div className="pt-6 mt-6 border-t border-archive-line/10 flex justify-center">
+                            <ReadAloudButton 
+                              text={getReadingText()} 
+                              className="!p-2 !h-auto !w-auto !bg-archive-bg !border-archive-line !text-archive-ink hover:!bg-archive-ink hover:!text-archive-bg transition-all shadow-sm" 
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </ResultSection>
                   </motion.div>
                 ) : (
                   <motion.div 

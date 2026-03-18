@@ -5,10 +5,11 @@ import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useProfile } from '../../hooks/useProfile';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
+import { LexiconText } from '../shared/LexiconText';
 import { geminiService } from '../../services/geminiService';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
-import Markdown from 'react-markdown';
+import { ProfileSelector } from '../shared/ProfileSelector';
 
 interface TeaLeafReaderProps {
   onBack: () => void;
@@ -64,7 +65,7 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
             delay: i * 0.8,
             ease: "easeOut"
           }}
-          className="w-8 h-12 bg-white/20 blur-xl rounded-full"
+          className="w-8 h-12 bg-archive-bg/20 blur-xl rounded-full"
         />
       ))}
     </div>
@@ -129,7 +130,7 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
               <div className="space-y-6">
                 <div className="relative w-64 h-64 mx-auto">
                   <Steam />
-                  <div className="absolute inset-0 bg-white rounded-full border-4 border-archive-line shadow-xl overflow-hidden">
+                  <div className="absolute inset-0 bg-archive-bg rounded-full border-4 border-archive-line shadow-xl overflow-hidden">
                     <div className="absolute inset-4 rounded-full border border-archive-line/20" />
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5" />
                     <div className="absolute inset-0 flex items-center justify-center opacity-5">
@@ -161,7 +162,7 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
             >
               <div className="relative w-48 h-48 mx-auto">
                 <Steam />
-                <div className="absolute inset-0 bg-white rounded-full border-4 border-archive-line shadow-lg overflow-hidden">
+                <div className="absolute inset-0 bg-archive-bg rounded-full border-4 border-archive-line shadow-lg overflow-hidden">
                   <motion.div 
                     animate={{ rotate: 360 }}
                     transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
@@ -194,7 +195,7 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
               <div className="archive-card p-10 md:p-16 relative overflow-hidden flex flex-col items-center text-center gap-10">
                 <div className="absolute top-0 right-0 p-8 opacity-[0.02] select-none pointer-events-none text-9xl italic">STEEP</div>
                 
-                <div className="relative w-64 h-64 bg-white rounded-full border-8 border-archive-line shadow-inner overflow-hidden">
+                <div className="relative w-64 h-64 bg-archive-bg rounded-full border-8 border-archive-line shadow-inner overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-tr from-archive-bg/50 to-transparent" />
                   <div className="absolute inset-0 p-8">
                     {[...Array(32)].map((_, i) => (
@@ -247,7 +248,7 @@ export const TeaLeafReader: React.FC<TeaLeafReaderProps> = ({ onBack }) => {
                             <ReadAloudButton text={reading!} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
                           </div>
                           <div className="font-serif italic text-2xl md:text-3xl leading-relaxed text-archive-ink/80 markdown-body">
-                            <Markdown>{reading}</Markdown>
+                            <LexiconText>{reading!}</LexiconText>
                           </div>
                         </motion.div>
                       )}

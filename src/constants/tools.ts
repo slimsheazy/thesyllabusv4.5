@@ -25,6 +25,10 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
       { name: "Sabian Symbols", page: "SABIAN", desc: "Symbolic meanings for each degree of the zodiac." },
       { name: "Synchronicity Decoder", page: "SYNCHRONICITY", desc: "Analyze coincidences for practical insights." },
       { name: "Song Oracle", page: "SONG_ORACLE", desc: "A musical pull based on current energetic frequency." },
+      { name: "I Ching", page: "I_CHING", desc: "Consult the ancient Book of Changes using the coin method." },
+      { name: "Color Oracle", page: "COLOR", desc: "Identify your current energetic resonance through color." },
+      { name: "Pendulum", page: "PENDULUM", desc: "Access direct answers from your subconscious mind." },
+      { name: "Scrying", page: "CRYSTAL", desc: "Visualize insights and patterns in the crystal sphere." },
     ]
   },
   {
@@ -34,6 +38,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     items: [
       { name: "The Birth Map", page: "BIRTH_CHART", desc: "Analysis of your astrological chart at birth." },
       { name: "Life Path Reader", page: "NUMEROLOGY", desc: "Insights from your birth date and name numbers." },
+      { name: "Biorhythms", page: "BIORHYTHM", desc: "Track your physical, emotional, and intellectual cycles." },
       { name: "Dream Journal", page: "DREAM_JOURNAL", desc: "Record and analyze recurring themes in your dreams." },
       { name: "Mood Tracker", page: "MOOD", desc: "Log and analyze your emotional patterns." },
       { name: "Human Design", page: "HUMAN_DESIGN", desc: "Decode your unique energetic blueprint and genetic strategy." },
@@ -62,6 +67,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     icon: "Link",
     items: [
       { name: "Website Archive", page: "WEBSITE_ARCHIVE", desc: "A collective repository of digital artifacts and discussion." },
+      { name: "Shared Insights", page: "SHARED_INSIGHTS", desc: "A real-time collection of observations from the collective archive." },
       { name: "Master Archive", page: "MASTER_ARCHIVE", desc: "The central index of all your records." },
       { name: "Lexicon", page: "LEXICON", desc: "A dictionary of terms you've discovered." },
       { name: "The Librarian", page: "ORACLE_VIEW", desc: "Ask questions and get direct answers." },

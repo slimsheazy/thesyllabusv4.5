@@ -92,17 +92,17 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
         className="relative w-full max-w-5xl h-full flex flex-col bg-archive-bg border border-archive-line shadow-2xl overflow-hidden rounded-2xl"
       >
         {/* Header */}
-        <header className="p-6 border-b border-archive-line flex items-center justify-between bg-white/50 backdrop-blur-sm">
+        <header className="p-6 border-b border-archive-line flex items-center justify-between bg-archive-bg/50 backdrop-blur-sm">
           <div className="flex items-center gap-4">
             <span className="text-archive-accent font-mono text-xs">[BOOK]</span>
             <div>
-              <h2 className="font-serif italic text-xl">Personal Almanac Generator</h2>
+              <h2 className="font-serif italic text-xl text-archive-ink">Personal Almanac Generator</h2>
               <div className="flex gap-2 mt-1">
                 {(['CLASSIC', 'MINIMAL', 'OCCULT'] as const).map(t => (
                   <button 
                     key={t}
                     onClick={() => setTheme(t)}
-                    className={`text-[8px] font-mono uppercase tracking-widest px-2 py-0.5 border transition-all ${theme === t ? 'bg-archive-ink text-archive-bg border-archive-ink' : 'border-archive-line opacity-40 hover:opacity-100'}`}
+                    className={`text-[8px] font-mono uppercase tracking-widest px-2 py-0.5 border transition-all ${theme === t ? 'bg-archive-ink text-archive-bg border-archive-ink' : 'border-archive-line opacity-40 hover:opacity-100 text-archive-ink'}`}
                   >
                     {t}
                   </button>
@@ -118,14 +118,14 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
             >
               {isExporting ? 'Generating...' : 'Print to Zine'}
             </button>
-            <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-full transition-colors text-xs font-mono">
+            <button onClick={onClose} className="p-2 hover:bg-archive-ink/5 rounded-full transition-colors text-xs font-mono text-archive-ink">
               CLOSE
             </button>
           </div>
         </header>
 
         {/* Preview Area */}
-        <div className="flex-1 overflow-y-auto p-12 bg-zinc-200/50 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-12 bg-archive-ink/5 custom-scrollbar">
           <div className="max-w-4xl mx-auto">
             <div className="mb-8 flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.3em] opacity-30">
               <span>[CUT]</span> 
@@ -137,7 +137,7 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
             <div 
               id="zine-content" 
               ref={zineRef}
-              className={`shadow-2xl p-0 overflow-hidden border-[12px] border-white relative transition-colors duration-500 ${theme === 'OCCULT' ? 'text-archive-bg' : 'text-archive-ink'}`}
+              className={`shadow-2xl p-0 overflow-hidden border-[12px] border-archive-line relative transition-colors duration-500 ${theme === 'OCCULT' ? 'text-archive-bg' : 'text-archive-ink'}`}
               style={{ 
                 width: '210mm', 
                 minHeight: '297mm', 
@@ -281,13 +281,13 @@ export const ZineGenerator: React.FC<ZineGeneratorProps> = ({ onClose }) => {
         </div>
 
         {/* Footer Info */}
-        <footer className="p-6 border-t border-archive-line bg-white/50 flex justify-between items-center">
-          <p className="text-[10px] font-mono opacity-40">Format: A4 Booklet - 4 Pages - High Resolution</p>
+        <footer className="p-6 border-t border-archive-line bg-archive-bg/50 flex justify-between items-center">
+          <p className="text-[10px] font-mono opacity-40 text-archive-ink">Format: A4 Booklet - 4 Pages - High Resolution</p>
           <div className="flex gap-4">
-            <div className="flex items-center gap-2 text-[10px] font-mono opacity-40">
+            <div className="flex items-center gap-2 text-[10px] font-mono opacity-40 text-archive-ink">
               CUT
             </div>
-            <div className="flex items-center gap-2 text-[10px] font-mono opacity-40">
+            <div className="flex items-center gap-2 text-[10px] font-mono opacity-40 text-archive-ink">
               FOLD
             </div>
           </div>

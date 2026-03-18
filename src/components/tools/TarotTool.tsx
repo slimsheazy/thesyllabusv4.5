@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Markdown from 'react-markdown';
+import { LexiconText } from '../shared/LexiconText';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, ChevronDown, Loader2, Zap, Layout } from 'lucide-react';
 import { TAROT_CARDS, TarotCard } from '../../data/tarotData';
@@ -267,7 +267,7 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[200] w-[90%] max-w-lg bg-white/95 backdrop-blur-md border-2 border-archive-accent-secondary p-8 shadow-[0_20px_50px_rgba(0,0,0,0.2)] rounded-2xl pointer-events-none"
+              className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[200] w-[90%] max-w-lg bg-archive-bg/95 backdrop-blur-md border-2 border-archive-accent-secondary p-8 shadow-[0_20px_50px_rgba(0,0,0,0.2)] rounded-2xl pointer-events-none"
             >
               <div className="space-y-4">
                 <div className="flex justify-between items-center border-b border-archive-line/20 pb-2">
@@ -284,7 +284,7 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
                   <div className="flex-1">
                     <h3 className="text-2xl font-serif italic mb-2">{drawnCards[hoveredCard].name}</h3>
                     <div className="text-sm leading-relaxed text-archive-ink font-serif italic markdown-body">
-                      <Markdown>{cardInterpretations[hoveredCard] || (drawnCards[hoveredCard].isReversed ? drawnCards[hoveredCard].reversedMeaning : drawnCards[hoveredCard].uprightMeaning)}</Markdown>
+                      <LexiconText>{cardInterpretations[hoveredCard] || (drawnCards[hoveredCard].isReversed ? drawnCards[hoveredCard].reversedMeaning : drawnCards[hoveredCard].uprightMeaning)}</LexiconText>
                     </div>
                   </div>
                 </div>
@@ -328,7 +328,7 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
-                      className="absolute top-full left-0 right-0 mt-2 bg-white border border-archive-line shadow-xl z-50 overflow-hidden"
+                      className="absolute top-full left-0 right-0 mt-2 bg-archive-bg border border-archive-line shadow-xl z-50 overflow-hidden"
                     >
                       {(Object.keys(spreadLabels) as SpreadType[]).map((s) => (
                         <button
@@ -429,7 +429,7 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
                           <span className="text-[10px] font-mono text-archive-accent-secondary uppercase tracking-[0.3em] font-bold">Result</span>
                         </div>
                         <div className="font-serif italic text-2xl leading-relaxed text-archive-ink markdown-body">
-                          <Markdown>{synthesis}</Markdown>
+                          <LexiconText>{synthesis}</LexiconText>
                         </div>
                       </div>
                     </div>
@@ -456,7 +456,7 @@ export const TarotTool: React.FC<TarotToolProps> = ({ onBack }) => {
                           </div>
                         </div>
                         <div className="font-serif italic text-xl leading-relaxed text-archive-ink border-l-2 border-archive-line pl-6 markdown-body">
-                          <Markdown>{`"${interpretation}"`}</Markdown>
+                          <LexiconText>{`"${interpretation}"`}</LexiconText>
                         </div>
                       </div>
                     );

@@ -12,7 +12,7 @@ export const SymbolCard: React.FC<SymbolCardProps> = ({ symbol, onClick }) => {
     <motion.div 
       whileHover={{ scale: 1.02 }}
       onClick={onClick}
-      className="p-6 border border-archive-line bg-white shadow-sm hover:shadow-md transition-all cursor-pointer group"
+      className="p-6 border border-archive-line bg-archive-bg shadow-sm hover:shadow-md transition-all cursor-pointer group"
     >
       <div className="flex justify-between items-start mb-4">
         <span className="data-value text-archive-accent">{symbol.degree} deg {symbol.sign.toUpperCase()}</span>

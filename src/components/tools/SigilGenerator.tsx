@@ -8,8 +8,6 @@ import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 
-import Markdown from 'react-markdown';
-
 interface SigilGeneratorProps {
   onBack: () => void;
 }

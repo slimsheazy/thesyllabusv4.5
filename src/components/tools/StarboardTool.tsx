@@ -1,9 +1,10 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, RotateCcw, Share2, Download, Info, Volume2, VolumeX } from 'lucide-react';
+import { Sparkles, RotateCcw, Share2, Download, Info } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { ToolLayout } from '../shared/ToolLayout';
+import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { geminiService } from '../../services/geminiService';
 import AstrologyWheel from './CharmCasting/AstrologyWheel';
 import CharmBoard, { HouseAssignment } from './CharmCasting/CharmBoard';
@@ -11,7 +12,9 @@ import CharmSelector from './CharmCasting/CharmSelector';
 import UserInputForm from './CharmCasting/UserInputForm';
 import { ALL_CHARMS, HOUSES } from './CharmCasting/constants';
 import { Charm } from '../../types';
-import Markdown from 'react-markdown';
+import { LexiconText } from '../shared/LexiconText';
+
+import { playBase64Audio } from '../../utils/audioUtils';
 
 interface StarboardToolProps {
   onBack: () => void;
@@ -31,43 +34,6 @@ export const StarboardTool: React.FC<StarboardToolProps> = ({ onBack }) => {
   const [isInterpreting, setIsInterpreting] = useState(false);
 
   const [showInfo, setShowInfo] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const handleReadAloud = async () => {
-    if (!interpretation) return;
-    
-    if (isSpeaking) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      setIsSpeaking(false);
-      return;
-    }
-
-    try {
-      setIsSpeaking(true);
-      triggerClick();
-      
-      // Strip markdown for better TTS
-      const cleanText = interpretation.replace(/[#*`_]/g, '');
-      const base64Audio = await geminiService.generateSpeech(cleanText);
-      
-      if (base64Audio) {
-        const audioUrl = `data:audio/mp3;base64,${base64Audio}`;
-        const audio = new Audio(audioUrl);
-        audioRef.current = audio;
-        audio.onended = () => setIsSpeaking(false);
-        audio.play();
-      } else {
-        setIsSpeaking(false);
-      }
-    } catch (error) {
-      console.error('TTS error:', error);
-      setIsSpeaking(false);
-    }
-  };
 
   const handleSelectCharm = (charm: Charm) => {
     if (selectedCharms.length < 12) {
@@ -247,7 +213,7 @@ export const StarboardTool: React.FC<StarboardToolProps> = ({ onBack }) => {
               exit={{ opacity: 0, scale: 1.05 }}
               className="w-full max-w-md"
             >
-              <div className="archive-card p-8 space-y-6">
+              <div className="archive-card bg-archive-bg p-8 space-y-6">
                 <div className="text-center space-y-2">
                   <h2 className="font-serif italic text-2xl">Focus Your Intent</h2>
                   <p className="text-xs opacity-50 uppercase tracking-widest">Whisper your query to the void</p>
@@ -299,30 +265,27 @@ export const StarboardTool: React.FC<StarboardToolProps> = ({ onBack }) => {
                         animate={{ opacity: 1, y: 0 }}
                         className="absolute bottom-[-10%] left-0 right-0 pointer-events-auto"
                       >
-                        <div className="archive-card p-8 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                        <div className="archive-card bg-archive-bg p-8 max-h-[60vh] overflow-y-auto custom-scrollbar">
                           <div className="flex justify-between items-start mb-6">
                             <div className="space-y-1">
                               <span className="text-[9px] font-mono uppercase tracking-widest text-archive-accent">Celestial Synthesis</span>
                               <h3 className="font-serif italic text-xl text-archive-ink">The Navigator's Report</h3>
                             </div>
                             <div className="flex gap-2">
-                              <button 
-                                onClick={handleReadAloud} 
-                                className={`p-2 hover:bg-white/5 rounded-full transition-colors ${isSpeaking ? 'text-archive-accent' : ''}`} 
-                                title={isSpeaking ? "Stop Reading" : "Read Aloud"}
-                              >
-                                {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 opacity-40 hover:opacity-100" />}
-                              </button>
-                              <button onClick={handleReset} className="p-2 hover:bg-white/5 rounded-full transition-colors" title="New Casting">
+                              <ReadAloudButton 
+                                text={interpretation || ''} 
+                                className="!p-2 hover:bg-archive-ink/5 rounded-full transition-colors opacity-40 hover:opacity-100" 
+                              />
+                              <button onClick={handleReset} className="p-2 hover:bg-archive-ink/5 rounded-full transition-colors" title="New Casting">
                                 <RotateCcw className="w-4 h-4 opacity-40 hover:opacity-100" />
                               </button>
-                              <button onClick={handleShare} className="p-2 hover:bg-white/5 rounded-full transition-colors" title="Share Reading">
+                              <button onClick={handleShare} className="p-2 hover:bg-archive-ink/5 rounded-full transition-colors" title="Share Reading">
                                 <Share2 className="w-4 h-4 opacity-40 hover:opacity-100" />
                               </button>
                             </div>
                           </div>
                           <div className="font-serif italic text-base leading-relaxed text-archive-ink/80 markdown-body">
-                            <Markdown>{interpretation || ''}</Markdown>
+                            <LexiconText>{interpretation || ''}</LexiconText>
                           </div>
                           <div className="mt-8 pt-6 border-t border-archive-line flex justify-between items-center">
                             <span className="text-[9px] font-mono opacity-30 uppercase">Alignment Recorded in Master Syllabus</span>
@@ -369,7 +332,7 @@ export const StarboardTool: React.FC<StarboardToolProps> = ({ onBack }) => {
                 initial={{ scale: 0.9, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
-                className="archive-card p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto custom-scrollbar"
+                className="archive-card bg-archive-bg p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto custom-scrollbar"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex justify-between items-start mb-6">
@@ -390,7 +353,7 @@ export const StarboardTool: React.FC<StarboardToolProps> = ({ onBack }) => {
                     <h3 className="font-serif italic text-lg text-archive-ink">The 12 Houses</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {HOUSES.map(house => (
-                        <div key={house.number} className="p-3 border border-white/5 rounded-lg bg-white/5">
+                        <div key={house.number} className="p-3 border border-archive-line rounded-lg bg-archive-bg">
                           <span className="text-[10px] font-mono text-archive-accent">House {house.number}</span>
                           <h4 className="font-serif italic text-base">{house.name}</h4>
                           <p className="text-[11px] opacity-60">Represents: {house.keyword}</p>

@@ -8,7 +8,7 @@ import { useProfile } from '../../hooks/useProfile';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
-import Markdown from 'react-markdown';
+import { LexiconText } from '../shared/LexiconText';
 
 interface DailyRitualProps {
   onBack: () => void;
@@ -149,7 +149,7 @@ export const DailyRitual: React.FC<DailyRitualProps> = ({ onBack }) => {
               animate={{ opacity: 1, scale: 1 }}
               className="max-w-3xl w-full space-y-12"
             >
-              <div className="p-10 md:p-16 border border-archive-line bg-white shadow-2xl relative overflow-hidden">
+              <div className="p-10 md:p-16 border border-archive-line bg-archive-bg shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 opacity-[0.02] select-none pointer-events-none text-9xl italic">SACRED</div>
                 <div className="absolute top-6 right-6 flex gap-4">
                   <button 
@@ -218,7 +218,7 @@ export const DailyRitual: React.FC<DailyRitualProps> = ({ onBack }) => {
                             <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">The Ritual</span>
                           </div>
                           <div className="font-serif italic text-3xl md:text-4xl leading-relaxed text-archive-ink markdown-body">
-                            <Markdown>{ritual}</Markdown>
+                            <LexiconText>{ritual}</LexiconText>
                           </div>
                         </div>
                         
@@ -228,7 +228,7 @@ export const DailyRitual: React.FC<DailyRitualProps> = ({ onBack }) => {
                               <span className="text-[10px] font-mono uppercase tracking-[0.3em] opacity-40">Expected Outcome</span>
                             </div>
                             <div className="font-serif text-xl text-archive-ink/70 italic markdown-body">
-                              <Markdown>{outcome}</Markdown>
+                              <LexiconText>{outcome}</LexiconText>
                             </div>
                           </div>
                         )}

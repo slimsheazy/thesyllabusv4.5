@@ -9,7 +9,7 @@ import { geminiService } from '../../services/geminiService';
 import { exportAsImage, exportAsPDF } from '../../utils/exportUtils';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
-import Markdown from 'react-markdown';
+import { LexiconText } from '../shared/LexiconText';
 
 interface MoodTrackerProps {
   onBack: () => void;
@@ -173,7 +173,7 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
                       key={node.name}
                       onClick={() => handleSelect(node)}
                       style={{ borderColor: node.color }}
-                      className="px-10 py-6 border-2 bg-white shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 group relative overflow-hidden rounded-archive"
+                      className="px-10 py-6 border-2 bg-archive-bg shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 group relative overflow-hidden rounded-archive"
                     >
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.03] transition-opacity" style={{ backgroundColor: node.color }} />
                       <span className="font-serif italic text-2xl">{node.name}</span>
@@ -221,7 +221,7 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
                     <div className="max-w-xl mx-auto space-y-6">
                       <div className="w-12 h-0.5 bg-archive-line mx-auto" />
                       <div className="font-serif italic text-2xl leading-relaxed text-archive-ink markdown-body">
-                        <Markdown>{insight}</Markdown>
+                        <LexiconText>{insight}</LexiconText>
                       </div>
                       <div className="w-12 h-0.5 bg-archive-line mx-auto" />
                     </div>
@@ -250,7 +250,7 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
                 <TrendingUp className="w-5 h-5 opacity-40" />
                 <h3 className="col-header">Emotional Trajectory</h3>
               </div>
-              <div className="h-[400px] w-full bg-white p-8 border border-archive-line shadow-sm rounded-archive">
+              <div className="h-[400px] w-full bg-archive-bg p-8 border border-archive-line shadow-sm rounded-archive">
                 <ErrorBoundary fallback={
                   <div className="h-full flex flex-col items-center justify-center opacity-20 italic font-serif">
                     The trajectory is currently obscured.
@@ -264,7 +264,7 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
                           <stop offset="95%" stopColor="#e11d48" stopOpacity={0}/>
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--color-archive-line)" vertical={false} />
                       <XAxis 
                         dataKey="date" 
                         tick={{ fontSize: 10, fontFamily: 'monospace' }}
@@ -275,12 +275,14 @@ export const MoodTracker: React.FC<MoodTrackerProps> = ({ onBack }) => {
                       />
                       <RechartsTooltip 
                         contentStyle={{ 
-                          backgroundColor: '#fff', 
-                          border: '1px solid #141414',
+                          backgroundColor: 'var(--color-archive-bg)', 
+                          border: '1px solid var(--color-archive-line)',
                           borderRadius: '0',
                           fontFamily: 'serif',
-                          fontSize: '12px'
+                          fontSize: '12px',
+                          color: 'var(--color-archive-ink)'
                         }}
+                        itemStyle={{ color: 'var(--color-archive-ink)' }}
                         formatter={(value: any, name: any, props: any) => [props.payload.mood, 'Resonance']}
                       />
                       <Area 

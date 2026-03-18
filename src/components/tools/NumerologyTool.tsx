@@ -4,7 +4,7 @@ import { useSyllabusStore } from '../../store';
 import { useHaptics } from '../../hooks/useHaptics';
 import { useProfile } from '../../hooks/useProfile';
 import { geminiService } from '../../services/geminiService';
-import Markdown from 'react-markdown';
+import { LexiconText } from '../shared/LexiconText';
 import { Type } from "@google/genai";
 import { WritingEffect } from '../shared/WritingEffect';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
@@ -199,7 +199,7 @@ export const NumerologyTool: React.FC<NumerologyToolProps> = ({ onBack }) => {
                 </div>
                 <div className="handwritten text-[10px] text-archive-accent uppercase italic tracking-widest mb-4">Final Insight</div>
                 <div className="heading-marker text-3xl sm:text-4xl text-archive-ink lowercase leading-tight markdown-body">
-                  <Markdown>{result.esotericInsight}</Markdown>
+                  <LexiconText>{result.esotericInsight}</LexiconText>
                 </div>
               </div>
             </div>

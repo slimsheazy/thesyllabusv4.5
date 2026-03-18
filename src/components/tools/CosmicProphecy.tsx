@@ -7,7 +7,6 @@ import { geminiService } from '../../services/geminiService';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 import { WritingEffect } from '../shared/WritingEffect';
-import { ReadAloudButton } from '../shared/ReadAloudButton';
 
 interface CosmicProphecyProps {
   onBack: () => void;
@@ -57,10 +56,10 @@ export const CosmicProphecy: React.FC<CosmicProphecyProps> = ({ onBack }) => {
     >
       <div className="w-full flex flex-col lg:flex-row gap-10 lg:gap-16 items-start">
         <aside className="w-full lg:w-[400px] space-y-8 lg:sticky lg:top-20">
-          <div className="archive-card p-6 animate-in fade-in slide-in-from-left-4 duration-300">
+          <div className="archive-card bg-archive-bg p-6 animate-in fade-in slide-in-from-left-4 duration-300">
             <div className="space-y-6">
               {Object.keys(inputs).map((key) => (
-                  <div className="archive-form-group">
+                  <div key={key} className="archive-form-group">
                     <label className="archive-label">{key.replace(/([A-Z])/g, ' $1')}</label>
                     <div className="relative">
                       <PenTool className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
@@ -111,16 +110,6 @@ export const CosmicProphecy: React.FC<CosmicProphecyProps> = ({ onBack }) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-12"
               >
-                <div className="archive-card p-8 md:p-12 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-8 opacity-[0.02] select-none pointer-events-none text-8xl italic">FATE</div>
-                  <div className="flex justify-end mb-4">
-                    <ReadAloudButton text={story} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
-                  </div>
-                  <div className="handwritten text-2xl md:text-3xl text-archive-ink leading-relaxed italic font-medium">
-                    "<WritingEffect text={story} />"
-                  </div>
-                </div>
-
                 <ResultSection
                   id="cosmic-prophecy-content"
                   title="Archive Entry"
@@ -129,7 +118,11 @@ export const CosmicProphecy: React.FC<CosmicProphecyProps> = ({ onBack }) => {
                   onClose={() => setStory(null)}
                   type="COSMIC_PROPHECY"
                   metadata={{ inputs, story }}
-                />
+                >
+                  <div className="handwritten text-2xl md:text-3xl text-archive-ink leading-relaxed italic font-medium">
+                    "<WritingEffect text={story} />"
+                  </div>
+                </ResultSection>
               </motion.div>
             ) : (
               <motion.div 

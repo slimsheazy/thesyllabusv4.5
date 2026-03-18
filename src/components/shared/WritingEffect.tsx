@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Markdown from 'react-markdown';
+import { LexiconText } from './LexiconText';
 
 interface WritingEffectProps {
   text: string;
@@ -29,7 +29,7 @@ export const WritingEffect: React.FC<WritingEffectProps> = ({ text, speed = 30, 
 
   return (
     <div className="markdown-body">
-      <Markdown>{displayedText}</Markdown>
+      <LexiconText>{displayedText}</LexiconText>
     </div>
   );
 };

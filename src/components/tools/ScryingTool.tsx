@@ -69,8 +69,8 @@ export const ScryingTool: React.FC<ScryingToolProps> = ({ onBack }) => {
               <div className="space-y-6">
                 <div className="relative w-64 h-64 mx-auto">
                   <div className="absolute inset-0 rounded-full bg-black shadow-[inset_0_0_50px_rgba(255,255,255,0.1),0_0_30px_rgba(0,0,0,0.5)] overflow-hidden">
-                    <div className="absolute top-[10%] left-[20%] w-[40%] h-[20%] bg-white/10 rounded-full blur-md rotate-[-20deg]" />
-                    <div className="absolute bottom-[15%] right-[25%] w-[20%] h-[10%] bg-white/5 rounded-full blur-sm" />
+                    <div className="absolute top-[10%] left-[20%] w-[40%] h-[20%] bg-archive-ink/10 rounded-full blur-md rotate-[-20deg]" />
+                    <div className="absolute bottom-[15%] right-[25%] w-[20%] h-[10%] bg-archive-ink/5 rounded-full blur-sm" />
                     <motion.div 
                       animate={{ 
                         opacity: [0.1, 0.2, 0.1],
@@ -116,10 +116,10 @@ export const ScryingTool: React.FC<ScryingToolProps> = ({ onBack }) => {
                       opacity: [0.1, 0.3, 0.1]
                     }}
                     transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent"
+                    className="absolute inset-0 bg-gradient-to-tr from-transparent via-archive-ink/10 to-transparent"
                   />
                 </div>
-                <div className="w-12 h-12 animate-spin mx-auto opacity-20 absolute inset-0 m-auto border-2 border-white border-t-transparent rounded-full" />
+                <div className="w-12 h-12 animate-spin mx-auto opacity-20 absolute inset-0 m-auto border-2 border-archive-ink border-t-transparent rounded-full" />
               </div>
               <span className="handwritten text-lg text-archive-accent animate-pulse uppercase tracking-[0.3em]">The shadows are shifting...</span>
             </motion.div>

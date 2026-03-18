@@ -31,12 +31,13 @@ export async function generateContent(params: GenerateContentParameters) {
   return ai.models.generateContent(params);
 }
 
-export async function generateText(prompt: string, model: string = "gemini-3-flash-preview", systemInstruction: string = SYSTEM_INSTRUCTION): Promise<string> {
+export async function generateText(prompt: string, model: string = "gemini-3-flash-preview", systemInstruction: string = SYSTEM_INSTRUCTION, tools?: any[]): Promise<string> {
   const response = await generateContent({
     model,
     contents: prompt,
     config: {
       systemInstruction,
+      tools,
     },
   });
   const text = response.text || "";
@@ -44,7 +45,7 @@ export async function generateText(prompt: string, model: string = "gemini-3-fla
   return text.replace(/```(?:markdown|json|html|text)?\n?([\s\S]*?)\n?```/g, '$1').trim();
 }
 
-export async function generateJson<T>(prompt: string, schema: any, model: string = "gemini-3-flash-preview", systemInstruction: string = SYSTEM_INSTRUCTION): Promise<T> {
+export async function generateJson<T>(prompt: string, schema: any, model: string = "gemini-3-flash-preview", systemInstruction: string = SYSTEM_INSTRUCTION, tools?: any[]): Promise<T> {
   const response = await generateContent({
     model,
     contents: prompt,
@@ -52,6 +53,7 @@ export async function generateJson<T>(prompt: string, schema: any, model: string
       responseMimeType: "application/json",
       responseSchema: schema,
       systemInstruction,
+      tools,
     },
   });
   return extractJSON<T>(response.text || "{}");
@@ -597,6 +599,56 @@ export const geminiService = {
     return generateJson(prompt, schema, "gemini-3.1-pro-preview");
   },
 
+  getIChingReading: async (hexagram: number[], changingLines: number[], question: string): Promise<{
+    hexagramName: string;
+    hexagramNumber: number;
+    judgment: string;
+    image: string;
+    changingLinesInterpretation: string[];
+    transformedHexagramName?: string;
+    transformedHexagramNumber?: number;
+    synthesis: string;
+  }> => {
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        hexagramName: { type: Type.STRING },
+        hexagramNumber: { type: Type.INTEGER },
+        judgment: { type: Type.STRING },
+        image: { type: Type.STRING },
+        changingLinesInterpretation: { 
+          type: Type.ARRAY, 
+          items: { type: Type.STRING } 
+        },
+        transformedHexagramName: { type: Type.STRING },
+        transformedHexagramNumber: { type: Type.INTEGER },
+        synthesis: { type: Type.STRING }
+      },
+      required: ["hexagramName", "hexagramNumber", "judgment", "image", "changingLinesInterpretation", "synthesis"]
+    };
+
+    const prompt = `You are a master of the I Ching (Book of Changes).
+    A seeker has cast a hexagram for the question: "${question}".
+    
+    CAST DATA:
+    - Hexagram Lines (bottom to top): ${hexagram.join(', ')}
+    - Changing Lines (indices 1-6): ${changingLines.join(', ')}
+    
+    TASK:
+    1. Identify the primary hexagram (1-64).
+    2. Provide the traditional Judgment and Image.
+    3. Interpret each changing line specifically in the context of the inquiry.
+    4. If there are changing lines, identify the transformed hexagram and its core meaning.
+    5. Provide a final, high-density synthesis that ties everything together into actionable wisdom.
+    
+    Style: The tone should be that of the Librarian-formal, evocative, and deeply insightful. 
+    Avoid generic fluff. Use precise, grounded language.
+    
+    Format: Return a JSON object.`;
+
+    return generateJson(prompt, schema, "gemini-3.1-pro-preview");
+  },
+
   getSongOracle: async (context: string, history: string[] = []): Promise<{
     song_title: string;
     artist: string;
@@ -618,16 +670,16 @@ export const geminiService = {
 
     const prompt = `Perform a "Song Pull" based on the current energetic frequency: "${context}".
     
-    HISTORY (DO NOT REPEAT):
+    HISTORY (STRICTLY FORBIDDEN TO REPEAT):
     ${history.join(', ')}
 
     TASK:
-    1. Selection: Choose an evocative track across any genre that fits this frequency.
-    2. Accuracy: You MUST provide a real song and its CORRECT Spotify track ID. Use Google Search if necessary to verify the ID.
+    1. Selection: Choose an evocative, high-resonance track across any genre (indie, classical, electronic, etc.) that fits this frequency. Prioritize depth and atmosphere.
+    2. Accuracy: You MUST provide a real song and its CORRECT 22-character Spotify track ID. Use Google Search to verify the ID and ensure it is not a dead link.
     3. Constraint: No interpretation or descriptive text.
     
     Format: Return ONLY the specified JSON structure.`;
 
-    return generateJson(prompt, schema, "gemini-3.1-pro-preview", SYSTEM_INSTRUCTION + "\nUse googleSearch to verify Spotify IDs.");
+    return generateJson(prompt, schema, "gemini-3-flash-preview", SYSTEM_INSTRUCTION, [{ googleSearch: {} }]);
   }
 };

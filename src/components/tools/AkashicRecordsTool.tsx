@@ -8,7 +8,7 @@ import { geminiService } from '../../services/geminiService';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 import { ProfileSelector } from '../shared/ProfileSelector';
-import Markdown from 'react-markdown';
+import { LexiconText } from '../shared/LexiconText';
 
 interface AkashicRecordsToolProps {
   onBack: () => void;
@@ -144,7 +144,7 @@ export const AkashicRecordsTool: React.FC<AkashicRecordsToolProps> = ({ onBack, 
                 </div>
 
                 <div className="font-serif text-2xl leading-relaxed text-archive-ink markdown-body">
-                  <Markdown>{result}</Markdown>
+                  <LexiconText>{result}</LexiconText>
                 </div>
                 <p className="text-[8px] font-mono uppercase tracking-widest opacity-20 mt-4 text-center">
                   Source: Central Archive Technical Briefing

@@ -33,7 +33,7 @@ import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ResultSection } from '../shared/ResultSection';
 import { ToolLayout } from '../shared/ToolLayout';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import Markdown from 'react-markdown';
+import { LexiconText } from '../shared/LexiconText';
 
 interface MasterArchiveProps {
   onBack: () => void;
@@ -396,7 +396,7 @@ export const MasterArchive: React.FC<MasterArchiveProps> = ({ onBack }) => {
               </button>
               <button 
                 onClick={() => setIsConfirmingClear(false)}
-                className="text-[10px] font-mono uppercase tracking-widest px-2 py-1 bg-zinc-800 text-zinc-400 rounded hover:bg-zinc-700 transition-colors"
+                className="text-[10px] font-mono uppercase tracking-widest px-2 py-1 bg-archive-ink/10 text-archive-ink/60 rounded hover:bg-archive-ink/20 transition-colors"
               >
                 No
               </button>
@@ -480,10 +480,10 @@ export const MasterArchive: React.FC<MasterArchiveProps> = ({ onBack }) => {
                 exit={{ opacity: 0, height: 0 }}
                 className="overflow-hidden"
               >
-                <div className="p-8 border border-archive-line bg-white shadow-sm h-64">
+                <div className="p-8 border border-archive-line bg-archive-bg shadow-sm h-64">
                   <div className="flex items-center gap-3 mb-6">
-                    <BarChart2 className="opacity-40 w-5 h-5" />
-                    <span className="text-[10px] font-mono uppercase tracking-[0.3em] opacity-40">Entry Frequency by Type</span>
+                    <BarChart2 className="opacity-40 w-5 h-5 text-archive-ink" />
+                    <span className="text-[10px] font-mono uppercase tracking-[0.3em] opacity-40 text-archive-ink">Entry Frequency by Type</span>
                   </div>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={statsData}>
@@ -496,7 +496,7 @@ export const MasterArchive: React.FC<MasterArchiveProps> = ({ onBack }) => {
                       <YAxis hide />
                       <Tooltip 
                         cursor={{ fill: 'var(--color-archive-line)', opacity: 0.1 }}
-                        contentStyle={{ backgroundColor: 'white', border: '1px solid var(--color-archive-line)', fontSize: '10px', fontFamily: 'monospace' }}
+                        contentStyle={{ backgroundColor: 'var(--color-archive-bg)', border: '1px solid var(--color-archive-line)', fontSize: '10px', fontFamily: 'monospace', color: 'var(--color-archive-ink)' }}
                       />
                       <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                         {statsData.map((entry, index) => (
@@ -522,13 +522,13 @@ export const MasterArchive: React.FC<MasterArchiveProps> = ({ onBack }) => {
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
               <div className="relative w-full md:w-96">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 w-4 h-4 text-archive-ink" />
                 <input 
                   type="text" 
                   placeholder="Search the archive..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white border border-archive-line p-3 pl-10 text-sm font-serif italic outline-none focus:border-archive-accent shadow-sm"
+                  className="w-full bg-archive-bg border border-archive-line p-3 pl-10 text-sm font-serif italic outline-none focus:border-archive-accent shadow-sm text-archive-ink"
                 />
               </div>
               <div className="flex flex-wrap gap-2 justify-center">
@@ -554,13 +554,13 @@ export const MasterArchive: React.FC<MasterArchiveProps> = ({ onBack }) => {
                 transition={{ delay: idx * 0.05 }}
                 className="relative"
               >
-                <div className="bg-white border border-archive-line p-8 shadow-sm hover:shadow-md transition-shadow group h-full flex flex-col">
+                <div className="bg-archive-bg border border-archive-line p-8 shadow-sm hover:shadow-md transition-shadow group h-full flex flex-col">
                   <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 text-archive-ink">
                       <item.icon />
                       <span className="text-[10px] font-mono uppercase tracking-[0.2em]">{item.title}</span>
                     </div>
-                    <span className="text-[10px] font-mono opacity-40 uppercase tracking-widest">{item.date}</span>
+                    <span className="text-[10px] font-mono opacity-40 uppercase tracking-widest text-archive-ink">{item.date}</span>
                   </div>
                   
                   <p className="font-serif italic text-xl leading-relaxed text-archive-ink line-clamp-3">
@@ -617,7 +617,7 @@ export const MasterArchive: React.FC<MasterArchiveProps> = ({ onBack }) => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl bg-white border border-archive-line p-10 shadow-2xl overflow-y-auto max-h-[80vh] custom-scrollbar"
+              className="relative w-full max-w-2xl bg-archive-bg border border-archive-line p-10 shadow-2xl overflow-y-auto max-h-[80vh] custom-scrollbar"
             >
               <ResultSection
                 id={selectedItem.id}
@@ -650,7 +650,7 @@ export const MasterArchive: React.FC<MasterArchiveProps> = ({ onBack }) => {
                     <div className="space-y-2">
                       <label className="text-[9px] font-mono uppercase opacity-40">Syllabus Content</label>
                       <div className="font-serif italic text-2xl leading-relaxed text-archive-ink markdown-body">
-                        <Markdown>{selectedItem.content}</Markdown>
+                        <LexiconText>{selectedItem.content}</LexiconText>
                       </div>
                     </div>
 

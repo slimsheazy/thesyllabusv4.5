@@ -11,7 +11,7 @@ import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
 import { ProfileSelector } from '../shared/ProfileSelector';
-import Markdown from 'react-markdown';
+import { LexiconText } from '../shared/LexiconText';
 
 interface LostItemFinderProps {
   onBack: () => void;
@@ -242,7 +242,7 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
                   </div>
                   
                   <div className="font-serif italic text-2xl leading-relaxed text-archive-ink mb-8 markdown-body">
-                    <Markdown>{suggestion}</Markdown>
+                    <LexiconText>{suggestion}</LexiconText>
                   </div>
                   
                   {chartData && (
@@ -281,7 +281,7 @@ export const LostItemFinder: React.FC<LostItemFinderProps> = ({ onBack }) => {
                             <button 
                               key={i} 
                               onClick={() => toggleChecklist(i)}
-                              className={`flex items-start gap-3 p-3 border rounded-archive transition-all text-left ${item.checked ? 'bg-archive-line/20 border-archive-line opacity-40' : 'bg-white border-archive-line hover:border-archive-ink'}`}
+                              className={`flex items-start gap-3 p-3 border rounded-archive transition-all text-left ${item.checked ? 'bg-archive-line/20 border-archive-line opacity-40' : 'bg-archive-bg border-archive-line hover:border-archive-ink'}`}
                             >
                               <div className="mt-0.5 flex-shrink-0">
                                 {item.checked ? <Check className="text-archive-ink w-3 h-3" /> : <Circle className="text-archive-ink/20 w-3 h-3" />}

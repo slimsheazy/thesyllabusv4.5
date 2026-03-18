@@ -273,9 +273,9 @@ export default function CharmBoard({ charms, houses, onHouseAssignments }: Charm
                 {isRare && (
                   <div className="absolute inset-0 overflow-hidden rounded-full">
                     <div className="absolute w-full h-full animate-pulse opacity-50"></div>
-                    <div className="absolute top-0 right-0 w-2 h-2 bg-white rounded-full animate-ping"></div>
+                    <div className="absolute top-0 right-0 w-2 h-2 bg-archive-bg rounded-full animate-ping"></div>
                     <div
-                      className="absolute bottom-1 left-1 w-1 h-1 bg-white rounded-full animate-ping"
+                      className="absolute bottom-1 left-1 w-1 h-1 bg-archive-bg rounded-full animate-ping"
                       style={{ animationDelay: "0.5s" }}
                     ></div>
                   </div>

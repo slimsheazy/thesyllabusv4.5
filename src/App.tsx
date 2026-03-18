@@ -51,6 +51,7 @@ const ToolRegistry: Record<string, React.LazyExoticComponent<React.FC<any>>> = {
   ORACLE_VIEW: lazy(() => import('./components/tools/OracleView').then(m => ({ default: m.OracleView }))),
   SONG_ORACLE: lazy(() => import('./components/tools/SongOracleTool').then(m => ({ default: m.SongOracleTool }))),
   STARBOARD: lazy(() => import('./components/tools/StarboardTool').then(m => ({ default: m.StarboardTool }))),
+  I_CHING: lazy(() => import('./components/tools/IChingTool').then(m => ({ default: m.IChingTool }))),
 };
 
 export default function App() {

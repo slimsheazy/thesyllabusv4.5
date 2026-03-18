@@ -23,7 +23,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onEnter, onNavigate }) => {
         <div className="max-w-4xl w-full space-y-8 sm:space-y-12 flex flex-col items-center py-8 sm:py-12 z-10">
           <header className="space-y-4 text-center max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-1000">
             <div className="flex flex-col items-center gap-2">
-              <div className="px-3 py-0.5 border border-archive-line rounded-full bg-white shadow-sm flex items-center gap-2">
+              <div className="px-3 py-0.5 border border-archive-line rounded-full bg-archive-bg shadow-sm flex items-center gap-2">
                 <Sun className="w-3 h-3 text-archive-accent animate-pulse" />
                 <span className="label-gidole opacity-40 text-[10px] sm:text-[14px]">
                   {userIdentity ? `Info on ${userIdentity}` : "Your Personal Study Guide"}
@@ -65,7 +65,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onEnter, onNavigate }) => {
         </div>
       </div>
 
-      <section className="border-t border-archive-line bg-white/30 backdrop-blur-sm py-12 sm:py-20">
+      <section className="border-t border-archive-line bg-archive-bg/30 backdrop-blur-sm py-12 sm:py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-16 sm:space-y-24">
           <LiveResonance />
 

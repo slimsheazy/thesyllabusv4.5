@@ -48,7 +48,7 @@ export const LexiconView: React.FC<LexiconViewProps> = ({ onBack }) => {
               placeholder="Search the lexicon..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-archive-line p-4 pl-12 text-sm font-serif italic outline-none focus:border-archive-accent shadow-sm rounded-xl"
+              className="w-full bg-archive-bg border border-archive-line p-4 pl-12 text-sm font-serif italic outline-none focus:border-archive-accent shadow-sm rounded-xl"
             />
           </div>
 
@@ -58,7 +58,7 @@ export const LexiconView: React.FC<LexiconViewProps> = ({ onBack }) => {
                 key={word}
                 layoutId={`term-${word}`}
                 onClick={() => setSelectedTerm(word)}
-                className="p-6 bg-white border border-archive-line text-left hover:shadow-lg transition-all group relative overflow-hidden"
+                className="p-6 bg-archive-bg border border-archive-line text-left hover:shadow-lg transition-all group relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-20 transition-opacity">
                   <Book className="w-10 h-10" />
@@ -91,7 +91,7 @@ export const LexiconView: React.FC<LexiconViewProps> = ({ onBack }) => {
             />
             <motion.div 
               layoutId={`term-${selectedTerm}`}
-              className="relative w-full max-w-lg bg-white border border-archive-line p-10 shadow-2xl"
+              className="relative w-full max-w-lg bg-archive-bg border border-archive-line p-10 shadow-2xl"
             >
               <button 
                 onClick={() => setSelectedTerm(null)}

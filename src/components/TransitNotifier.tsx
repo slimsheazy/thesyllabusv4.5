@@ -69,7 +69,7 @@ export const TransitNotifier: React.FC = () => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="pointer-events-auto bg-white border border-archive-line shadow-2xl p-3 sm:p-4 rounded-xl flex gap-3 sm:gap-4 items-start group"
+            className="pointer-events-auto bg-archive-bg border border-archive-line shadow-2xl p-3 sm:p-4 rounded-xl flex gap-3 sm:gap-4 items-start group"
           >
             <div className="mt-1 flex-shrink-0 font-mono text-sm">
               {notification.type === 'info' && <Info className="w-4 h-4 text-blue-500" />}

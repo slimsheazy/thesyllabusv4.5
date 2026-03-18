@@ -191,7 +191,7 @@ export const BiorhythmTool: React.FC<BiorhythmToolProps> = ({ onBack }) => {
                     <TrendingUp className="opacity-40 w-5 h-5" />
                     <h3 className="col-header pb-0 border-none">30-Day Projection</h3>
                   </div>
-                  <div className="h-[400px] w-full bg-white p-6 border border-archive-line shadow-sm rounded-archive">
+                  <div className="h-[400px] w-full bg-archive-bg p-6 border border-archive-line shadow-sm rounded-archive">
                     <ErrorBoundary fallback={
                       <div className="h-full flex flex-col items-center justify-center opacity-20 italic font-serif">
                         The projection is currently unreadable.

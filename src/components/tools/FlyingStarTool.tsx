@@ -97,7 +97,7 @@ export const FlyingStarTool: React.FC<FlyingStarToolProps> = ({ onBack }) => {
                   <select 
                     value={facingDirection}
                     onChange={(e) => setFacingDirection(e.target.value)}
-                    className="w-full bg-white border border-archive-line p-6 font-serif italic text-2xl outline-none focus:border-archive-accent appearance-none text-center shadow-sm"
+                    className="w-full bg-archive-bg border border-archive-line p-6 font-serif italic text-2xl outline-none focus:border-archive-accent appearance-none text-center shadow-sm"
                   >
                     <option value="N">North (0 deg)</option>
                     <option value="NE">North-East (45 deg)</option>

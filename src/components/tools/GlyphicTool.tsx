@@ -7,7 +7,6 @@ import { useHaptics } from '../../hooks/useHaptics';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
-import Markdown from 'react-markdown';
 import { Type } from "@google/genai";
 
 interface GlyphicResult {
@@ -91,7 +90,7 @@ export const GlyphicTool: React.FC<GlyphicToolProps> = ({ onBack }) => {
             </button>
 
             {error && (
-              <div className="p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3 text-red-600 text-[10px] italic">
+              <div className="p-4 bg-archive-accent/5 border border-archive-accent/10 rounded-lg flex items-center gap-3 text-archive-accent text-[10px] italic">
                 <AlertTriangle className="w-4 h-4" />
                 {error}
               </div>

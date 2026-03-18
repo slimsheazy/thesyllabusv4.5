@@ -5,7 +5,7 @@ import { exportAsImage, exportAsPDF } from '../../utils/exportUtils';
 import { ReadAloudButton } from './ReadAloudButton';
 import { useSyllabusStore } from '../../store';
 
-import Markdown from 'react-markdown';
+import { LexiconText } from './LexiconText';
 
 interface ResultSectionProps {
   id: string;
@@ -17,6 +17,7 @@ interface ResultSectionProps {
   className?: string;
   children?: React.ReactNode;
   metadata?: any;
+  hideReadButton?: boolean;
 }
 
 export const ResultSection: React.FC<ResultSectionProps> = ({
@@ -28,7 +29,8 @@ export const ResultSection: React.FC<ResultSectionProps> = ({
   exportName,
   className = "",
   children,
-  metadata
+  metadata,
+  hideReadButton = false
 }) => {
   const { addStar, removeStar, isStarred } = useSyllabusStore();
   const starred = isStarred(id);
@@ -53,36 +55,36 @@ export const ResultSection: React.FC<ResultSectionProps> = ({
       id={id}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`p-8 sm:p-10 border border-black/5 bg-white shadow-2xl rounded-2xl relative overflow-hidden ${className}`}
+      className={`p-8 sm:p-10 border border-archive-line bg-archive-bg shadow-2xl rounded-2xl relative overflow-hidden ${className}`}
     >
-      <div className="absolute top-0 right-0 p-4 opacity-[0.03] text-8xl heading-marker italic uppercase pointer-events-none">
+      <div className="absolute top-0 right-0 p-4 opacity-[0.03] text-8xl heading-marker italic uppercase pointer-events-none text-archive-ink">
         {title || "Result"}
       </div>
       
-      <div className="flex justify-between items-center mb-6 border-b-2 border-black/5 pb-4 relative z-10">
+      <div className="flex justify-between items-center mb-6 border-b-2 border-archive-line pb-4 relative z-10" data-html2canvas-ignore>
         <div className="flex flex-col gap-1">
-          <span className="handwritten text-[10px] uppercase opacity-40 tracking-widest">{type}</span>
+          <span className="handwritten text-[10px] uppercase opacity-40 tracking-widest text-archive-ink">{type}</span>
         </div>
         <div className="flex items-center gap-4">
           <button 
             onClick={handleToggleStar}
-            className={`text-sm transition-all ${starred ? "text-archive-accent scale-125" : "opacity-20 hover:opacity-100"}`}
+            className={`text-sm transition-all ${starred ? "text-archive-accent scale-125" : "opacity-20 hover:opacity-100 text-archive-ink"}`}
           >
             {starred ? <Star className="w-4 h-4 fill-current" /> : <Star className="w-4 h-4" />}
           </button>
-          <ReadAloudButton text={content} className="!py-1 !px-2 !text-[10px]" />
+          {!hideReadButton && <ReadAloudButton text={content} className="!py-1 !px-2 !text-[10px]" />}
         </div>
       </div>
 
       <div className="relative z-10">
         {children || (
-          <div className="handwritten text-lg md:text-xl italic text-black/80 leading-relaxed font-medium text-left markdown-body">
-            <Markdown>{content}</Markdown>
+          <div className="handwritten text-lg md:text-xl italic text-archive-ink/80 leading-relaxed font-medium text-left markdown-body">
+            <LexiconText>{content}</LexiconText>
           </div>
         )}
       </div>
 
-      <div className="mt-8 pt-8 border-t border-black/5 flex flex-wrap justify-center gap-8 relative z-10">
+      <div className="mt-8 pt-8 border-t border-archive-line flex flex-wrap justify-center gap-8 relative z-10" data-html2canvas-ignore>
         <button 
           onClick={() => exportAsPDF(id, exportName)}
           className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-40 hover:opacity-100 flex items-center gap-2"

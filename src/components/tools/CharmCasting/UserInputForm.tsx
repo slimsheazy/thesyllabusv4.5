@@ -48,7 +48,7 @@ export default function UserInputForm({ question, setQuestion, onSubmit }: UserI
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           placeholder="Ask your question to the cosmos... or leave blank for general guidance"
-          className="w-full min-h-[100px] bg-archive-ink/5 border border-archive-line rounded-lg p-3 text-archive-ink placeholder:text-archive-ink/40 focus:border-archive-accent/40 focus:ring-1 focus:ring-archive-accent/20 resize-none outline-none transition-all"
+          className="w-full min-h-[100px] bg-archive-bg border border-archive-line rounded-lg p-3 text-archive-ink placeholder:text-archive-ink/40 focus:border-archive-accent/40 focus:ring-1 focus:ring-archive-accent/20 resize-none outline-none transition-all"
           disabled={isSubmitting}
         />
       </div>
@@ -58,8 +58,8 @@ export default function UserInputForm({ question, setQuestion, onSubmit }: UserI
         disabled={!canSubmit}
         className={`w-full py-3 px-6 rounded-full text-sm font-light tracking-wide transition-all duration-300 ${
           canSubmit
-            ? "cosmic-glow bg-archive-ink/5 border-2 border-archive-line hover:border-archive-accent/50 hover:bg-archive-accent/5 cursor-pointer text-archive-ink"
-            : "opacity-50 cursor-not-allowed bg-archive-ink/5 border-2 border-archive-line text-archive-ink/40"
+            ? "cosmic-glow bg-archive-bg border-2 border-archive-line hover:border-archive-accent/50 hover:bg-archive-ink hover:text-archive-bg cursor-pointer text-archive-ink"
+            : "opacity-50 cursor-not-allowed bg-archive-bg border-2 border-archive-line text-archive-ink/40"
         }`}
         whileHover={canSubmit ? { scale: 1.02 } : {}}
         whileTap={canSubmit ? { scale: 0.98 } : {}}

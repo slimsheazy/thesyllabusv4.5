@@ -8,7 +8,7 @@ import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { geminiService } from '../../services/geminiService';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
-import Markdown from 'react-markdown';
+import { LexiconText } from '../shared/LexiconText';
 
 interface SynchronicityDecoderProps {
   onBack: () => void;
@@ -102,7 +102,7 @@ export const SynchronicityDecoder: React.FC<SynchronicityDecoderProps> = ({ onBa
                     className={`flex items-center gap-4 p-4 border transition-all text-left group ${
                       mechanism === m.id 
                         ? 'bg-archive-ink text-archive-bg border-archive-ink' 
-                        : 'bg-white border-archive-line hover:border-archive-ink'
+                        : 'bg-archive-bg border-archive-line hover:border-archive-ink'
                     }`}
                   >
                     <span className={`text-lg ${mechanism === m.id ? 'text-archive-bg' : 'text-archive-accent'}`}>{m.icon}</span>
@@ -175,7 +175,7 @@ export const SynchronicityDecoder: React.FC<SynchronicityDecoderProps> = ({ onBa
                       <span className="text-[10px] font-mono text-archive-accent uppercase tracking-[0.3em] font-bold">The Resonance</span>
                     </div>
                     <div className="font-serif italic text-2xl md:text-3xl leading-relaxed text-archive-ink markdown-body">
-                      <Markdown>{result}</Markdown>
+                      <LexiconText>{result}</LexiconText>
                     </div>
                   </div>
 

@@ -33,7 +33,7 @@ export const CardDisplay: React.FC<CardDisplayProps> = ({
         className="w-full h-full relative preserve-3d"
       >
         {/* Front */}
-        <div className="absolute inset-0 backface-hidden border border-archive-line bg-white p-2 md:p-4 flex flex-col items-center justify-between shadow-lg">
+        <div className="absolute inset-0 backface-hidden border border-archive-line bg-archive-bg p-2 md:p-4 flex flex-col items-center justify-between shadow-lg">
           <div className="w-full flex-1 bg-archive-line overflow-hidden mb-2">
             <img src={card.image} alt={card.name} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" referrerPolicy="no-referrer" />
           </div>

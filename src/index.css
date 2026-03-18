@@ -98,11 +98,11 @@
 
   /* --- Cards & Containers --- */
   .archive-card {
-    @apply bg-white border border-archive-line shadow-sm hover:shadow-md transition-all duration-300 rounded-archive-lg overflow-hidden;
+    @apply bg-archive-bg border border-archive-line shadow-sm hover:shadow-md transition-all duration-300 rounded-archive-lg overflow-hidden text-archive-ink;
   }
 
   .archive-card-interactive {
-    @apply bg-white border border-archive-line shadow-sm rounded-archive-lg overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:border-archive-accent/30 hover:-translate-y-1 relative;
+    @apply bg-archive-bg border border-archive-line shadow-sm rounded-archive-lg overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:border-archive-accent/30 hover:-translate-y-1 relative text-archive-ink;
   }
 
   .data-row {
@@ -111,7 +111,7 @@
 
   /* --- Forms --- */
   .archive-input {
-    @apply w-full bg-white border border-archive-line p-4 text-lg font-serif italic outline-none focus:border-archive-accent shadow-sm rounded-archive-lg transition-all;
+    @apply w-full bg-archive-bg border border-archive-line p-4 text-lg font-serif italic outline-none focus:border-archive-accent shadow-sm rounded-archive-lg transition-all text-archive-ink;
   }
 
   .archive-label {
@@ -266,6 +266,14 @@
 .eclipse-mode body {
   background-color: var(--color-archive-bg);
   color: var(--color-archive-ink);
+}
+
+.eclipse-mode .archive-card,
+.eclipse-mode .archive-card-interactive,
+.eclipse-mode .modal-container {
+  background-color: var(--color-archive-bg);
+  color: var(--color-archive-ink);
+  border-color: var(--color-archive-line);
 }
 
 .eclipse-mode .bg-archive-bg {

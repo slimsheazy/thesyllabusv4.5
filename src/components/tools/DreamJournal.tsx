@@ -9,8 +9,8 @@ import { exportAsImage, exportAsPDF } from '../../utils/exportUtils';
 import { ReadAloudButton } from '../shared/ReadAloudButton';
 import { ToolLayout } from '../shared/ToolLayout';
 import { ResultSection } from '../shared/ResultSection';
+import { LexiconText } from '../shared/LexiconText';
 import { ProfileSelector } from '../shared/ProfileSelector';
-import Markdown from 'react-markdown';
 
 interface DreamJournalProps {
   onBack: () => void;
@@ -155,25 +155,6 @@ export const DreamJournal: React.FC<DreamJournalProps> = ({ onBack }) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-12"
               >
-                <div className="archive-card p-8 md:p-12 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-8 opacity-[0.02] select-none pointer-events-none text-8xl italic">DREAM</div>
-                  <div className="flex justify-between items-center mb-8 border-b border-archive-line pb-4">
-                    <h3 className="col-header border-none pb-0">Interpretation</h3>
-                    <ReadAloudButton text={interpretation} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
-                  </div>
-                  <div className="handwritten text-xl md:text-2xl text-archive-ink leading-relaxed italic font-medium markdown-body">
-                    <Markdown>{interpretation}</Markdown>
-                  </div>
-                  <div className="mt-10 flex justify-end">
-                    <button 
-                      onClick={saveDream}
-                      className="text-[10px] font-mono uppercase tracking-widest text-archive-accent hover:underline flex items-center gap-1"
-                    >
-                      Save to Journal <ArrowRight className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
-
                 <ResultSection
                   id="dream-interpretation-content"
                   type="Dream Analysis"
@@ -182,7 +163,26 @@ export const DreamJournal: React.FC<DreamJournalProps> = ({ onBack }) => {
                   exportName="dream-analysis"
                   onClose={() => setInterpretation(null)}
                   metadata={{ dream: currentDream }}
-                />
+                >
+                  <div className="archive-card p-8 md:p-12 relative overflow-hidden border-none shadow-none !bg-transparent">
+                    <div className="absolute top-0 right-0 p-8 opacity-[0.02] select-none pointer-events-none text-8xl italic">DREAM</div>
+                    <div className="flex justify-between items-center mb-8 border-b border-archive-line pb-4">
+                      <h3 className="col-header border-none pb-0">Interpretation</h3>
+                      <ReadAloudButton text={interpretation} className="!p-1 !h-auto !w-auto !bg-transparent !border-none !shadow-none opacity-20 hover:opacity-100" />
+                    </div>
+                    <div className="handwritten text-xl md:text-2xl text-archive-ink leading-relaxed italic font-medium markdown-body">
+                      <LexiconText>{interpretation}</LexiconText>
+                    </div>
+                    <div className="mt-10 flex justify-end">
+                      <button 
+                        onClick={saveDream}
+                        className="text-[10px] font-mono uppercase tracking-widest text-archive-accent hover:underline flex items-center gap-1"
+                      >
+                        Save to Journal <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                </ResultSection>
               </motion.div>
             ) : (
               <div className="space-y-12">
@@ -200,7 +200,7 @@ export const DreamJournal: React.FC<DreamJournalProps> = ({ onBack }) => {
                         placeholder="Search keywords..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-white border border-archive-line pl-9 pr-4 py-2 text-sm font-serif italic outline-none focus:border-archive-accent w-full md:w-48 rounded-archive"
+                        className="bg-archive-bg border border-archive-line pl-9 pr-4 py-2 text-sm font-serif italic outline-none focus:border-archive-accent w-full md:w-48 rounded-archive"
                       />
                     </div>
                     <div className="relative">
@@ -209,7 +209,7 @@ export const DreamJournal: React.FC<DreamJournalProps> = ({ onBack }) => {
                         type="date"
                         value={dateFilter}
                         onChange={(e) => setDateFilter(e.target.value)}
-                        className="bg-white border border-archive-line pl-9 pr-4 py-2 text-sm font-serif italic outline-none focus:border-archive-accent w-full md:w-48 rounded-archive"
+                        className="bg-archive-bg border border-archive-line pl-9 pr-4 py-2 text-sm font-serif italic outline-none focus:border-archive-accent w-full md:w-48 rounded-archive"
                       />
                     </div>
                     {(searchTerm || dateFilter) && (
