@@ -100,31 +100,62 @@ export const SongOracleTool: React.FC<SongOracleToolProps> = ({ onBack }) => {
                 {/* Outer Ring */}
                 <div className="absolute inset-0 border border-archive-line rounded-full group-hover:scale-110 group-hover:border-archive-accent-quaternary transition-all duration-700 opacity-20" />
                 
-                {/* Spinning Record/Disc */}
-                <motion.div
-                  animate={(loading && isNeedleDropped) ? { rotate: 360 } : { rotate: 0 }}
-                  transition={(loading && isNeedleDropped) ? { repeat: Infinity, duration: 1.5, ease: "linear" } : { duration: 0.8 }}
-                  className="relative w-32 h-32 rounded-full border-2 border-archive-ink flex items-center justify-center bg-archive-ink shadow-2xl group-hover:shadow-archive-accent-quaternary/20 transition-all"
-                >
-                  <div className="absolute inset-2 border border-archive-bg/10 rounded-full" />
-                  <div className="absolute inset-4 border border-archive-bg/5 rounded-full" />
-                  <div className="w-8 h-8 rounded-full bg-archive-bg flex items-center justify-center">
-                    <div className="w-2 h-2 rounded-full bg-archive-ink" />
-                  </div>
-                  
-                  {loading ? (
-                    <Loader2 className="absolute text-archive-bg/20 animate-spin w-10 h-10" />
-                  ) : (
-                    <Disc className="absolute text-archive-bg/20 group-hover:text-archive-accent-quaternary/40 transition-colors w-10 h-10" />
-                  )}
-                </motion.div>
+                {/* Surface Wobble Container */}
+                <div className="animate-surface-wobble">
+                  {/* Spinning Record/Disc */}
+                  <motion.div
+                    animate={(loading && isNeedleDropped) ? { rotate: 360 } : { rotate: 0 }}
+                    transition={(loading && isNeedleDropped) ? { repeat: Infinity, duration: 1.5, ease: "linear" } : { duration: 0.8 }}
+                    className="relative w-32 h-32 rounded-full border-2 border-archive-ink flex items-center justify-center bg-archive-ink shadow-2xl group-hover:shadow-archive-accent-quaternary/20 transition-all"
+                  >
+                    {/* Texture Layer */}
+                    <svg className="absolute inset-0 w-full h-full rounded-full">
+                      <defs>
+                        <filter id="noise">
+                          <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
+                          <feColorMatrix type="saturate" values="0"/>
+                        </filter>
+                      </defs>
+                      <circle cx="50%" cy="50%" r="50%" filter="url(#noise)" opacity="0.1"/>
+                    </svg>
+
+                    {/* Dynamic Light Refraction */}
+                    <div 
+                      className="absolute inset-0 rounded-full animate-spin [animation-duration:10s] opacity-20"
+                      style={{
+                        background: "conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.3) 45deg, transparent 90deg, rgba(255,255,255,0.3) 135deg, transparent 180deg)",
+                        mixBlendMode: "screen"
+                      }}
+                    />
+
+                    <div className="absolute inset-2 border border-archive-bg/10 rounded-full" />
+                    <div className="absolute inset-4 border border-archive-bg/5 rounded-full" />
+                    <div className="w-8 h-8 rounded-full bg-archive-bg flex items-center justify-center">
+                      <div className="w-2 h-2 rounded-full bg-archive-ink" />
+                    </div>
+                    
+                    {loading ? (
+                      <Loader2 className="absolute text-archive-bg/20 animate-spin w-10 h-10" />
+                    ) : (
+                      <Disc className="absolute text-archive-bg/20 group-hover:text-archive-accent-quaternary/40 transition-colors w-10 h-10" />
+                    )}
+                  </motion.div>
+                </div>
 
                 {/* Stylus/Needle - More realistic animation */}
                 <motion.div 
                   className="absolute -top-6 -right-6 w-24 h-24 pointer-events-none origin-top-right"
                   initial={{ rotate: -45 }}
                   animate={loading ? { rotate: 0 } : { rotate: -45 }}
-                  transition={{ type: "spring", stiffness: 100, damping: 15 }}
+                  transition={{ 
+                    type: "spring", 
+                    stiffness: 100, 
+                    damping: 10,
+                    restDelta: 0.001
+                  }}
+                  style={{
+                    filter: loading ? "drop-shadow(0 10px 10px rgba(0,0,0,0.5))" : "drop-shadow(0 2px 2px rgba(0,0,0,0.2))"
+                  }}
                 >
                   <div className="absolute top-0 right-0 w-2 h-2 bg-archive-line rounded-full" />
                   <div className="w-1 h-20 bg-archive-accent-quaternary origin-top transform rotate-[25deg] rounded-full shadow-lg relative">

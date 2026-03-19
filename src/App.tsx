@@ -28,7 +28,7 @@ const ToolRegistry: Record<string, React.LazyExoticComponent<React.FC<any>>> = {
   AKASHIC: lazy(() => import('./components/tools/AkashicRecordsTool').then(m => ({ default: m.AkashicRecordsTool }))),
   LOST_ITEM: lazy(() => import('./components/tools/LostItemFinder').then(m => ({ default: m.LostItemFinder }))),
   SIGIL: lazy(() => import('./components/tools/SigilGenerator').then(m => ({ default: m.SigilGenerator }))),
-  BIORHYTHM: lazy(() => import('./components/tools/BiorhythmTool').then(m => ({ default: m.BiorhythmTool }))),
+  BIORHYTHM: lazy(() => import('./components/tools/BiorhythmTool').then(m => ({ default: m.default }))),
   MAD_LIBS: lazy(() => import('./components/tools/CosmicProphecy').then(m => ({ default: m.CosmicProphecy }))),
   SHARED_INSIGHTS: lazy(() => import('./components/tools/SharedInsights').then(m => ({ default: m.SharedInsights }))),
   DREAM_JOURNAL: lazy(() => import('./components/tools/DreamJournal').then(m => ({ default: m.DreamJournal }))),

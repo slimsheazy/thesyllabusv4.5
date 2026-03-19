@@ -2,7 +2,7 @@ import React, { useState, useCallback, memo, useEffect } from 'react';
 import { Target, Activity, History, ChevronLeft, Zap, RefreshCcw } from 'lucide-react';
 import { useSyllabusStore } from '../../store';
 import { logCalculation, getLogs } from '../../services/dbService';
-import { getQuantumTimelineScan } from '../../services/geminiService';
+import { geminiService } from '../../services/geminiService';
 import { WritingEffect } from '../shared/WritingEffect';
 import { audioManager } from '../AudioManager';
 import { QuantumTimelineResult, ToolProps } from '../../types';
@@ -133,7 +133,7 @@ export const QuantumTimelineScanner = ({ onBack }: ToolProps) => {
     
     try {
       const signature = selectedNodes.sort().join('');
-      const result = await getQuantumTimelineScan({ intent, signature });
+      const result = await geminiService.getQuantumTimelineScan({ intent, signature });
       const newState: QuantumState = {
         ...result,
         id: Date.now().toString(),
@@ -143,7 +143,7 @@ export const QuantumTimelineScanner = ({ onBack }: ToolProps) => {
         timelineIndex: 0
       };
       
-      await logCalculation('quantum_scan', newState);
+      await logCalculation('quantum_scan', intent, newState);
       setActiveResult(newState);
       setHistory(prev => [newState, ...prev]);
       setViewMode('navigator');

@@ -1,6 +1,6 @@
 import React, { useState, memo, useCallback, useEffect } from 'react';
 import { GlossaryTerm } from '../GlossaryEngine';
-import { getElectionalAnalysis } from '../../services/geminiService';
+import { geminiService } from '../../services/geminiService';
 import { useSyllabusStore } from '../../store';
 import { logCalculation } from '../../services/dbService';
 import { WritingEffect } from '../shared/WritingEffect';
@@ -156,12 +156,12 @@ const ElectionalTool: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       const now = new Date();
       const currentIso = now.toISOString();
       
-      let analysis = await getElectionalAnalysis(intent, userLocation.lat, userLocation.lng, currentIso);
+      let analysis = await geminiService.getElectionalAnalysis(intent, userLocation.lat, userLocation.lng, currentIso);
       
       if (analysis) {
         let returnedDate = new Date(analysis.isoDate);
         if (isNaN(returnedDate.getTime()) || returnedDate <= now) {
-          analysis = await getElectionalAnalysis(`${intent} (STRICTLY FUTURE DATE ONLY)`, userLocation.lat, userLocation.lng, currentIso);
+          analysis = await geminiService.getElectionalAnalysis(`${intent} (STRICTLY FUTURE DATE ONLY)`, userLocation.lat, userLocation.lng, currentIso);
           returnedDate = new Date(analysis?.isoDate);
         }
 

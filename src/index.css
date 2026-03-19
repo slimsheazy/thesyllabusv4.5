@@ -190,12 +190,21 @@
     50% { opacity: 0.7; }
   }
 
+  @keyframes surface-wobble {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(0.5deg); }
+  }
+
   .animate-shimmer {
     animation: shimmer 2s infinite ease-in-out;
   }
 
   .animate-flicker {
     animation: flicker 3s infinite ease-in-out;
+  }
+
+  .animate-surface-wobble {
+    animation: surface-wobble 10s ease-in-out infinite;
   }
 
   /* --- Markdown Styling --- */

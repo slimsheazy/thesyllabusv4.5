@@ -211,3 +211,48 @@ export interface QuantumTimelineResult {
 export interface ToolProps {
   onBack: () => void;
 }
+
+export interface PhotoScryerResult {
+  primaryObservation: string;
+  artifactsDetected: string[];
+  spatialVibe: string;
+}
+
+export interface SynastryResult {
+  compatibilityScore: number;
+  analysis: string;
+  vibrationalMatch: string;
+  groupDynamic?: string;
+  leaderArchetype?: {
+    name: string;
+    role: string;
+  };
+  frictionPoints?: string[];
+}
+
+export interface BiorhythmInterpretation {
+  brief: string;
+  suggestion: string;
+}
+
+export interface DeckRecommendation {
+  deckName: string;
+  creator: string;
+  description: string;
+  whyMatch: string;
+  keyThemes: string[];
+  estimatedPrice: string;
+  whereToFind: string;
+  acquisitionLink: string;
+}
+
+export interface StichomancyResult {
+  quote: string;
+  divinatoryMeaning: string;
+  sourceInsight: string;
+  bookInfo: {
+    title: string;
+    author: string;
+    year?: string;
+  };
+}

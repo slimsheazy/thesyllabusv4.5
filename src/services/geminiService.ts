@@ -1,6 +1,6 @@
 import { GoogleGenAI, Type, GenerateContentParameters, Modality } from "@google/genai";
 import { extractJSON } from "../utils/jsonUtils";
-import { HoraryAnalysis, QuantumTimelineResult } from "../types";
+import { HoraryAnalysis, QuantumTimelineResult, PhotoScryerResult, SynastryResult, BiorhythmInterpretation, DeckRecommendation, StichomancyResult } from "../types";
 
 const SYSTEM_INSTRUCTION = `You are a technical analyst for the Archive.
 Your tone is professional, objective, and clear.
@@ -59,48 +59,61 @@ export async function generateJson<T>(prompt: string, schema: any, model: string
   return extractJSON<T>(response.text || "{}");
 }
 
-export async function getElectionalAnalysis(intent: string, lat: number, lng: number, currentIso: string): Promise<{ isoDate: string; selectedDate: string; chartData: { ascendant: number; planets: { name: string; degree: number }[] } }> {
-  const schema = {
-    type: Type.OBJECT,
-    properties: {
-      isoDate: { type: Type.STRING },
-      selectedDate: { type: Type.STRING },
-      chartData: {
-        type: Type.OBJECT,
-        properties: {
-          ascendant: { type: Type.NUMBER },
-          planets: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                name: { type: Type.STRING },
-                degree: { type: Type.NUMBER }
-              }
-            }
-          }
-        },
-        required: ["ascendant", "planets"]
-      }
+export async function generateJsonWithContents<T>(contents: any, schema: any, model: string = "gemini-3-flash-preview", systemInstruction: string = SYSTEM_INSTRUCTION, tools?: any[]): Promise<T> {
+  const response = await generateContent({
+    model,
+    contents,
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: schema,
+      systemInstruction,
+      tools,
     },
-    required: ["isoDate", "selectedDate", "chartData"]
-  };
-  const prompt = `As an expert electional astrologer, find the optimal time for the following intent: "${intent}".
-  Location: Lat ${lat}, Lng ${lng}.
-  Current time: ${currentIso}.
-  
-  CRITICAL PROTOCOL:
-  1. Find an auspicious time in the future.
-  2. Calculate the chart for that time.
-  3. Return the date in ISO format and a human-readable format.
-  4. Provide the Ascendant and planetary positions.`;
-  return generateJson(prompt, schema, "gemini-3.1-pro-preview");
+  });
+  return extractJSON<T>(response.text || "{}");
 }
 
 export const geminiService = {
   generateContent,
   generateText,
   generateJson,
+  getElectionalAnalysis: async (intent: string, lat: number, lng: number, currentIso: string): Promise<{ isoDate: string; selectedDate: string; chartData: { ascendant: number; planets: { name: string; degree: number }[] } }> => {
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        isoDate: { type: Type.STRING },
+        selectedDate: { type: Type.STRING },
+        chartData: {
+          type: Type.OBJECT,
+          properties: {
+            ascendant: { type: Type.NUMBER },
+            planets: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  name: { type: Type.STRING },
+                  degree: { type: Type.NUMBER }
+                }
+              }
+            }
+          },
+          required: ["ascendant", "planets"]
+        }
+      },
+      required: ["isoDate", "selectedDate", "chartData"]
+    };
+    const prompt = `As an expert electional astrologer, find the optimal time for the following intent: "${intent}".
+    Location: Lat ${lat}, Lng ${lng}.
+    Current time: ${currentIso}.
+    
+    CRITICAL PROTOCOL:
+    1. Find an auspicious time in the future.
+    2. Calculate the chart for that time.
+    3. Return the date in ISO format and a human-readable format.
+    4. Provide the Ascendant and planetary positions.`;
+    return generateJson(prompt, schema, "gemini-3.1-pro-preview");
+  },
   getHoraryAnalysis: async (question: string, lat: number, lng: number): Promise<HoraryAnalysis> => {
     const now = new Date();
     const offset = -now.getTimezoneOffset() / 60;
@@ -189,6 +202,158 @@ export const geminiService = {
     Style: Technical, analytical, high-density.`;
 
     return generateJson<QuantumTimelineResult>(prompt, schema);
+  },
+
+  getPhotoScryingReading: async (imageData: string, mimeType: string, focus: string): Promise<PhotoScryerResult> => {
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        primaryObservation: { type: Type.STRING },
+        artifactsDetected: { type: Type.ARRAY, items: { type: Type.STRING } },
+        spatialVibe: { type: Type.STRING }
+      },
+      required: ["primaryObservation", "artifactsDetected", "spatialVibe"]
+    };
+
+    const prompt = `Perform a "photo scrying" reading on the provided image with a focus on: "${focus}".
+    Analyze the image for hidden patterns, artifacts, and the overall spatial vibe.
+    
+    Style: Mystical, insightful, slightly cryptic.`;
+
+    const imagePart = {
+      inlineData: {
+        mimeType,
+        data: imageData.split(',')[1],
+      },
+    };
+
+    return generateJsonWithContents<PhotoScryerResult>({ contents: { parts: [imagePart, { text: prompt }] } }, schema);
+  },
+
+  getFriendshipMatrix: async (subjects: string[]): Promise<SynastryResult> => {
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        compatibilityScore: { type: Type.NUMBER },
+        analysis: { type: Type.STRING },
+        vibrationalMatch: { type: Type.STRING },
+        groupDynamic: { type: Type.STRING },
+        leaderArchetype: {
+          type: Type.OBJECT,
+          properties: {
+            name: { type: Type.STRING },
+            role: { type: Type.STRING }
+          },
+          required: ["name", "role"]
+        },
+        frictionPoints: { type: Type.ARRAY, items: { type: Type.STRING } }
+      },
+      required: ["compatibilityScore", "analysis", "vibrationalMatch"]
+    };
+
+    const prompt = `Analyze the friendship/group synastry for the following subjects: ${subjects.join(', ')}.
+    Provide a compatibility score (0-100), a deep analysis of their bond, and a vibrational match description.
+    If there are more than 2 subjects, include a group dynamic analysis, leader archetype, and friction points.
+    
+    Style: Insightful, analytical, slightly esoteric.`;
+
+    return generateJson<SynastryResult>(prompt, schema);
+  },
+
+  getBiorhythmInterpretation: async (data: { physical: number; emotional: number; intellectual: number }): Promise<BiorhythmInterpretation> => {
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        brief: { type: Type.STRING },
+        suggestion: { type: Type.STRING }
+      },
+      required: ["brief", "suggestion"]
+    };
+
+    const prompt = `Analyze these biorhythm levels: Physical: ${data.physical}%, Emotional: ${data.emotional}%, Intellectual: ${data.intellectual}%.
+    Provide a brief heuristic observation and a tactical protocol suggestion.
+    
+    Style: Technical, grounded, direct.`;
+
+    return generateJson<BiorhythmInterpretation>(prompt, schema);
+  },
+
+  getDeckRecommendation: async (profile: string, scores: Record<string, number>): Promise<DeckRecommendation> => {
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        deckName: { type: Type.STRING },
+        creator: { type: Type.STRING },
+        description: { type: Type.STRING },
+        whyMatch: { type: Type.STRING },
+        keyThemes: { type: Type.ARRAY, items: { type: Type.STRING } },
+        estimatedPrice: { type: Type.STRING },
+        whereToFind: { type: Type.STRING },
+        acquisitionLink: { type: Type.STRING }
+      },
+      required: ["deckName", "creator", "description", "whyMatch", "keyThemes", "estimatedPrice", "whereToFind", "acquisitionLink"]
+    };
+
+    const prompt = `Recommend a tarot or oracle deck based on this profile: ${profile}.
+    Scores: ${JSON.stringify(scores)}.
+    
+    Style: Insightful, analytical, slightly esoteric.`;
+
+    return generateJson<DeckRecommendation>(prompt, schema);
+  },
+
+  generateDeckSample: async (description: string, profile: string, index: number): Promise<string | null> => {
+    const ai = getGeminiAI();
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.1-flash-image-preview',
+      contents: {
+        parts: [
+          {
+            text: `Generate a sample tarot card image for a deck described as: ${description}. The profile is: ${profile}. This is sample card ${index}.`,
+          },
+        ],
+      },
+      config: {
+        imageConfig: {
+          aspectRatio: "3:4",
+          imageSize: "1K"
+        },
+      },
+    });
+    for (const part of response.candidates[0].content.parts) {
+      if (part.inlineData) {
+        return `data:image/png;base64,${part.inlineData.data}`;
+      }
+    }
+    return null;
+  },
+
+  getStichomancyPassage: async (shelf: string, title: string, author: string): Promise<StichomancyResult> => {
+    const schema = {
+      type: Type.OBJECT,
+      properties: {
+        quote: { type: Type.STRING },
+        divinatoryMeaning: { type: Type.STRING },
+        sourceInsight: { type: Type.STRING },
+        bookInfo: {
+          type: Type.OBJECT,
+          properties: {
+            title: { type: Type.STRING },
+            author: { type: Type.STRING },
+            year: { type: Type.STRING }
+          },
+          required: ["title", "author"]
+        }
+      },
+      required: ["quote", "divinatoryMeaning", "sourceInsight", "bookInfo"]
+    };
+
+    const prompt = `Perform stichomancy on the book "${title}" by ${author} from the "${shelf}" shelf.
+    Select a random, poignant passage (quote), provide a divinatory meaning for it, and offer a brief source insight.
+    
+    Style: Insightful, analytical, slightly esoteric.`;
+
+    return generateJson<StichomancyResult>(prompt, schema);
   },
 
   getWordDefinition: async (word: string) => {
@@ -403,18 +568,12 @@ export const geminiService = {
     };
     const prompt = `Interpret these three Lenormand cards: ${cards.join(', ')}.
     
-    Lenormand reading rules:
-    - Card 1 is the subject.
-    - Card 2 describes Card 1.
-    - Card 3 describes the combination of 1 and 2, or shows the outcome.
-    
-    Provide three distinct variations of the interpretation:
-    1. Practical: Grounded, real-world advice or prediction.
-    2. Psychological: Focus on internal states, motivations, or mental patterns.
-    3. Spiritual: The deeper symbolic meaning or soul-level lesson.
+    Provide a simple, direct interpretation for:
+    1. Practical: Real-world advice.
+    2. Psychological: Internal state.
+    3. Spiritual: Deeper meaning.
 
-    Style: The tone should be that of the Librarian-formal, evocative, and insightful. 
-    Format: Each variation should be a single clear sentence.`;
+    Keep it very brief and clear.`;
     
     return generateJson<{ practical: string; psychological: string; spiritual: string }>(prompt, schema);
   },
@@ -763,7 +922,9 @@ export const geminiService = {
     ${history.join(', ')}
 
     TASK:
-    1. Selection: Choose an evocative, high-resonance track across any genre (indie, classical, electronic, etc.) that fits this frequency. Prioritize depth and atmosphere.
+    1. Selection: Choose an evocative, high-resonance track that fits this frequency. 
+       CRITICAL: You MUST select from a wide variety of genres (e.g., ambient, jazz, electronic, folk, classical, post-rock, experimental) and eras (1950s-2020s). 
+       DO NOT repeat genres or artists from the HISTORY provided above.
     2. Accuracy: You MUST provide a real song and its CORRECT 22-character Spotify track ID. Use Google Search to verify the ID and ensure it is not a dead link.
     3. Constraint: No interpretation or descriptive text.
     
