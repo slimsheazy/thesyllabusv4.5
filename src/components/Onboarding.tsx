@@ -214,7 +214,7 @@ export const Onboarding: React.FC = () => {
             <AnimatePresence mode="wait">
               {step === 1 && (
                 <motion.div 
-                  key="step1"
+                  key="onboarding-step-1"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -245,7 +245,7 @@ export const Onboarding: React.FC = () => {
 
               {step === 2 && (
                 <motion.div 
-                  key="step2"
+                  key="onboarding-step-2"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -310,7 +310,7 @@ export const Onboarding: React.FC = () => {
 
               {step === 3 && (
                 <motion.div 
-                  key="step3"
+                  key="onboarding-step-3"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -429,7 +429,7 @@ export const Onboarding: React.FC = () => {
 
               {step === 4 && (
                 <motion.div 
-                  key="step4"
+                  key="onboarding-step-4"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -546,9 +546,9 @@ export const Onboarding: React.FC = () => {
                 </motion.div>
               )}
 
-              {step === 4 && (
+              {step === 5 && (
                 <motion.div 
-                  key="step4"
+                  key="onboarding-step-5"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -678,7 +678,7 @@ export const Onboarding: React.FC = () => {
           </div>
 
           <footer className="flex justify-center gap-2">
-            {[1, 2, 3, 4].map((i) => (
+            {[1, 2, 3, 4, 5].map((i) => (
               <div 
                 key={i} 
                 className={`h-1 rounded-full transition-all duration-500 ${step === i ? "w-8 bg-archive-accent" : "w-2 bg-archive-line"}`} 

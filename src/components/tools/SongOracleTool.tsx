@@ -12,6 +12,7 @@ interface SongOracleData {
   spotify_id: string;
   focus_lyric: string;
   vibe_color: string;
+  verification_query: string;
 }
 
 interface SongOracleToolProps {
@@ -22,9 +23,16 @@ export const SongOracleTool: React.FC<SongOracleToolProps> = ({ onBack }) => {
   const [loading, setLoading] = useState(false);
   const [song, setSong] = useState<SongOracleData | null>(null);
   const [frequency, setFrequency] = useState<string>("Equilibrium");
-  const [history, setHistory] = useState<string[]>([]);
+  const [history, setHistory] = useState<string[]>(() => {
+    const saved = localStorage.getItem('song_oracle_history');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [isNeedleDropped, setIsNeedleDropped] = useState(false);
   const { triggerClick, triggerSuccess } = useHaptics();
+
+  useEffect(() => {
+    localStorage.setItem('song_oracle_history', JSON.stringify(history));
+  }, [history]);
 
   useEffect(() => {
     fetchFrequency();
@@ -47,6 +55,28 @@ export const SongOracleTool: React.FC<SongOracleToolProps> = ({ onBack }) => {
       setFrequency(data.frequency || "Equilibrium");
     } catch (error) {
       console.error("Failed to fetch frequency:", error);
+    }
+  };
+
+  const refreshFrequency = async () => {
+    const frequencies = [
+      "Harmonic Resonance", "Solar Flare", "Deep Sea Echo", 
+      "Lunar Cycle", "Stellar Wind", "Quantum Drift", 
+      "Atmospheric Pressure", "Magnetic North", "Equilibrium",
+      "Ethereal Flow", "Primal Pulse", "Celestial Alignment"
+    ];
+    const newFreq = frequencies[Math.floor(Math.random() * frequencies.length)];
+    
+    try {
+      await fetch('/api/frequency', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ frequency: newFreq })
+      });
+      setFrequency(newFreq);
+      triggerClick();
+    } catch (error) {
+      console.error("Failed to update frequency:", error);
     }
   };
 
@@ -81,96 +111,252 @@ export const SongOracleTool: React.FC<SongOracleToolProps> = ({ onBack }) => {
           
           {/* Frequency Display */}
           <div className="text-center space-y-4">
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center justify-center gap-4">
               <div className="w-12 h-px bg-archive-line opacity-20" />
-              <span className="text-[10px] font-mono uppercase tracking-[0.4em] opacity-40">System Resonance</span>
+              <button 
+                onClick={refreshFrequency}
+                className="group flex items-center gap-2 px-3 py-1 rounded-full border border-archive-line/10 hover:border-archive-line/30 transition-all"
+              >
+                <RotateCcw className="w-3 h-3 opacity-40 group-hover:rotate-180 transition-transform duration-500" />
+                <span className="text-[10px] font-mono uppercase tracking-[0.4em] opacity-40">System Resonance</span>
+              </button>
               <div className="w-12 h-px bg-archive-line opacity-20" />
             </div>
             <h2 className="text-4xl font-serif italic text-archive-ink tracking-tight">{frequency}</h2>
           </div>
 
-          {/* Main Action - Refined Interaction */}
+          {/* Main Action - Record Player Transformation */}
           <div className="relative">
-            <motion.button
-              onClick={handleSongPull}
-              disabled={loading}
-              className="relative group flex flex-col items-center gap-6"
+            <motion.div
+              className="relative p-12 bg-[#1a1a1a] rounded-2xl shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] border border-white/5 overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, #222 0%, #111 100%)',
+              }}
             >
-              <div className="relative w-40 h-40 flex items-center justify-center">
-                {/* Outer Ring */}
-                <div className="absolute inset-0 border border-archive-line rounded-full group-hover:scale-110 group-hover:border-archive-accent-quaternary transition-all duration-700 opacity-20" />
-                
-                {/* Surface Wobble Container */}
-                <div className="animate-surface-wobble">
-                  {/* Spinning Record/Disc */}
-                  <motion.div
-                    animate={(loading && isNeedleDropped) ? { rotate: 360 } : { rotate: 0 }}
-                    transition={(loading && isNeedleDropped) ? { repeat: Infinity, duration: 1.5, ease: "linear" } : { duration: 0.8 }}
-                    className="relative w-32 h-32 rounded-full border-2 border-archive-ink flex items-center justify-center bg-archive-ink shadow-2xl group-hover:shadow-archive-accent-quaternary/20 transition-all"
+              {/* Plinth Texture Overlay */}
+              <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ filter: 'url(#pvc-noise)' }} />
+              <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ filter: 'url(#dust-filter)' }} />
+              
+              {/* Decorative Screws/Details */}
+              <div className="absolute top-4 left-4 w-3 h-3 rounded-full bg-gradient-to-br from-[#444] to-[#111] shadow-xl border border-white/5 flex items-center justify-center">
+                <div className="w-1 h-1 rounded-full bg-white/10" />
+              </div>
+              <div className="absolute top-4 right-4 w-3 h-3 rounded-full bg-gradient-to-br from-[#444] to-[#111] shadow-xl border border-white/5 flex items-center justify-center">
+                <div className="w-1 h-1 rounded-full bg-white/10" />
+              </div>
+              <div className="absolute bottom-4 left-4 w-3 h-3 rounded-full bg-gradient-to-br from-[#444] to-[#111] shadow-xl border border-white/5 flex items-center justify-center">
+                <div className="w-1 h-1 rounded-full bg-white/10" />
+              </div>
+              <div className="absolute bottom-4 right-4 w-3 h-3 rounded-full bg-gradient-to-br from-[#444] to-[#111] shadow-xl border border-white/5 flex items-center justify-center">
+                <div className="w-1 h-1 rounded-full bg-white/10" />
+              </div>
+
+              {/* Branding / Model Plate */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/40 rounded border border-white/5">
+                <span className="text-[8px] font-mono uppercase tracking-[0.3em] text-white/20">ORACLE-MKII // ARCHIVE SERIES</span>
+              </div>
+
+              <div className="relative flex items-center gap-12">
+                {/* Platter & Record */}
+                <div className="relative">
+                  {/* Platter Shadow */}
+                  <div className="absolute inset-[-8px] rounded-full bg-black/40 blur-md" />
+                  
+                  {/* Platter (The metal part under the record) */}
+                  <div 
+                    className="absolute inset-[-4px] rounded-full border border-white/10"
+                    style={{
+                      background: 'conic-gradient(from 0deg, #333, #444, #333, #222, #333)',
+                      boxShadow: '0 4px 10px rgba(0,0,0,0.5)'
+                    }}
+                  />
+
+                  <motion.button
+                    onClick={handleSongPull}
+                    disabled={loading}
+                    className="relative group block"
                   >
-                    {/* Texture Layer */}
-                    <svg className="absolute inset-0 w-full h-full rounded-full">
-                      <defs>
-                        <filter id="noise">
-                          <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
-                          <feColorMatrix type="saturate" values="0"/>
-                        </filter>
-                      </defs>
-                      <circle cx="50%" cy="50%" r="50%" filter="url(#noise)" opacity="0.1"/>
-                    </svg>
+                    <div className="relative w-64 h-64 flex items-center justify-center">
+                      {/* Spinning Record/Disc */}
+                      <motion.div
+                        animate={(loading && isNeedleDropped) ? { rotate: 360 } : { rotate: 0 }}
+                        transition={(loading && isNeedleDropped) ? { repeat: Infinity, duration: 1.8, ease: "linear" } : { duration: 1.2, ease: "circOut" }}
+                        className="relative w-60 h-60 rounded-full flex items-center justify-center shadow-2xl transition-all"
+                        style={{
+                          background: `
+                            repeating-radial-gradient(circle at center, #111 0px, #111 0.5px, #1a1a1a 1px),
+                            radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%)
+                          `,
+                          boxShadow: 'inset 0 0 60px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.1)'
+                        }}
+                      >
+                        {/* Track Variation Grooves */}
+                        <div className="absolute inset-0 rounded-full opacity-20" style={{
+                          background: 'repeating-radial-gradient(circle at center, transparent 0px, transparent 10px, rgba(255,255,255,0.05) 10.5px, transparent 11px)'
+                        }} />
+                        {/* SVG Filters */}
+                        <svg className="absolute inset-0 w-full h-full rounded-full pointer-events-none">
+                          <defs>
+                            <filter id="pvc-noise">
+                              <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" result="noise"/>
+                              <feColorMatrix in="noise" type="saturate" values="0" result="desaturated"/>
+                              <feComponentTransfer in="desaturated" result="transferred">
+                                <feFuncA type="linear" slope="0.08"/>
+                              </feComponentTransfer>
+                              <feComposite in="transferred" in2="SourceAlpha" operator="in"/>
+                            </filter>
+                            <filter id="paper-texture">
+                              <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch" result="noise"/>
+                              <feDiffuseLighting in="noise" lightingColor="#f5f5f0" surfaceScale="1.5" result="diffuse">
+                                <feDistantLight azimuth="45" elevation="55"/>
+                              </feDiffuseLighting>
+                              <feComposite in="diffuse" in2="SourceAlpha" operator="in"/>
+                            </filter>
+                            <filter id="dust-filter">
+                              <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" result="noise"/>
+                              <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.05 0" result="colored"/>
+                              <feComposite in="colored" in2="SourceAlpha" operator="in"/>
+                            </filter>
+                            <radialGradient id="groove-gradient" cx="50%" cy="50%" r="50%">
+                              <stop offset="0%" stopColor="#111" />
+                              <stop offset="100%" stopColor="#1a1a1a" />
+                            </radialGradient>
+                          </defs>
+                          <circle cx="50%" cy="50%" r="50%" filter="url(#pvc-noise)" opacity="1"/>
+                          <circle cx="50%" cy="50%" r="50%" filter="url(#dust-filter)" opacity="0.3"/>
+                          {/* Label Background with Paper Texture */}
+                          <circle cx="50%" cy="50%" r="40" fill="#E4E3E0" filter="url(#paper-texture)" />
+                          {/* Rim Light */}
+                          <circle cx="50%" cy="50%" r="49.5%" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="0.5" />
+                        </svg>
 
-                    {/* Dynamic Light Refraction */}
-                    <div 
-                      className="absolute inset-0 rounded-full animate-spin [animation-duration:10s] opacity-20"
-                      style={{
-                        background: "conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.3) 45deg, transparent 90deg, rgba(255,255,255,0.3) 135deg, transparent 180deg)",
-                        mixBlendMode: "screen"
-                      }}
-                    />
+                        {/* Reflections */}
+                        <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
+                          {/* Primary Sharp 'V' Reflection - rotates 2s slower than record */}
+                          <motion.div 
+                            className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent mix-blend-soft-light"
+                            animate={(loading && isNeedleDropped) ? { rotate: 360 } : { rotate: 0 }}
+                            transition={(loading && isNeedleDropped) ? { repeat: Infinity, duration: 3.8, ease: "linear" } : { duration: 1.2 }}
+                            style={{ clipPath: 'polygon(50% 50%, 40% 0%, 60% 0%)' }}
+                          />
+                          {/* Secondary Soft Reflection */}
+                          <motion.div 
+                            className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent mix-blend-soft-light"
+                            animate={(loading && isNeedleDropped) ? { rotate: -360 } : { rotate: 0 }}
+                            transition={(loading && isNeedleDropped) ? { repeat: Infinity, duration: 8, ease: "linear" } : { duration: 1.2 }}
+                            style={{ clipPath: 'polygon(50% 50%, 30% 100%, 70% 100%)' }}
+                          />
+                          {/* Static Ambient Highlight */}
+                          <div className="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-white/5 mix-blend-overlay" />
+                        </div>
 
-                    <div className="absolute inset-2 border border-archive-bg/10 rounded-full" />
-                    <div className="absolute inset-4 border border-archive-bg/5 rounded-full" />
-                    <div className="w-8 h-8 rounded-full bg-archive-bg flex items-center justify-center">
-                      <div className="w-2 h-2 rounded-full bg-archive-ink" />
+                        {/* Rim Light / Edge Highlight */}
+                        <div className="absolute inset-0 rounded-full border border-white/10 shadow-[inset_0_0_2px_rgba(255,255,255,0.2)]" />
+
+                        {/* Center Label */}
+                        <div 
+                          className="w-20 h-20 rounded-full flex flex-col items-center justify-center shadow-inner relative overflow-hidden"
+                          style={{
+                            boxShadow: 'inset 0 0 20px rgba(0,0,0,0.4), 0 0 5px rgba(0,0,0,0.2)'
+                          }}
+                        >
+                          <div className="absolute inset-0 opacity-15 bg-archive-accent-quaternary mix-blend-multiply" />
+                          <div className="relative z-10 flex flex-col items-center">
+                            <div className="w-5 h-5 rounded-full bg-archive-ink/90 mb-1 shadow-inner flex items-center justify-center">
+                              <div className="w-1 h-1 rounded-full bg-white/20" />
+                            </div>
+                            <span className="text-[7px] font-mono uppercase tracking-tighter text-archive-ink/60 font-bold">The Syllabus</span>
+                            <span className="text-[5px] font-mono uppercase tracking-[0.2em] text-archive-ink/40">Archive Master</span>
+                          </div>
+                        </div>
+                        
+                        {loading && !isNeedleDropped && (
+                          <Loader2 className="absolute text-archive-bg/10 animate-spin w-12 h-12" />
+                        )}
+                      </motion.div>
                     </div>
-                    
-                    {loading ? (
-                      <Loader2 className="absolute text-archive-bg/20 animate-spin w-10 h-10" />
-                    ) : (
-                      <Disc className="absolute text-archive-bg/20 group-hover:text-archive-accent-quaternary/40 transition-colors w-10 h-10" />
-                    )}
-                  </motion.div>
+                  </motion.button>
                 </div>
 
-                {/* Stylus/Needle - More realistic animation */}
-                <motion.div 
-                  className="absolute -top-6 -right-6 w-24 h-24 pointer-events-none origin-top-right"
-                  initial={{ rotate: -45 }}
-                  animate={loading ? { rotate: 0 } : { rotate: -45 }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 100, 
-                    damping: 10,
-                    restDelta: 0.001
-                  }}
-                  style={{
-                    filter: loading ? "drop-shadow(0 10px 10px rgba(0,0,0,0.5))" : "drop-shadow(0 2px 2px rgba(0,0,0,0.2))"
-                  }}
-                >
-                  <div className="absolute top-0 right-0 w-2 h-2 bg-archive-line rounded-full" />
-                  <div className="w-1 h-20 bg-archive-accent-quaternary origin-top transform rotate-[25deg] rounded-full shadow-lg relative">
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3 h-4 bg-archive-ink rounded-sm border border-archive-line/20" />
-                  </div>
-                </motion.div>
-              </div>
+                {/* Tone Arm & Controls Section */}
+                <div className="flex flex-col justify-between h-64 py-4">
+                  {/* Tone Arm Assembly */}
+                  <div className="relative w-32 h-32">
+                    {/* Tone Arm Base */}
+                    <div className="absolute top-0 right-0 w-16 h-16 rounded-full bg-[#222] border border-white/10 shadow-xl flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#333] to-[#111] border border-white/5 shadow-inner" />
+                      <div className="absolute w-4 h-4 rounded-full bg-[#444] shadow-lg" />
+                    </div>
 
-              <div className="flex flex-col items-center gap-2">
-                <span className="text-[11px] font-mono uppercase tracking-[0.3em] text-archive-ink opacity-60 group-hover:opacity-100 transition-opacity">
-                  {loading ? "Tuning..." : "Drop the Needle"}
-                </span>
-                <div className="w-1 h-1 bg-archive-accent-quaternary rounded-full group-hover:scale-150 transition-transform" />
+                    {/* Tone Arm */}
+                    <motion.div 
+                      className="absolute top-8 right-8 w-48 h-4 pointer-events-none origin-right z-20"
+                      initial={{ rotate: -35 }}
+                      animate={loading ? { rotate: 0 } : { rotate: -35 }}
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 35, 
+                        damping: 15,
+                        delay: loading ? 0 : 0.5
+                      }}
+                    >
+                      {/* Main Arm Tube with realistic metallic gradient */}
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-full h-2.5 bg-gradient-to-b from-[#999] via-[#eee] to-[#777] rounded-full shadow-lg border-t border-white/20" />
+                      
+                      {/* Headshell & Cartridge */}
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center">
+                        <div className="w-12 h-7 bg-[#111] rounded-sm border border-white/10 shadow-xl relative transform -rotate-12 flex items-center justify-center">
+                          {/* Stylus / Needle */}
+                          <div className="absolute -bottom-2 left-3 w-0.5 h-3 bg-gradient-to-b from-[#888] to-transparent transform rotate-15" />
+                          <div className="w-8 h-4 bg-[#222] rounded-sm border border-white/5 shadow-inner" />
+                          <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-red-600/60 shadow-[0_0_5px_rgba(220,38,38,0.5)]" />
+                        </div>
+                      </div>
+
+                      {/* Counterweight with realistic texture */}
+                      <div className="absolute -right-6 top-1/2 -translate-y-1/2 w-10 h-8 bg-gradient-to-br from-[#444] to-[#222] rounded-sm border border-white/10 shadow-xl flex items-center justify-center">
+                        <div className="w-full h-px bg-white/5" />
+                      </div>
+                    </motion.div>
+                  </div>
+
+                  {/* Controls */}
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                      <div className="space-y-1">
+                        <div className="text-[8px] font-mono uppercase opacity-30">Speed</div>
+                        <div className="flex gap-1">
+                          {['33', '45'].map(s => (
+                            <div key={s} className={`w-6 h-4 rounded-sm border border-white/10 flex items-center justify-center text-[8px] font-mono ${s === '33' ? 'bg-archive-accent-quaternary text-archive-ink' : 'bg-black/40 text-white/20'}`}>
+                              {s}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="w-px h-8 bg-white/10" />
+                      <div className="space-y-1">
+                        <div className="text-[8px] font-mono uppercase opacity-30">Power</div>
+                        <div className={`w-4 h-4 rounded-full border border-white/10 shadow-inner ${loading ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-red-500/20'}`} />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-white/40">
+                        {loading ? "System Engaged" : "Ready for Signal"}
+                      </span>
+                      <div className="h-1 w-full bg-black/40 rounded-full overflow-hidden">
+                        <motion.div 
+                          className="h-full bg-archive-accent-quaternary"
+                          initial={{ width: 0 }}
+                          animate={loading ? { width: '100%' } : { width: 0 }}
+                          transition={{ duration: 2 }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </motion.button>
+            </motion.div>
           </div>
 
           {/* Result Display */}
@@ -237,7 +423,7 @@ export const SongOracleTool: React.FC<SongOracleToolProps> = ({ onBack }) => {
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-px bg-archive-line opacity-20" />
                       </div>
 
-                      <div className="pt-4">
+                      <div className="pt-4 flex flex-col items-center gap-4">
                         <a
                           href={`https://open.spotify.com/track/${song.spotify_id}`}
                           target="_blank"
@@ -248,6 +434,14 @@ export const SongOracleTool: React.FC<SongOracleToolProps> = ({ onBack }) => {
                           Open in Spotify
                           <ExternalLink className="opacity-50 w-3 h-3" />
                         </a>
+                        
+                        <button
+                          onClick={handleSongPull}
+                          className="text-[9px] font-mono uppercase tracking-[0.2em] opacity-40 hover:opacity-100 transition-opacity flex items-center gap-2"
+                        >
+                          <RotateCcw className="w-3 h-3" />
+                          Wrong song? Pull again
+                        </button>
                       </div>
                     </div>
                   </div>

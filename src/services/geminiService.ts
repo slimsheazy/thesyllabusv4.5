@@ -903,6 +903,7 @@ export const geminiService = {
     spotify_id: string;
     focus_lyric: string;
     vibe_color: string;
+    verification_query: string;
   }> => {
     const schema = {
       type: Type.OBJECT,
@@ -911,9 +912,10 @@ export const geminiService = {
         artist: { type: Type.STRING },
         spotify_id: { type: Type.STRING, description: "A valid 22-character Spotify track ID. MUST be accurate." },
         focus_lyric: { type: Type.STRING },
-        vibe_color: { type: Type.STRING, description: "A hex color code representing the song's vibe." }
+        vibe_color: { type: Type.STRING, description: "A hex color code representing the song's vibe." },
+        verification_query: { type: Type.STRING, description: "The exact search query used to find this Spotify ID." }
       },
-      required: ["song_title", "artist", "spotify_id", "focus_lyric", "vibe_color"]
+      required: ["song_title", "artist", "spotify_id", "focus_lyric", "vibe_color", "verification_query"]
     };
 
     const prompt = `Perform a "Song Pull" based on the current energetic frequency: "${context}".
@@ -923,13 +925,19 @@ export const geminiService = {
 
     TASK:
     1. Selection: Choose an evocative, high-resonance track that fits this frequency. 
-       CRITICAL: You MUST select from a wide variety of genres (e.g., ambient, jazz, electronic, folk, classical, post-rock, experimental) and eras (1950s-2020s). 
-       DO NOT repeat genres or artists from the HISTORY provided above.
-    2. Accuracy: You MUST provide a real song and its CORRECT 22-character Spotify track ID. Use Google Search to verify the ID and ensure it is not a dead link.
-    3. Constraint: No interpretation or descriptive text.
+       CRITICAL: You MUST select from a wide variety of genres (e.g., ambient, jazz, electronic, folk, classical, post-rock, experimental, world music, synthwave, shoegaze, neo-soul) and eras (1950s-2020s). 
+       DO NOT repeat genres, artists, or songs from the HISTORY provided above.
+       PRIORITIZE: Deep cuts, indie gems, and culturally diverse tracks over mainstream hits.
+    2. Verification: You MUST use Google Search to find the EXACT 22-character Spotify track ID for the specific song and artist you chose.
+       CRITICAL: The Spotify ID returned MUST correspond to the 'song_title' and 'artist' fields. 
+       DO NOT return an ID for a different song. 
+       DO NOT return a playlist ID or an album ID. It MUST be a track ID.
+       The Spotify ID is a 22-character alphanumeric string (e.g., 4cOdOD6kSfwuY0Yp7df3bd).
+    3. Accuracy: If you cannot find the exact ID, select a different song that you CAN find the ID for. 
+       NEVER hallucinate an ID.
     
     Format: Return ONLY the specified JSON structure.`;
 
-    return generateJson(prompt, schema, "gemini-3-flash-preview", SYSTEM_INSTRUCTION, [{ googleSearch: {} }]);
+    return generateJson(prompt, schema, "gemini-3.1-pro-preview", SYSTEM_INSTRUCTION, [{ googleSearch: {} }]);
   }
 };
